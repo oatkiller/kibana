@@ -26,8 +26,8 @@ export class EndpointPlugin
     > {
   public setup() {}
 
-  public start(_core: CoreStart, plugins: EndpointPluginStartDependencies) {
-    const resolverEmbeddableFactory = new ResolverEmbeddableFactory();
+  public start(core: CoreStart, plugins: EndpointPluginStartDependencies) {
+    const resolverEmbeddableFactory = new ResolverEmbeddableFactory(core.http);
     plugins.embeddable.registerEmbeddableFactory(
       resolverEmbeddableFactory.type,
       resolverEmbeddableFactory
