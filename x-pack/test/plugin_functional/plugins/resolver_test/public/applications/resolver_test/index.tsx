@@ -10,6 +10,7 @@ import { AppMountParameters } from 'kibana/public';
 import { I18nProvider } from '@kbn/i18n/react';
 import { IEmbeddable } from 'src/plugins/embeddable/public';
 import { useEffect } from 'react';
+import styled from 'styled-components';
 
 /**
  * This module will be loaded asynchronously to reduce the bundle size of your plugin's main bundle.
@@ -18,6 +19,12 @@ export function renderApp(
   { element }: AppMountParameters,
   embeddable: Promise<IEmbeddable | undefined>
 ) {
+  const [, { element }, embeddable] = args;
+
+  // TODO, is this right?
+  element.style.display = 'flex';
+  element.style.flexGrow = '1';
+
   ReactDOM.render(
     <I18nProvider>
       <AppRoot embeddable={embeddable} />
@@ -30,34 +37,57 @@ export function renderApp(
   };
 }
 
+/*
 const AppRoot: React.FC<{
   embeddable: Promise<IEmbeddable | undefined>;
-}> = React.memo(({ embeddable: embeddablePromise }) => {
-  const [embeddable, setEmbeddable] = React.useState<IEmbeddable | undefined>(undefined);
-  const [renderTarget, setRenderTarget] = React.useState<HTMLDivElement | null>(null);
+}> = 
+ */
 
-  useEffect(() => {
-    let reject;
-    Promise.race([
-      new Promise<never>((...args) => {
-        reject = args[1];
-      }),
-      embeddablePromise,
-    ]).then(value => {
-      setEmbeddable(value);
-    });
+const AppRoot = styled(
+  React.memo(
+    ({
+      embeddable: embeddablePromise,
+      className,
+    }: {
+      embeddable: Promise<IEmbeddable | undefined>;
+      className?: string;
+    }) => {
+      const [embeddable, setEmbeddable] = React.useState<IEmbeddable | undefined>(undefined);
+      const [renderTarget, setRenderTarget] = React.useState<HTMLDivElement | null>(null);
 
-    return reject;
-  }, [embeddablePromise]);
+      useEffect(() => {
+        let reject;
+        Promise.race([
+          new Promise<never>((...args) => {
+            reject = args[1];
+          }),
+          embeddablePromise,
+        ]).then(value => {
+          setEmbeddable(value);
+        });
 
-  useEffect(() => {
-    if (embeddable && renderTarget) {
-      embeddable.render(renderTarget);
-      return () => {
-        embeddable.destroy();
-      };
+        return reject;
+      }, [embeddablePromise]);
+
+      useEffect(() => {
+        if (embeddable && renderTarget) {
+          embeddable.render(renderTarget);
+          return () => {
+            embeddable.destroy();
+          };
+        }
+      }, [embeddable, renderTarget]);
+
+      return (
+        <div
+          className={className}
+          data-test-subj="resolverEmbeddableContainer"
+          ref={setRenderTarget}
+        />
+      );
     }
-  }, [embeddable, renderTarget]);
-
-  return <div data-test-subj="resolverEmbeddableContainer" ref={setRenderTarget} />;
-});
+  )
+)`
+  display: flex;
+  flex-grow: 1;
+`;
