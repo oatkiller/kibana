@@ -19,8 +19,6 @@ export function renderApp(
   { element }: AppMountParameters,
   embeddable: Promise<IEmbeddable | undefined>
 ) {
-  const [, { element }, embeddable] = args;
-
   // TODO, is this right?
   element.style.display = 'flex';
   element.style.flexGrow = '1';
