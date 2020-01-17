@@ -6,10 +6,10 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useCameraSelector } from './use_selectors';
 import { applyMatrix3, distance, angle } from '../lib/vector2';
 import { Vector2 } from '../types';
-import * as selectors from '../store/selectors';
+import * as selectors from '../store/camera/selectors';
 
 /**
  * A placeholder line segment view that connects process nodes.
@@ -38,7 +38,7 @@ export const EdgeLine = styled(
        * Convert the start and end positions, which are in 'world' coordinates,
        * to `left` and `top` css values.
        */
-      const projectionMatrix = useSelector(selectors.projectionMatrix);
+      const projectionMatrix = useCameraSelector(selectors.projectionMatrix);
       const screenStart = applyMatrix3(startPosition, projectionMatrix);
       const screenEnd = applyMatrix3(endPosition, projectionMatrix);
 

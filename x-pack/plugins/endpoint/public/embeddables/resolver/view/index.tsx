@@ -6,11 +6,12 @@
 
 import React from 'react';
 import { Store } from 'redux';
-import { Provider, useSelector } from 'react-redux';
+import { Provider } from 'react-redux';
 import styled from 'styled-components';
+import { useDataSelector } from './use_selectors';
+import { processNodePositionsAndEdgeLineSegments } from '../store/data/selectors';
 import { useCamera } from './use_camera';
 import { ResolverState, ResolverAction } from '../types';
-import * as selectors from '../store/selectors';
 import { ProcessEventDot } from './process_event_dot';
 import { EdgeLine } from './edge_line';
 
@@ -24,8 +25,8 @@ export const AppRoot = React.memo(({ store }: { store: Store<ResolverState, Reso
 
 const Resolver = styled(
   React.memo(({ className }: { className?: string }) => {
-    const { processNodePositions, edgeLineSegments } = useSelector(
-      selectors.processNodePositionsAndEdgeLineSegments
+    const { processNodePositions, edgeLineSegments } = useDataSelector(
+      processNodePositionsAndEdgeLineSegments
     );
 
     return (

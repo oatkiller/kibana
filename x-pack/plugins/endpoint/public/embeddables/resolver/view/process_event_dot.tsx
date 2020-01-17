@@ -6,10 +6,10 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useCameraSelector } from './use_selectors';
 import { applyMatrix3 } from '../lib/vector2';
 import { Vector2, ProcessEvent } from '../types';
-import * as selectors from '../store/selectors';
+import { projectionMatrix } from '../store/camera/selectors';
 
 /**
  * A placeholder view for a process node.
@@ -37,8 +37,7 @@ export const ProcessEventDot = styled(
       /**
        * Convert the position, which is in 'world' coordinates, to screen coordinates.
        */
-      const projectionMatrix = useSelector(selectors.projectionMatrix);
-      const [left, top] = applyMatrix3(position, projectionMatrix);
+      const [left, top] = applyMatrix3(position, useCameraSelector(projectionMatrix));
       const style = {
         left: (left - 20).toString() + 'px',
         top: (top - 20).toString() + 'px',

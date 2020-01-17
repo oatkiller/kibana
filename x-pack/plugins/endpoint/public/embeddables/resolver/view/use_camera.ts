@@ -4,9 +4,10 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 import React, { useCallback, useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { useCameraSelector } from './use_selectors';
+import { userIsPanning } from '../store/camera/selectors';
 import { ResolverAction } from '../types';
-import * as selectors from '../store/selectors';
 import { useAutoUpdatingClientRect } from './use_autoupdating_client_rect';
 import { useNonPassiveWheelHandler } from './use_nonpassive_wheel_handler';
 
@@ -18,7 +19,7 @@ export function useCamera(): {
 
   const [ref, setRef] = useState<null | HTMLDivElement>(null);
 
-  const userIsPanning = useSelector(selectors.userIsPanning);
+  const isUserPanning = useCameraSelector(userIsPanning);
 
   const [elementBoundingClientRect, clientRectCallback] = useAutoUpdatingClientRect();
 
@@ -71,12 +72,12 @@ export function useCamera(): {
   );
 
   const handleMouseUp = useCallback(() => {
-    if (userIsPanning) {
+    if (isUserPanning) {
       dispatch({
         type: 'userStoppedPanning',
       });
     }
-  }, [dispatch, userIsPanning]);
+  }, [dispatch, isUserPanning]);
 
   const handleWheel = useCallback(
     (event: WheelEvent) => {
