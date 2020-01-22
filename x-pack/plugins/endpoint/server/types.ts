@@ -52,27 +52,3 @@ export interface EndpointData {
     };
   };
 }
-
-export interface AlertData {
-  endgame: {
-    data: {
-      file_operation: string;
-      malware_classification: {
-        score: number;
-      };
-    };
-    metadata: {
-      key: string;
-    };
-    timestamp_utc: Date;
-  };
-  host: {
-    hostname: string;
-    ip: string;
-    os: {
-      name: string; // TODO Union types?
-      platform: string;
-      version: string;
-    };
-  };
-}
