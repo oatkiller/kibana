@@ -11,8 +11,8 @@ import { I18nProvider, FormattedMessage } from '@kbn/i18n/react';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
+import { EndpointList } from './components/management';
 import { appStoreFactory } from './store';
-import { EndpointList } from './management';
 
 /**
  * This module will be loaded asynchronously to reduce the bundle size of your plugin's main bundle.
