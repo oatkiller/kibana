@@ -10,6 +10,7 @@ import { AlertData } from '../../../../../endpoint_app_types';
 import { GlobalState } from '../reducer';
 import { AppAction } from '../action';
 
+// TODO, move this somewhere
 type MiddlewareFactory = (
   coreStart: CoreStart
 ) => (
