@@ -28,5 +28,14 @@ export const endpointListReducer = (state = initialState(), action: EndpointList
     return initialState();
   }
 
+  if (action.type === 'userPaginatedEndpointListTable') {
+    const { pageIndex, pageSize } = action.payload;
+    return {
+      ...state,
+      request_page_size: pageSize,
+      request_index: pageIndex,
+    };
+  }
+
   return state;
 };
