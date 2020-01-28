@@ -11,7 +11,7 @@ const initialState = (): EndpointListState => {
   return {
     endpoints: [],
     request_page_size: 10,
-    request_index: 0,
+    request_page_index: 0,
     total: 0,
   };
 };
@@ -33,7 +33,7 @@ export const endpointListReducer = (state = initialState(), action: EndpointList
     return {
       ...state,
       request_page_size: pageSize,
-      request_index: pageIndex,
+      request_page_index: pageIndex,
     };
   }
 
