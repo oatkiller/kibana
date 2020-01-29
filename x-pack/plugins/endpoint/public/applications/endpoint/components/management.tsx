@@ -34,6 +34,7 @@ export const EndpointList = () => {
   const pageSize = useEndpointListSelector(endpointListPageSize);
   const totalItemCount = useEndpointListSelector(endpointTotalHits);
 
+  // TODO use useMemo
   const paginationSetup = {
     pageIndex,
     pageSize,
@@ -42,6 +43,7 @@ export const EndpointList = () => {
     hidePerPageOptions: false,
   };
 
+  // Use useCallback
   const onTableChange = ({ page }: { page: { index: number; size: number } }) => {
     const { index, size } = page;
     dispatch({
@@ -50,52 +52,70 @@ export const EndpointList = () => {
     });
   };
 
+  // TODO use useMemo
   const columns = [
     {
       field: 'host.hostname',
+      // TODO intl
       name: 'Host',
     },
     {
       field: 'host.os.name',
+      // TODO intl
       name: 'Operating System',
     },
     {
       field: 'endpoint.policy.name',
+      // TODO intl
       name: 'Policy',
     },
     {
       field: 'host.hostname',
+      // TODO intl
       name: 'Policy Status',
       render: () => {
+        // TODO intl
+        // TODO dont use span for no reason?
         return <span>Policy Status</span>;
       },
     },
     {
       field: 'endpoint',
+      // TODO intl
       name: 'Alerts',
       render: () => {
+        // TODO intl
+        // TODO dont use span for no reason?
         return <span>0</span>;
       },
     },
     {
       field: 'endpoint.domain',
+      // TODO intl
       name: 'Domain',
     },
     {
       field: 'host.ip',
+      // TODO intl
       name: 'IP Address',
     },
     {
       field: 'endpoint.sensor',
+      // TODO intl
       name: 'Sensor Version',
       render: () => {
+        // TODO intl
+        // TODO dont use span for no reason?
         return <span>version</span>;
       },
     },
     {
       field: 'host.hostname',
+      // TODO intl
       name: 'Last Active',
       render: () => {
+        // TODO intl
+        // TODO dont use span for no reason?
         return <span>xxxx</span>;
       },
     },
@@ -107,6 +127,7 @@ export const EndpointList = () => {
         <EuiPageHeader>
           <EuiPageHeaderSection>
             <EuiTitle size="xs">
+              {/* TODO intl */}
               <h1>Endpoints</h1>
             </EuiTitle>
           </EuiPageHeaderSection>
@@ -115,6 +136,7 @@ export const EndpointList = () => {
           <EuiPageContentHeader>
             <EuiPageContentHeaderSection>
               <EuiTitle>
+                {/* TODO intl */}
                 <h2>Hosts</h2>
               </EuiTitle>
             </EuiPageContentHeaderSection>

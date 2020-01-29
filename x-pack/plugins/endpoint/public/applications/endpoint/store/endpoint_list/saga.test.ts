@@ -26,6 +26,7 @@ describe('endpoint list saga', () => {
   let dispatch: Dispatch<EndpointListAction>;
   let stopSagas: () => void;
 
+  // TODO, remove TODO comment. These should never be committed to master.
   // TODO: consolidate the below ++ helpers in `index.test.ts` into a `test_helpers.ts`??
   const generateEndpoint = (): EndpointData => {
     return {
@@ -79,10 +80,11 @@ describe('endpoint list saga', () => {
 
   const endpointListSagaFactory = () => {
     return async (sagaContext: SagaContext) => {
-      await endpointListSaga(sagaContext, fakeCoreStart).catch((e: Error) => {
+      await endpointListSaga(sagaContext, fakeCoreStart).catch((error: Error) => {
+        // TODO remove or explain
         // eslint-disable-next-line no-console
-        console.error(e);
-        return Promise.reject(e);
+        console.error(error);
+        return Promise.reject(error);
       });
     };
   };
@@ -110,6 +112,8 @@ describe('endpoint list saga', () => {
     expect(fakeHttpServices.post).not.toHaveBeenCalled();
 
     dispatch({ type: 'userEnteredEndpointListPage' });
+
+    // TODO remove or explain
     await sleep();
 
     expect(fakeHttpServices.post).toHaveBeenCalledWith('/api/endpoint/endpoints');
