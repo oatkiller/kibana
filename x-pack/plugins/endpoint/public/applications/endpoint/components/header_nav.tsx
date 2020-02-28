@@ -4,11 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import React, { MouseEvent } from 'react';
+import React from 'react';
 import { i18n } from '@kbn/i18n';
 import styled from 'styled-components';
 import { EuiTabs, EuiTab } from '@elastic/eui';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useReactRouterLinkProps } from '../view/use_react_router_link_props';
 
 export interface NavTabs {
   name: string;
@@ -55,8 +56,8 @@ const Tabs = styled(EuiTabs)`
 `;
 
 export const HeaderNavigation: React.FunctionComponent = React.memo(() => {
-  const history = useHistory();
   const location = useLocation();
+  const { onClick } = useReactRouterLinkProps();
 
   function renderNavTabs(tabs: NavTabs[]) {
     return tabs.map((tab, index) => {
@@ -66,14 +67,10 @@ export const HeaderNavigation: React.FunctionComponent = React.memo(() => {
           data-test-subj={`${tab.id}EndpointTab`}
           key={index}
           href={`/app/endpoint${tab.href}`}
-          onClick={(even: MouseEvent) => {
-            event.preventDefault();
-            history.push(tab.href);
-          }}
+          onClick={onClick}
           isSelected={tab.href === location.pathname}
         >
-                    {tab.name}
-                  
+          {tab.name}
         </EuiTab>
       );
     });
