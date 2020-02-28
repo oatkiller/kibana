@@ -19,6 +19,7 @@ describe('policy list store concerns', () => {
   let store: Store<PolicyListState>;
   let getState: typeof store['getState'];
   let dispatch: Dispatch<AppAction>;
+  let actionWasDispatched: () => Promise<never>;
 
   beforeEach(() => {
     fakeCoreStart = coreMock.createStart({ basePath: '/mock' });
@@ -26,6 +27,14 @@ describe('policy list store concerns', () => {
       policyListReducer,
       applyMiddleware(policyListMiddlewareFactory(fakeCoreStart))
     );
+    actionWasDispatched = async () => {
+      return new Promise(resolve => {
+        const unsubscribe = store.subscribe(() => {
+          unsubscribe();
+          resolve();
+        });
+      });
+    };
     getState = store.getState;
     dispatch = store.dispatch;
   });
@@ -34,7 +43,7 @@ describe('policy list store concerns', () => {
     expect(selectIsLoading(getState())).toBe(false);
     dispatch({ type: 'userNavigatedToPage', payload: 'policyListPage' });
     expect(selectIsLoading(getState())).toBe(true);
-    await sleep();
+    await actionWasDispatched();
     expect(selectIsLoading(getState())).toBe(false);
   });
 
@@ -48,7 +57,7 @@ describe('policy list store concerns', () => {
       },
     });
     expect(selectIsLoading(getState())).toBe(true);
-    await sleep();
+    await actionWasDispatched();
     expect(selectIsLoading(getState())).toBe(false);
   });
 
