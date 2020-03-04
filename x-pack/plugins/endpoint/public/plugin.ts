@@ -8,6 +8,13 @@ import { Plugin, CoreSetup, AppMountParameters, CoreStart } from 'kibana/public'
 import { IEmbeddableSetup } from 'src/plugins/embeddable/public';
 import { i18n } from '@kbn/i18n';
 import { ResolverEmbeddableFactory } from './embeddables/resolver';
+import { MySchema } from './uses_joi';
+
+// The browser is g2g
+const num: MySchema = 1;
+/* eslint-disable no-console */
+console.log('my schema is good', num);
+/* eslint-enable no-console */
 
 export type EndpointPluginStart = void;
 export type EndpointPluginSetup = void;
