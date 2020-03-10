@@ -8,20 +8,16 @@ import { createStore, Dispatch, Store } from 'redux';
 import { HostAction, hostListReducer } from './index';
 import { HostListState } from '../../types';
 import { listData } from './selectors';
-import { EndpointDocGenerator } from '../../../../../common/generate_data';
 import { mockHostResultList } from './mock_host_result_list';
 
 describe('HostList store concerns', () => {
   let store: Store<HostListState>;
   let dispatch: Dispatch<HostAction>;
-  const generator = new EndpointDocGenerator();
   const createTestStore = () => {
     store = createStore(hostListReducer);
     dispatch = store.dispatch;
   };
-  const generateEndpoint = (): EndpointMetadata => {
-    return generator.generateEndpointMetadata(new Date().getTime());
-  };
+
   const loadDataToStore = () => {
     dispatch({
       type: 'serverReturnedHostList',

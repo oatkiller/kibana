@@ -10,7 +10,6 @@ import { History, createBrowserHistory } from 'history';
 import { hostListReducer, hostMiddlewareFactory } from './index';
 import { EndpointResultList } from '../../../../../common/types';
 import { HostListState } from '../../types';
-import { EndpointDocGenerator } from '../../../../../common/generate_data';
 import { AppAction } from '../action';
 import { listData } from './selectors';
 import { DepsStartMock, depsStartMock } from '../../mocks';
@@ -24,12 +23,6 @@ describe('endpoint list saga', () => {
   let store: Store<HostListState>;
   let getState: typeof store['getState'];
   let dispatch: Dispatch<AppAction>;
-
-  const generator = new EndpointDocGenerator();
-  // https://github.com/elastic/endpoint-app-team/issues/131
-  const generateEndpoint = (): EndpointMetadata => {
-    return generator.generateEndpointMetadata(new Date().getTime());
-  };
 
   let history: History<never>;
   const getEndpointListApiResponse = (): EndpointResultList => {
