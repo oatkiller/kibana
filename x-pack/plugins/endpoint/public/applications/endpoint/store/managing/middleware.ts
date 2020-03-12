@@ -14,6 +14,7 @@ import {
 } from './selectors';
 import { ManagementListState } from '../../types';
 import { AppAction } from '../action';
+import { MetadataIndexGetBodyInput } from '../../../../../common/types';
 
 export const managementMiddlewareFactory: MiddlewareFactory<ManagementListState> = coreStart => {
   return ({ getState, dispatch }) => next => async (action: AppAction) => {
@@ -27,13 +28,11 @@ export const managementMiddlewareFactory: MiddlewareFactory<ManagementListState>
     ) {
       const managementPageIndex = pageIndex(state);
       const managementPageSize = pageSize(state);
+      const body: MetadataIndexGetBodyInput = {
+        paging_properties: [{ page_index: managementPageIndex }, { page_size: managementPageSize }],
+      };
       const response = await coreStart.http.post('/api/endpoint/metadata', {
-        body: JSON.stringify({
-          paging_properties: [
-            { page_index: managementPageIndex },
-            { page_size: managementPageSize },
-          ],
-        }),
+        body: JSON.stringify(body),
       });
       response.request_page_index = managementPageIndex;
       dispatch({

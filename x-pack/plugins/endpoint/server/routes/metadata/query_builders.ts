@@ -4,14 +4,19 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 import { KibanaRequest } from 'kibana/server';
-import { EndpointAppConstants } from '../../../common/types';
+import { EndpointAppConstants, MetadataIndexGetBodyResult } from '../../../common/types';
 import { EndpointAppContext } from '../../types';
 import { esKuery } from '../../../../../../src/plugins/data/server';
 
+/**
+ * Takes the POST body from the metadata index API.
+ * Returns the client params for an Elasticsearch query.
+ * Documents used in the 'host' UI
+ */
 export const kibanaRequestToMetadataListESQuery = async (
-  request: KibanaRequest<any, any, any>,
+  request: KibanaRequest<unknown, unknown, MetadataIndexGetBodyResult>,
   endpointAppContext: EndpointAppContext
-): Promise<Record<string, any>> => {
+): Promise<Record<string, unknown> & { size: number; from: number }> => {
   const pagingProperties = await getPagingProperties(request, endpointAppContext);
   return {
     body: {
@@ -46,27 +51,31 @@ export const kibanaRequestToMetadataListESQuery = async (
 };
 
 async function getPagingProperties(
-  request: KibanaRequest<any, any, any>,
+  request: KibanaRequest<unknown, unknown, MetadataIndexGetBodyResult>,
   endpointAppContext: EndpointAppContext
 ) {
   const config = await endpointAppContext.config();
   const pagingProperties: { page_size?: number; page_index?: number } = {};
-  if (request?.body?.paging_properties) {
+  if (request.body?.paging_properties) {
     for (const property of request.body.paging_properties) {
-      Object.assign(
-        pagingProperties,
-        ...Object.keys(property).map(key => ({ [key]: property[key] }))
-      );
+      if ('page_size' in property) {
+        pagingProperties.page_size = property.page_size;
+      } else {
+        pagingProperties.page_index = property.page_index;
+      }
     }
   }
+  // If page_size or page_index are 0 or undefined, use the defaults instead.
   return {
     pageSize: pagingProperties.page_size || config.endpointResultListDefaultPageSize,
     pageIndex: pagingProperties.page_index || config.endpointResultListDefaultFirstPageIndex,
   };
 }
 
-function buildQueryBody(request: KibanaRequest<any, any, any>): Record<string, any> {
-  if (typeof request?.body?.filter === 'string') {
+function buildQueryBody(
+  request: KibanaRequest<unknown, unknown, MetadataIndexGetBodyResult>
+): Record<string, unknown> {
+  if (typeof request.body?.filter === 'string') {
     return esKuery.toElasticsearchQuery(esKuery.fromKueryExpression(request.body.filter));
   }
   return {
@@ -74,9 +83,11 @@ function buildQueryBody(request: KibanaRequest<any, any, any>): Record<string, a
   };
 }
 
+/**
+ * Takes an 'metadata' ID and returns the client params for an Elasticsearch query which returns a metadata document.
+ */
 export const kibanaRequestToMetadataGetESQuery = (
-  request: KibanaRequest<any, any, any>,
-  endpointAppContext: EndpointAppContext
+  request: KibanaRequest<{ id: string }, unknown, unknown>
 ) => {
   return {
     body: {
