@@ -20,6 +20,7 @@ import { HostList } from './view/hosts';
 import { PolicyList } from './view/policy';
 import { PolicyDetails } from './view/policy';
 import { HeaderNavigation } from './components/header_nav';
+import { AppAction, GlobalState } from './types';
 
 /**
  * This module will be loaded asynchronously to reduce the bundle size of your plugin's main bundle.
@@ -42,7 +43,7 @@ export function renderApp(
 
 interface RouterProps {
   basename: string;
-  store: Store;
+  store: Store<GlobalState, AppAction>;
   coreStart: CoreStart;
   depsStart: EndpointPluginStartDependencies;
 }

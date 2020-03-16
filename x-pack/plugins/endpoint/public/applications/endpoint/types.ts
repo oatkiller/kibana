@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { Dispatch, MiddlewareAPI } from 'redux';
+import { Dispatch } from 'redux';
 import { IIndexPattern } from 'src/plugins/data/public';
 import {
   EndpointMetadata,
@@ -18,11 +18,42 @@ import { AppAction } from './store/action';
 import { CoreStart } from '../../../../../../src/core/public';
 
 export { AppAction };
+
+/**
+ * Basic selector type. Takes state and returns R.
+ */
+export type Selector<S, R> = (state: S) => R;
+
+/**
+ * The Endpoint app redux middleware type. Works with any state, but defaults to the Endpoint App's
+ * `GlobalState`. Dispatch must extend `Dispatch<AppAction>`.
+ */
+export type AppMiddleware<S = GlobalState, D extends Dispatch<AppAction> = Dispatch<AppAction>> = (
+  api: AppMiddlewareAPI<D, S>
+) => (next: Dispatch<AppAction>) => (action: AppAction) => unknown;
+
+/**
+ * The MiddlewareAPI for the EndpointApp.
+ * Works like the regular redux middleware API, but with the assumption that all actions dispatched
+ * will be of type `AppAction`, and that the state of the store will be of type `GlobalState`.
+ */
+export interface AppMiddlewareAPI<
+  D extends Dispatch<AppAction> = Dispatch<AppAction>,
+  S = GlobalState
+> {
+  dispatch: D;
+  getState(): S;
+}
+
+/**
+ * Returns a middleware, having injected `coreStart` and `depsStart`.
+ * Used this to create a top level middleware that is compatible with the Endpoint App.
+ */
 export type MiddlewareFactory<S = GlobalState> = (
   coreStart: CoreStart,
   depsStart: EndpointPluginStartDependencies
 ) => (
-  api: MiddlewareAPI<Dispatch<AppAction>, S>
+  api: AppMiddlewareAPI<Dispatch<AppAction>, S>
 ) => (next: Dispatch<AppAction>) => (action: AppAction) => unknown;
 
 export interface HostListState {
@@ -40,6 +71,7 @@ export interface HostListPagination {
   pageIndex: number;
   pageSize: number;
 }
+
 export interface HostIndexUIQueryParams {
   selected_host?: string;
 }
