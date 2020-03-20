@@ -393,6 +393,8 @@ function processPositions(
   return positions;
 }
 
+// TODO, why not just use `idToAdjacent` from `indexedProcessTreeFactory`?
+// it seems like this just changes it to take a process instead of a process ID.
 export const processAdjacencies = createSelector(
   graphableProcesses,
   function selectProcessAdjacencies(
@@ -401,6 +403,8 @@ export const processAdjacencies = createSelector(
     /* eslint-enable no-shadow */
   ) {
     const processToAdjacencyMap = new Map<ResolverEvent, AdjacentProcessMap>();
+    // TODO, this selector is already being called elsewhere. We should memoize the call to `indexedProcessTreeFactory`.
+    // This can be done by making an intermediate selector
     const { idToAdjacent } = indexedProcessTreeFactory(graphableProcesses);
 
     for (const graphableProcess of graphableProcesses) {

@@ -47,10 +47,13 @@ interface AppRequestedResolverData {
  * When the user switches the active descendent of the Resolver.
  */
 interface UserFocusedOnResolverNode {
+  // TODO, how is this different than userBroughtProcessIntoView? That's the action triggered when selecting a node in the list
+  // the two actions should have the same behavior right?
   readonly type: 'userFocusedOnResolverNode';
   readonly payload: {
     /**
      * Used to identify the process node that should be brought into view.
+     * TODO, why not take a `ResolverEvent`?
      */
     readonly nodeId: string;
   };

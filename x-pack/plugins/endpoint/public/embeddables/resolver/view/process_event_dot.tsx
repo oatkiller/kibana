@@ -4,12 +4,14 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import React from 'react';
+// TODO, we should rename this file. the 'process_event_dot' was just meant to be a diagnostic placeholder to test
+// panning. maybe 'process_event_node'?
+import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { i18n } from '@kbn/i18n';
 import { htmlIdGenerator, EuiKeyboardAccessible } from '@elastic/eui';
 import { applyMatrix3 } from '../lib/vector2';
-import { Vector2, Matrix3, AdjacentProcessMap } from '../types';
+import { Vector2, Matrix3, AdjacentProcessMap, ResolverProcessType } from '../types';
 import { SymbolIds, NamedColors, PaintServerIds } from './defs';
 import { ResolverEvent } from '../../../../common/types';
 import { useResolverDispatch } from './use_resolver_dispatch';
@@ -93,29 +95,42 @@ export const ProcessEventDot = styled(
 
       const selfId = adjacentNodeMap?.self;
 
-      const nodeViewportStyle = {
-        left: `${left}px`,
-        top: `${top}px`,
-        width: `${360 * magFactorX}px`,
-        height: `${120 * magFactorX}px`,
-        transform: `translateX(-${0.172413 * 360 * magFactorX + 10}px) translateY(-${0.73684 *
-          120 *
-          magFactorX}px)`,
-      };
+      // TODO, consider using useMemo
+      const nodeViewportStyle = useMemo(
+        () => ({
+          left: `${left}px`,
+          top: `${top}px`,
+          // TODO, explain magic numbers
+          width: `${360 * magFactorX}px`,
+          // TODO, explain magic numbers
+          height: `${120 * magFactorX}px`,
+          // TODO, explain magic numbers
+          transform: `translateX(-${0.172413 * 360 * magFactorX + 10}px) translateY(-${0.73684 *
+            120 *
+            magFactorX}px)`,
+        }),
+        [left, magFactorX, top]
+      );
 
+      // TODO, explain magic numbers
       const markerBaseSize = 15;
+
+      // TODO function isn't needed. parameter isn't used. consisider a const
       const markerSize = (magFactor: number) => {
         return markerBaseSize;
       };
 
+      // TODO function isn't needed. parameter isn't used. consisider a const
       const markerPositionOffset = (magFactor: number) => {
         return -markerBaseSize / 2;
       };
 
+      // TODO function isn't needed. parameter isn't used. consisider a const
       const labelYOffset = (magFactor: number) => {
         return markerPositionOffset(magFactorX) + 0.25 * markerSize(magFactorX) - 0.5;
       };
 
+      // TODO function isn't needed. parameter isn't used. consisider a const
       const labelYHeight = (magFactor: number) => {
         return markerSize(magFactorX) / 1.7647;
       };
@@ -132,25 +147,15 @@ export const ProcessEventDot = styled(
           }
         : {};
 
-      const nodeType = ((processEvent: ResolverEvent) => {
-        const processType = processModel.eventType(processEvent);
-        const processTypeToCube = {
-          processCreated: 'terminatedProcessCube',
-          processRan: 'runningProcessCube',
-          processTerminated: 'terminatedProcessCube',
-          unknownProcessEvent: 'runningProcessCube',
-          processCausedAlert: 'runningTriggerCube',
-          unknownEvent: 'runningProcessCube',
-        };
-        if (processType in processTypeToCube) {
-          return processTypeToCube[processType];
-        }
-        return 'runningProcessCube';
-      })(event) as keyof typeof nodeAssets;
+      const nodeType = getNodeType(event);
 
+      // TODO use useRef
       const clickTargetRef: { current: SVGAnimationElement | null } = React.createRef();
       const { cubeSymbol, labelFill, descriptionFill, descriptionText } = nodeAssets[nodeType];
+      // TODO use useMemo
       const resolverNodeIdGenerator = htmlIdGenerator('resolverNode');
+
+      // TODO, fix types, don't allocate array
       const [nodeId, labelId, descriptionId] = [
         !!selfId ? resolverNodeIdGenerator(String(selfId)) : resolverNodeIdGenerator(),
         resolverNodeIdGenerator(),
@@ -158,16 +163,23 @@ export const ProcessEventDot = styled(
       ] as string[];
 
       const dispatch = useResolverDispatch();
-      const handleFocus = (focusEvent: React.FocusEvent<SVGSVGElement>) => {
-        dispatch({
-          type: 'userFocusedOnResolverNode',
-          payload: {
-            nodeId,
-          },
-        });
-        focusEvent.currentTarget.setAttribute('aria-current', 'true');
-      };
 
+      // TODO, consider use useCallback
+      // TODO, use instanceof
+      const handleFocus = useCallback(
+        (focusEvent: React.FocusEvent<SVGSVGElement>) => {
+          dispatch({
+            type: 'userFocusedOnResolverNode',
+            payload: {
+              nodeId,
+            },
+          });
+          focusEvent.currentTarget.setAttribute('aria-current', 'true');
+        },
+        [dispatch, nodeId]
+      );
+
+      // TODO, consider useCallback for onClick
       return (
         <EuiKeyboardAccessible>
           <svg
@@ -272,3 +284,24 @@ export const ProcessEventDot = styled(
   will-change: left, top, width, height;
   contain: strict;
 `;
+
+// TODO, consider moving this out of the component and out of the function. That way, we don't allocate the object
+// on each render
+const processTypeToCube: Record<ResolverProcessType, keyof typeof nodeAssets> = {
+  processCreated: 'terminatedProcessCube',
+  processRan: 'runningProcessCube',
+  processTerminated: 'terminatedProcessCube',
+  unknownProcessEvent: 'runningProcessCube',
+  processCausedAlert: 'runningTriggerCube',
+  unknownEvent: 'runningProcessCube',
+};
+
+function getNodeType(processEvent: ResolverEvent): keyof typeof nodeAssets {
+  const processType = processModel.eventType(processEvent);
+  // TODO, `processType`
+  if (processType in processTypeToCube) {
+    return processTypeToCube[processType];
+  }
+  return 'runningProcessCube';
+  // TODO fix types
+}
