@@ -13,8 +13,6 @@ import {
   mockGlobalState,
   TestProviders,
   SUB_PLUGINS_REDUCER,
-  mockInputsState,
-  mockTimelineState,
 } from '../../mock';
 import { createKibanaCoreStartMock } from '../../mock/kibana_core';
 import { FilterManager } from '../../../../../../../src/plugins/data/public';
@@ -45,7 +43,7 @@ const state: PreloadedState<State> & Pick<State, 'inputs'> = {
   inputs: {
     ...mockGlobalState.inputs,
     global: {
-      ...mockInputsState.global,
+      ...mockGlobalState.inputs.global,
       query: {
         query: 'host.name : end*',
         language: 'kuery',
@@ -74,7 +72,7 @@ const state: PreloadedState<State> & Pick<State, 'inputs'> = {
       ],
     },
     timeline: {
-      ...mockInputsState.timeline,
+      ...mockGlobalState.inputs.timeline,
       timerange: {
         kind: 'relative',
         fromStr: 'now-24h',
@@ -85,10 +83,10 @@ const state: PreloadedState<State> & Pick<State, 'inputs'> = {
     },
   },
   timeline: {
-    ...mockTimelineState,
+    ...mockGlobalState.timeline,
     timelineById: {
       [ACTIVE_TIMELINE_REDUX_ID]: {
-        ...mockTimelineState.timelineById.test,
+        ...mockGlobalState.timeline.timelineById.test,
         id: ACTIVE_TIMELINE_REDUX_ID,
         dataProviders: [
           {

@@ -14,7 +14,6 @@ import {
   mockGlobalState,
   apolloClientObservable,
   SUB_PLUGINS_REDUCER,
-  mockInputsState,
 } from '../../mock';
 import { createStore } from '../../store';
 import { UpdateQueryParams, upsertQuery } from '../../store/inputs/helpers';
@@ -31,7 +30,7 @@ describe('Inspect Button', () => {
     inspect: null,
     loading: false,
     refetch,
-    state: mockInputsState,
+    state: mockGlobalState.inputs,
   };
 
   let store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);

@@ -27,87 +27,6 @@ import { networkModel } from '../../network/store';
 import { TimelineType, TimelineStatus } from '../../../common/types/timeline';
 
 /**
- * A mock state for the 'inputs' piece of the global reducer.
- */
-export const mockInputsState: State['inputs'] = {
-  global: {
-    timerange: { kind: 'relative', fromStr: DEFAULT_FROM, toStr: DEFAULT_TO, from: 0, to: 1 },
-    linkTo: ['timeline'],
-    queries: [],
-    policy: { kind: DEFAULT_INTERVAL_TYPE, duration: DEFAULT_INTERVAL_VALUE },
-    query: {
-      query: '',
-      language: 'kuery',
-    },
-    filters: [],
-  },
-  timeline: {
-    timerange: { kind: 'relative', fromStr: DEFAULT_FROM, toStr: DEFAULT_TO, from: 0, to: 1 },
-    linkTo: ['global'],
-    queries: [],
-    policy: { kind: DEFAULT_INTERVAL_TYPE, duration: DEFAULT_INTERVAL_VALUE },
-    query: {
-      query: '',
-      language: 'kuery',
-    },
-    filters: [],
-  },
-};
-
-/**
- * Mock state for the 'timeline' piece of global state.
- */
-export const mockTimelineState: State['timeline'] = {
-  showCallOutUnauthorizedMsg: false,
-  autoSavedWarningMsg: {
-    timelineId: null,
-    newTimelineModel: null,
-  },
-  timelineById: {
-    test: {
-      deletedEventIds: [],
-      id: 'test',
-      savedObjectId: null,
-      columns: defaultHeaders,
-      itemsPerPage: 5,
-      dataProviders: [],
-      description: '',
-      eventIdToNoteIds: {},
-      highlightedDropAndProviderId: '',
-      historyIds: [],
-      isFavorite: false,
-      isLive: false,
-      isSelectAllChecked: false,
-      isLoading: false,
-      kqlMode: 'filter',
-      kqlQuery: { filterQuery: null, filterQueryDraft: null },
-      loadingEventIds: [],
-      title: '',
-      timelineType: TimelineType.default,
-      templateTimelineId: null,
-      templateTimelineVersion: null,
-      noteIds: [],
-      dateRange: {
-        start: 0,
-        end: 0,
-      },
-      selectedEventIds: {},
-      show: false,
-      showRowRenderers: true,
-      showCheckboxes: false,
-      pinnedEventIds: {},
-      pinnedEventsSaveObject: {},
-      itemsPerPageOptions: [5, 10, 20],
-      sort: { columnId: '@timestamp', sortDirection: Direction.desc },
-      width: DEFAULT_TIMELINE_WIDTH,
-      isSaving: false,
-      version: null,
-      status: TimelineStatus.active,
-    },
-  },
-};
-
-/**
  * Used when tests call `createStore`. Passed as the 'initialState' parameter.
  * Not all subplugins provide initial state, but many tests expect this object to be
  * a complete `State` object.
@@ -240,7 +159,78 @@ export const mockGlobalState: Omit<State, 'alertList' | 'hostList' | 'management
       },
     },
   },
-  inputs: mockInputsState,
+  inputs: {
+    global: {
+      timerange: { kind: 'relative', fromStr: DEFAULT_FROM, toStr: DEFAULT_TO, from: 0, to: 1 },
+      linkTo: ['timeline'],
+      queries: [],
+      policy: { kind: DEFAULT_INTERVAL_TYPE, duration: DEFAULT_INTERVAL_VALUE },
+      query: {
+        query: '',
+        language: 'kuery',
+      },
+      filters: [],
+    },
+    timeline: {
+      timerange: { kind: 'relative', fromStr: DEFAULT_FROM, toStr: DEFAULT_TO, from: 0, to: 1 },
+      linkTo: ['global'],
+      queries: [],
+      policy: { kind: DEFAULT_INTERVAL_TYPE, duration: DEFAULT_INTERVAL_VALUE },
+      query: {
+        query: '',
+        language: 'kuery',
+      },
+      filters: [],
+    },
+  },
   dragAndDrop: { dataProviders: {} },
-  timeline: mockTimelineState,
+  timeline: {
+    showCallOutUnauthorizedMsg: false,
+    autoSavedWarningMsg: {
+      timelineId: null,
+      newTimelineModel: null,
+    },
+    timelineById: {
+      test: {
+        deletedEventIds: [],
+        id: 'test',
+        savedObjectId: null,
+        columns: defaultHeaders,
+        itemsPerPage: 5,
+        dataProviders: [],
+        description: '',
+        eventIdToNoteIds: {},
+        highlightedDropAndProviderId: '',
+        historyIds: [],
+        isFavorite: false,
+        isLive: false,
+        isSelectAllChecked: false,
+        isLoading: false,
+        kqlMode: 'filter',
+        kqlQuery: { filterQuery: null, filterQueryDraft: null },
+        loadingEventIds: [],
+        title: '',
+        timelineType: TimelineType.default,
+        templateTimelineId: null,
+        templateTimelineVersion: null,
+        noteIds: [],
+        dateRange: {
+          start: 0,
+          end: 0,
+        },
+        selectedEventIds: {},
+        show: false,
+        showRowRenderers: true,
+        showCheckboxes: false,
+        pinnedEventIds: {},
+        pinnedEventsSaveObject: {},
+        itemsPerPageOptions: [5, 10, 20],
+        sort: { columnId: '@timestamp', sortDirection: Direction.desc },
+        width: DEFAULT_TIMELINE_WIDTH,
+        isSaving: false,
+        version: null,
+        status: TimelineStatus.active,
+      },
+    },
+  },
 };
