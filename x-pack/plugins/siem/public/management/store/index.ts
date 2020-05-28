@@ -4,5 +4,5 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-export { managementReducer, getManagementInitialState } from './reducer';
+export { managementReducer } from './reducer';
 export { managementMiddlewareFactory } from './middleware';

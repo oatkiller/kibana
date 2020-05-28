@@ -22,6 +22,7 @@ import { hostsModel } from '../../../hosts/store';
 import { HostsTableType } from '../../../hosts/store/model';
 import { HostsTable } from './index';
 import { mockData } from './mock';
+import { PreloadedState } from 'redux';
 
 // Test will fail because we will to need to mock some core services to make the test work
 // For now let's forget about SiemSearchBar and QueryBar
@@ -34,7 +35,7 @@ jest.mock('../../../common/components/query_bar', () => ({
 
 describe('Hosts Table', () => {
   const loadPage = jest.fn();
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
 
   let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
   const mount = useMountAppended();

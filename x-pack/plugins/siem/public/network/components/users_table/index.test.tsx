@@ -23,10 +23,11 @@ import { networkModel } from '../../store';
 
 import { UsersTable } from '.';
 import { mockUsersData } from './mock';
+import { PreloadedState } from 'redux';
 
 describe('Users Table Component', () => {
   const loadPage = jest.fn();
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
 
   let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
   const mount = useMountAppended();

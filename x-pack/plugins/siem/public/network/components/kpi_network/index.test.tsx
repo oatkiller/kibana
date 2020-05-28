@@ -12,9 +12,10 @@ import { apolloClientObservable, mockGlobalState, SUB_PLUGINS_REDUCER } from '..
 import { createStore, State } from '../../../common/store';
 import { KpiNetworkComponent } from '.';
 import { mockData } from './mock';
+import { PreloadedState } from 'redux';
 
 describe('KpiNetwork Component', () => {
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
   const from = new Date('2019-06-15T06:00:00.000Z').valueOf();
   const to = new Date('2019-06-18T06:00:00.000Z').valueOf();
   const narrowDateRange = jest.fn();

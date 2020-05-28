@@ -16,6 +16,7 @@ import {
 import { createStore, State } from '../../../../common/store';
 import { useThrottledResizeObserver } from '../../../../common/components/utils';
 import { Properties, showDescriptionThreshold, showNotesThreshold } from '.';
+import { PreloadedState } from 'redux';
 
 jest.mock('../../../../common/lib/kibana');
 
@@ -28,7 +29,7 @@ jest.mock('../../../../common/components/utils');
 describe('Properties', () => {
   const usersViewing = ['elastic'];
 
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
   let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
 
   beforeEach(() => {

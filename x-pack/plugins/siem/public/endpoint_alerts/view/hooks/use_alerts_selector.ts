@@ -5,7 +5,8 @@
  */
 
 import { useSelector } from 'react-redux';
-import { Immutable, AlertListState } from '../../../../common/endpoint_alerts/types';
+import { Immutable } from '../../../../common/endpoint/types';
+import { AlertListState } from '../../../../common/endpoint_alerts/types';
 import { State } from '../../../common/store/reducer';
 
 export function useAlertListSelector<TSelected>(

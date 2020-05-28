@@ -25,6 +25,7 @@ import { useMountAppended } from '../../../common/utils/use_mount_appended';
 import { createStore, State } from '../../../common/store';
 import { InputsModelId } from '../../../common/store/inputs/constants';
 import { IPDetailsComponent, IPDetails } from './index';
+import { PreloadedState } from 'redux';
 
 type Action = 'PUSH' | 'POP' | 'REPLACE';
 const pop: Action = 'POP';
@@ -117,7 +118,7 @@ describe('Ip Details', () => {
     delete (global as GlobalWithFetch).fetch;
   });
 
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
   let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
 
   beforeEach(() => {

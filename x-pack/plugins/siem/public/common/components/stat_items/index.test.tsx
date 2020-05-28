@@ -34,6 +34,7 @@ import { mockGlobalState, apolloClientObservable, SUB_PLUGINS_REDUCER } from '..
 import { State, createStore } from '../../store';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 import { KpiNetworkData, KpiHostsData } from '../../../graphql/types';
+import { PreloadedState } from 'redux';
 
 const from = new Date('2019-06-15T06:00:00.000Z').valueOf();
 const to = new Date('2019-06-18T06:00:00.000Z').valueOf();
@@ -48,7 +49,7 @@ jest.mock('../charts/barchart', () => {
 
 describe('Stat Items Component', () => {
   const theme = () => ({ eui: euiDarkVars, darkMode: true });
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
   const store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
 
   describe.each([
@@ -236,7 +237,7 @@ describe('addValueToBarChart', () => {
 describe('useKpiMatrixStatus', () => {
   const mockNetworkMappings = fieldTitleChartMapping;
   const mockKpiNetworkData = mockData.KpiNetwork;
-  const MockChildComponent = (mappedStatItemProps: StatItemsProps) => <span />;
+  const MockChildComponent = (_mappedStatItemProps: StatItemsProps) => <span />;
   const MockHookWrapperComponent = ({
     fieldsMapping,
     data,

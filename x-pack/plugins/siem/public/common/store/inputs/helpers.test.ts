@@ -6,7 +6,7 @@
 
 import { cloneDeep } from 'lodash/fp';
 
-import { mockGlobalState } from '../../mock';
+import { mockInputsState } from '../../mock';
 
 import {
   toggleLockTimeline,
@@ -22,12 +22,13 @@ import {
   deleteOneQuery,
 } from './helpers';
 import { InputsModel, TimeRange } from './model';
+import { State } from '..';
 
 describe('Inputs', () => {
-  let state = mockGlobalState.inputs;
+  let state: State['inputs'] = mockInputsState;
   describe('#toggleLockTimeline', () => {
     beforeEach(() => {
-      state = cloneDeep(mockGlobalState.inputs);
+      state = cloneDeep(mockInputsState);
     });
     test('remove timeline Lock from inputs', () => {
       const newState: InputsModel = toggleLockTimeline('timeline', state);
@@ -45,7 +46,7 @@ describe('Inputs', () => {
 
   describe('#updateInputTimerange when timeline and global are lock', () => {
     beforeEach(() => {
-      state = cloneDeep(mockGlobalState.inputs);
+      state = cloneDeep(mockInputsState);
     });
 
     test('timeline should stay identical when global change', () => {
@@ -75,7 +76,7 @@ describe('Inputs', () => {
 
   describe('#updateInputTimerange when timeline and global are NOT lock', () => {
     beforeEach(() => {
-      state = cloneDeep(toggleLockTimeline('timeline', mockGlobalState.inputs));
+      state = cloneDeep(toggleLockTimeline('timeline', mockInputsState));
     });
 
     test('timeline should stay identical when global change', () => {
@@ -158,7 +159,7 @@ describe('Inputs', () => {
   describe('#setIsInspected', () => {
     const refetch = jest.fn();
     beforeEach(() => {
-      state = cloneDeep(mockGlobalState.inputs);
+      state = cloneDeep(mockInputsState);
       const newQuery: UpdateQueryParams = {
         inputId: 'global',
         id: 'myQuery',

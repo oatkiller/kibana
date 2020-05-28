@@ -13,9 +13,10 @@ import { createStore } from '../../store/store';
 
 import { ErrorToastDispatcher } from '.';
 import { State } from '../../store/reducer';
+import { PreloadedState } from 'redux';
 
 describe('Error Toast Dispatcher', () => {
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
   let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
 
   beforeEach(() => {

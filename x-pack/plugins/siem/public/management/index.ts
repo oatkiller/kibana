@@ -5,13 +5,14 @@
  */
 
 import { CoreStart } from 'kibana/public';
-import { managementReducer, getManagementInitialState, managementMiddlewareFactory } from './store';
+import { managementReducer, managementMiddlewareFactory } from './store';
 import { getManagementRoutes } from './routes';
 import { StartPlugins } from '../types';
 import { MANAGEMENT_STORE_GLOBAL_NAMESPACE } from './common/constants';
 import { SecuritySubPluginWithStore } from '../app/types';
 import { Immutable } from '../../common/endpoint/types';
-import { ManagementState, ManagementStoreGlobalNamespace } from './types';
+import { ManagementStoreGlobalNamespace } from './types';
+import { ManagementState } from './store/reducer';
 
 export { getManagementUrl } from './common/routing';
 
@@ -26,7 +27,7 @@ export class Management {
       routes: getManagementRoutes(),
       store: {
         initialState: {
-          [MANAGEMENT_STORE_GLOBAL_NAMESPACE]: getManagementInitialState(),
+          [MANAGEMENT_STORE_GLOBAL_NAMESPACE]: undefined,
         },
         reducer: {
           [MANAGEMENT_STORE_GLOBAL_NAMESPACE]: managementReducer,

@@ -13,6 +13,8 @@ import {
   mockGlobalState,
   TestProviders,
   SUB_PLUGINS_REDUCER,
+  mockInputsState,
+  mockTimelineState,
 } from '../../mock';
 import { createKibanaCoreStartMock } from '../../mock/kibana_core';
 import { FilterManager } from '../../../../../../../src/plugins/data/public';
@@ -24,6 +26,7 @@ import {
 
 import { Props } from './top_n';
 import { ACTIVE_TIMELINE_REDUX_ID, StatefulTopN } from '.';
+import { PreloadedState } from 'redux';
 
 jest.mock('../../lib/kibana');
 jest.mock('../../../timelines/store/timeline/actions');
@@ -33,12 +36,12 @@ const mockUiSettingsForFilterManager = createKibanaCoreStartMock().uiSettings;
 const field = 'process.name';
 const value = 'nice';
 
-const state: State = {
+const state: PreloadedState<State> & Pick<State, 'inputs'> = {
   ...mockGlobalState,
   inputs: {
     ...mockGlobalState.inputs,
     global: {
-      ...mockGlobalState.inputs.global,
+      ...mockInputsState.global,
       query: {
         query: 'host.name : end*',
         language: 'kuery',
@@ -67,7 +70,7 @@ const state: State = {
       ],
     },
     timeline: {
-      ...mockGlobalState.inputs.timeline,
+      ...mockInputsState.timeline,
       timerange: {
         kind: 'relative',
         fromStr: 'now-24h',
@@ -78,10 +81,10 @@ const state: State = {
     },
   },
   timeline: {
-    ...mockGlobalState.timeline,
+    ...mockTimelineState,
     timelineById: {
       [ACTIVE_TIMELINE_REDUX_ID]: {
-        ...mockGlobalState.timeline.timelineById.test,
+        ...mockTimelineState.timelineById.test,
         id: ACTIVE_TIMELINE_REDUX_ID,
         dataProviders: [
           {

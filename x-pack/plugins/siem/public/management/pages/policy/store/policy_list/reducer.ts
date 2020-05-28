@@ -10,7 +10,7 @@ import { ImmutableReducer } from '../../../../../common/store';
 import { AppAction } from '../../../../../common/store/actions';
 import { Immutable } from '../../../../../../common/endpoint/types';
 
-export const initialPolicyListState = (): PolicyListState => {
+const initialPolicyListState = (): PolicyListState => {
   return {
     policyItems: [],
     isLoading: false,

@@ -14,24 +14,26 @@ import {
   mockGlobalState,
   apolloClientObservable,
   SUB_PLUGINS_REDUCER,
+  mockInputsState,
 } from '../../mock';
 import { createStore, State } from '../../store';
 import { UpdateQueryParams, upsertQuery } from '../../store/inputs/helpers';
 
 import { InspectButton, InspectButtonContainer, BUTTON_CLASS } from '.';
 import { cloneDeep } from 'lodash/fp';
+import { PreloadedState } from 'redux';
 
 describe('Inspect Button', () => {
   const theme = () => ({ eui: euiDarkVars, darkMode: true });
   const refetch = jest.fn();
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
   const newQuery: UpdateQueryParams = {
     inputId: 'global',
     id: 'myQuery',
     inspect: null,
     loading: false,
     refetch,
-    state: state.inputs,
+    state: mockInputsState,
   };
 
   let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);

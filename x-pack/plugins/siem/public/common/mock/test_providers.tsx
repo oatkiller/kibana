@@ -13,7 +13,7 @@ import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { DragDropContext, DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import { Provider as ReduxStoreProvider } from 'react-redux';
-import { Store } from 'redux';
+import { Store, PreloadedState } from 'redux';
 import { BehaviorSubject } from 'rxjs';
 import { ThemeProvider } from 'styled-components';
 
@@ -23,7 +23,7 @@ import { createKibanaContextProviderMock } from './kibana_react';
 import { FieldHook, useForm } from '../../shared_imports';
 import { SUB_PLUGINS_REDUCER } from './utils';
 
-const state: State = mockGlobalState;
+const state: PreloadedState<State> = mockGlobalState;
 
 interface Props {
   children: React.ReactNode;

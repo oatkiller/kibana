@@ -279,7 +279,7 @@ export const makeMapStateToProps = () => {
   const getQueriesSelector = queriesSelector();
   const getStartSelector = startSelector();
   const getToStrSelector = toStrSelector();
-  return (state: State, { id }: OwnProps) => {
+  return (state: Pick<State, 'inputs'>, { id }: OwnProps) => {
     const inputsRange: InputsRange = getOr({}, `inputs.${id}`, state);
     return {
       duration: getDurationSelector(inputsRange),

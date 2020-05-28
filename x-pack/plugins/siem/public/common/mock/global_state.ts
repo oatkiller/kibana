@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+import { PreloadedState } from 'redux';
 import { DEFAULT_TIMELINE_WIDTH } from '../../timelines/components/timeline/body/constants';
 import {
   Direction,
@@ -25,15 +26,89 @@ import {
 } from '../../../common/constants';
 import { networkModel } from '../../network/store';
 import { TimelineType, TimelineStatus } from '../../../common/types/timeline';
-import { initialAlertListState } from '../../endpoint_alerts/store/reducer';
-import { initialHostListState } from '../../endpoint_hosts/store/reducer';
-import { getManagementInitialState } from '../../management/store';
 
-const alertList = initialAlertListState();
-const hostList = initialHostListState();
-const management = getManagementInitialState();
+/**
+ * A mock state for the 'inputs' piece of the global reducer.
+ */
+export const mockInputsState: State['inputs'] = {
+  global: {
+    timerange: { kind: 'relative', fromStr: DEFAULT_FROM, toStr: DEFAULT_TO, from: 0, to: 1 },
+    linkTo: ['timeline'],
+    queries: [],
+    policy: { kind: DEFAULT_INTERVAL_TYPE, duration: DEFAULT_INTERVAL_VALUE },
+    query: {
+      query: '',
+      language: 'kuery',
+    },
+    filters: [],
+  },
+  timeline: {
+    timerange: { kind: 'relative', fromStr: DEFAULT_FROM, toStr: DEFAULT_TO, from: 0, to: 1 },
+    linkTo: ['global'],
+    queries: [],
+    policy: { kind: DEFAULT_INTERVAL_TYPE, duration: DEFAULT_INTERVAL_VALUE },
+    query: {
+      query: '',
+      language: 'kuery',
+    },
+    filters: [],
+  },
+};
 
-export const mockGlobalState: State = {
+/**
+ * Mock state for the 'timeline' piece of global state.
+ */
+export const mockTimelineState: State['timeline'] = {
+  showCallOutUnauthorizedMsg: false,
+  autoSavedWarningMsg: {
+    timelineId: null,
+    newTimelineModel: null,
+  },
+  timelineById: {
+    test: {
+      deletedEventIds: [],
+      id: 'test',
+      savedObjectId: null,
+      columns: defaultHeaders,
+      itemsPerPage: 5,
+      dataProviders: [],
+      description: '',
+      eventIdToNoteIds: {},
+      highlightedDropAndProviderId: '',
+      historyIds: [],
+      isFavorite: false,
+      isLive: false,
+      isSelectAllChecked: false,
+      isLoading: false,
+      kqlMode: 'filter',
+      kqlQuery: { filterQuery: null, filterQueryDraft: null },
+      loadingEventIds: [],
+      title: '',
+      timelineType: TimelineType.default,
+      templateTimelineId: null,
+      templateTimelineVersion: null,
+      noteIds: [],
+      dateRange: {
+        start: 0,
+        end: 0,
+      },
+      selectedEventIds: {},
+      show: false,
+      showRowRenderers: true,
+      showCheckboxes: false,
+      pinnedEventIds: {},
+      pinnedEventsSaveObject: {},
+      itemsPerPageOptions: [5, 10, 20],
+      sort: { columnId: '@timestamp', sortDirection: Direction.desc },
+      width: DEFAULT_TIMELINE_WIDTH,
+      isSaving: false,
+      version: null,
+      status: TimelineStatus.active,
+    },
+  },
+};
+
+export const mockGlobalState: PreloadedState<State> = {
   app: {
     notesById: {},
     errors: [
@@ -159,81 +234,7 @@ export const mockGlobalState: State = {
       },
     },
   },
-  inputs: {
-    global: {
-      timerange: { kind: 'relative', fromStr: DEFAULT_FROM, toStr: DEFAULT_TO, from: 0, to: 1 },
-      linkTo: ['timeline'],
-      queries: [],
-      policy: { kind: DEFAULT_INTERVAL_TYPE, duration: DEFAULT_INTERVAL_VALUE },
-      query: {
-        query: '',
-        language: 'kuery',
-      },
-      filters: [],
-    },
-    timeline: {
-      timerange: { kind: 'relative', fromStr: DEFAULT_FROM, toStr: DEFAULT_TO, from: 0, to: 1 },
-      linkTo: ['global'],
-      queries: [],
-      policy: { kind: DEFAULT_INTERVAL_TYPE, duration: DEFAULT_INTERVAL_VALUE },
-      query: {
-        query: '',
-        language: 'kuery',
-      },
-      filters: [],
-    },
-  },
+  inputs: mockInputsState,
   dragAndDrop: { dataProviders: {} },
-  timeline: {
-    showCallOutUnauthorizedMsg: false,
-    autoSavedWarningMsg: {
-      timelineId: null,
-      newTimelineModel: null,
-    },
-    timelineById: {
-      test: {
-        deletedEventIds: [],
-        id: 'test',
-        savedObjectId: null,
-        columns: defaultHeaders,
-        itemsPerPage: 5,
-        dataProviders: [],
-        description: '',
-        eventIdToNoteIds: {},
-        highlightedDropAndProviderId: '',
-        historyIds: [],
-        isFavorite: false,
-        isLive: false,
-        isSelectAllChecked: false,
-        isLoading: false,
-        kqlMode: 'filter',
-        kqlQuery: { filterQuery: null, filterQueryDraft: null },
-        loadingEventIds: [],
-        title: '',
-        timelineType: TimelineType.default,
-        templateTimelineId: null,
-        templateTimelineVersion: null,
-        noteIds: [],
-        dateRange: {
-          start: 0,
-          end: 0,
-        },
-        selectedEventIds: {},
-        show: false,
-        showRowRenderers: true,
-        showCheckboxes: false,
-        pinnedEventIds: {},
-        pinnedEventsSaveObject: {},
-        itemsPerPageOptions: [5, 10, 20],
-        sort: { columnId: '@timestamp', sortDirection: Direction.desc },
-        width: DEFAULT_TIMELINE_WIDTH,
-        isSaving: false,
-        version: null,
-        status: TimelineStatus.active,
-      },
-    },
-  },
-  alertList,
-  hostList,
-  management,
+  timeline: mockTimelineState,
 };

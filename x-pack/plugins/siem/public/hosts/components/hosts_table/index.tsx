@@ -65,7 +65,7 @@ const rowItems: ItemsPerRow[] = [
   },
 ];
 const getSorting = (
-  trigger: string,
+  _trigger: string,
   sortField: HostsFields,
   direction: Direction
 ): SortingBasicTable => ({ field: getNodeField(sortField), direction });
@@ -77,7 +77,6 @@ const HostsTableComponent = React.memo<HostsTableProps>(
     direction,
     fakeTotalCount,
     id,
-    indexPattern,
     isInspect,
     limit,
     loading,

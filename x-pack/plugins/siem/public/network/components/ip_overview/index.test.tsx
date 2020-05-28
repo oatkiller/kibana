@@ -22,9 +22,10 @@ import { IpOverview } from './index';
 import { mockData } from './mock';
 import { mockAnomalies } from '../../../common/components/ml/mock';
 import { NarrowDateRange } from '../../../common/components/ml/types';
+import { PreloadedState } from 'redux';
 
 describe('IP Overview Component', () => {
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
 
   let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
 

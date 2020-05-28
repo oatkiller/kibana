@@ -12,6 +12,7 @@ import {
   Store,
   Middleware,
   Dispatch,
+  PreloadedState,
 } from 'redux';
 
 import { createEpicMiddleware } from 'redux-observable';
@@ -36,7 +37,7 @@ declare global {
 let store: Store<State, Action> | null = null;
 export { SubPluginsInitReducer };
 export const createStore = (
-  state: State,
+  state: PreloadedState<State>,
   pluginsReducer: SubPluginsInitReducer,
   apolloClient: Observable<AppApolloClient>,
   additionalMiddleware?: Array<Middleware<{}, State, Dispatch<AppAction | Immutable<AppAction>>>>

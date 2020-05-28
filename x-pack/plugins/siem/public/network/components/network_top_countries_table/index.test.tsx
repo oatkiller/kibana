@@ -24,10 +24,11 @@ import { networkModel } from '../../store';
 
 import { NetworkTopCountriesTable } from '.';
 import { mockData } from './mock';
+import { PreloadedState } from 'redux';
 
 describe('NetworkTopCountries Table Component', () => {
   const loadPage = jest.fn();
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
   const mount = useMountAppended();
 
   let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);

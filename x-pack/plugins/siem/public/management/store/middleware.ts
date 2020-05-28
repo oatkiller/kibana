@@ -4,30 +4,26 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { ImmutableMultipleMiddlewareFactory, substateMiddlewareFactory } from '../../common/store';
+import {
+  substateMiddlewareFactory,
+  SecuritySubPluginMiddlewareFactory,
+  State,
+} from '../../common/store';
 import { policyListMiddlewareFactory } from '../pages/policy/store/policy_list';
 import { policyDetailsMiddlewareFactory } from '../pages/policy/store/policy_details';
-import {
-  MANAGEMENT_STORE_GLOBAL_NAMESPACE,
-  MANAGEMENT_STORE_POLICY_DETAILS_NAMESPACE,
-  MANAGEMENT_STORE_POLICY_LIST_NAMESPACE,
-} from '../common/constants';
+import { PolicyListState, PolicyDetailsState } from '../pages/policy/types';
 
-// @ts-ignore
-export const managementMiddlewareFactory: ImmutableMultipleMiddlewareFactory = (
+export const managementMiddlewareFactory: SecuritySubPluginMiddlewareFactory = (
   coreStart,
   depsStart
 ) => {
+  const listSelector: (state: State) => PolicyListState = state =>
+    state.management.policyList as PolicyListState;
+  const detailSelector: (state: State) => PolicyDetailsState = state =>
+    state.management.policyDetails as PolicyDetailsState;
+
   return [
-    substateMiddlewareFactory(
-      (globalState) =>
-        globalState[MANAGEMENT_STORE_GLOBAL_NAMESPACE][MANAGEMENT_STORE_POLICY_LIST_NAMESPACE],
-      policyListMiddlewareFactory(coreStart, depsStart)
-    ),
-    substateMiddlewareFactory(
-      (globalState) =>
-        globalState[MANAGEMENT_STORE_GLOBAL_NAMESPACE][MANAGEMENT_STORE_POLICY_DETAILS_NAMESPACE],
-      policyDetailsMiddlewareFactory(coreStart, depsStart)
-    ),
+    substateMiddlewareFactory(listSelector, policyListMiddlewareFactory(coreStart, depsStart)),
+    substateMiddlewareFactory(detailSelector, policyDetailsMiddlewareFactory(coreStart, depsStart)),
   ];
 };

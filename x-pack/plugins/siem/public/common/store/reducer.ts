@@ -4,47 +4,42 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { combineReducers } from 'redux';
+import { combineReducers, PreloadedState, CombinedState } from 'redux';
 
-import { appReducer, AppState, initialAppState } from './app';
-import { dragAndDropReducer, DragAndDropState, initialDragAndDropState } from './drag_and_drop';
+import { appReducer, initialAppState, AppState } from './app';
+import { dragAndDropReducer, initialDragAndDropState, DragAndDropState } from './drag_and_drop';
 import { createInitialInputsState, initialInputsState, inputsReducer, InputsState } from './inputs';
 
-import { HostsPluginState, HostsPluginReducer } from '../../hosts/store';
-import { NetworkPluginState, NetworkPluginReducer } from '../../network/store';
-import { TimelinePluginState, TimelinePluginReducer } from '../../timelines/store/timeline';
+import { HostsPluginReducer, HostsPluginState } from '../../hosts/store';
+import { NetworkPluginReducer, NetworkPluginState } from '../../network/store';
+import { TimelinePluginReducer, TimelinePluginState } from '../../timelines/store/timeline';
 import {
-  EndpointAlertsPluginState,
   EndpointAlertsPluginReducer,
+  EndpointAlertsPluginState,
 } from '../../endpoint_alerts/store';
-import { EndpointHostsPluginState, EndpointHostsPluginReducer } from '../../endpoint_hosts/store';
+import { EndpointHostsPluginReducer, EndpointHostsPluginState } from '../../endpoint_hosts/store';
 
 import { ManagementPluginReducer, ManagementPluginState } from '../../management/types';
+import { SecuritySubPlugins } from '../../app/types';
 
-export interface State
-  extends HostsPluginState,
-    NetworkPluginState,
-    TimelinePluginState,
-    EndpointAlertsPluginState,
-    EndpointHostsPluginState,
-    ManagementPluginState {
-  app: AppState;
-  dragAndDrop: DragAndDropState;
-  inputs: InputsState;
-}
+export type State = CombinedState<
+  HostsPluginState &
+    NetworkPluginState &
+    TimelinePluginState &
+    EndpointAlertsPluginState &
+    EndpointHostsPluginState &
+    ManagementPluginState & {
+      app: AppState;
+      dragAndDrop: DragAndDropState;
+      inputs: InputsState;
+    }
+>;
 
-export const initialState: Pick<State, 'app' | 'dragAndDrop' | 'inputs'> = {
+export const initialState: Pick<PreloadedState<State>, 'app' | 'dragAndDrop' | 'inputs'> = {
   app: initialAppState,
   dragAndDrop: initialDragAndDropState,
   inputs: initialInputsState,
 };
-
-type SubPluginsInitState = HostsPluginState &
-  NetworkPluginState &
-  TimelinePluginState &
-  EndpointAlertsPluginState &
-  EndpointHostsPluginState &
-  ManagementPluginState;
 
 export type SubPluginsInitReducer = HostsPluginReducer &
   NetworkPluginReducer &
@@ -53,14 +48,19 @@ export type SubPluginsInitReducer = HostsPluginReducer &
   EndpointHostsPluginReducer &
   ManagementPluginReducer;
 
-export const createInitialState = (pluginsInitState: SubPluginsInitState): State => ({
-  ...initialState,
-  ...pluginsInitState,
-  inputs: createInitialInputsState(),
-});
+export const createInitialState = (
+  pluginsInitState: SecuritySubPlugins['store']['initialState']
+): PreloadedState<State> => {
+  const preloadedState: PreloadedState<State> = {
+    ...initialState,
+    ...pluginsInitState,
+    inputs: createInitialInputsState(),
+  };
+  return preloadedState;
+};
 
 export const createReducer = (pluginsReducer: SubPluginsInitReducer) =>
-  combineReducers<State>({
+  combineReducers({
     app: appReducer,
     dragAndDrop: dragAndDropReducer,
     inputs: inputsReducer,

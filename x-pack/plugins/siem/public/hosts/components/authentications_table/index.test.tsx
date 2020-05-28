@@ -15,10 +15,11 @@ import { hostsModel } from '../../store';
 import { mockData } from './mock';
 import * as i18n from './translations';
 import { AuthenticationTable, getAuthenticationColumnsCurated } from '.';
+import { PreloadedState } from 'redux';
 
 describe('Authentication Table Component', () => {
   const loadPage = jest.fn();
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
 
   let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
 

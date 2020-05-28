@@ -20,6 +20,7 @@ import { mockDataProviders } from '../timeline/data_providers/mock/mock_data_pro
 
 import { Flyout, FlyoutComponent } from '.';
 import { FlyoutButton } from './button';
+import { PreloadedState } from 'redux';
 
 jest.mock('../timeline', () => ({
   // eslint-disable-next-line react/display-name
@@ -30,7 +31,7 @@ const testFlyoutHeight = 980;
 const usersViewing = ['elastic'];
 
 describe('Flyout', () => {
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
 
   describe('rendering', () => {
     test('it renders correctly against snapshot', () => {

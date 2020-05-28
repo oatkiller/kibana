@@ -26,6 +26,7 @@ import { State, createStore } from '../../common/store';
 import { HostsComponentProps } from './types';
 import { Hosts } from './hosts';
 import { HostsTabs } from './hosts_tabs';
+import { PreloadedState } from 'redux';
 
 // Test will fail because we will to need to mock some core services to make the test work
 // For now let's forget about SiemSearchBar and QueryBar
@@ -170,7 +171,7 @@ describe('Hosts - rendering', () => {
       },
     ];
     localSource[0].result.data.source.status.indicesExist = true;
-    const myState: State = mockGlobalState;
+    const myState: PreloadedState<State> = mockGlobalState;
     const myStore = createStore(myState, SUB_PLUGINS_REDUCER, apolloClientObservable);
     const wrapper = mount(
       <TestProviders store={myStore}>

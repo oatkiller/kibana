@@ -4,19 +4,16 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { HostState } from '../types';
-import { ImmutableReducer } from '../../common/store';
-import { AppAction } from '../../common/store/actions';
-import { Immutable } from '../../../common/endpoint/types';
+import { hostListReducer } from './reducer';
 
 export { hostListReducer } from './reducer';
 export { HostAction } from './action';
 export { hostMiddlewareFactory } from './middleware';
 
 export interface EndpointHostsPluginState {
-  hostList: Immutable<HostState>;
+  hostList: ReturnType<typeof hostListReducer>;
 }
 
 export interface EndpointHostsPluginReducer {
-  hostList: ImmutableReducer<HostState, AppAction>;
+  hostList: typeof hostListReducer;
 }

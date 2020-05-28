@@ -22,10 +22,11 @@ import { createStore, State } from '../../../common/store';
 import { networkModel } from '../../store';
 import { NetworkTopNFlowTable } from '.';
 import { mockData } from './mock';
+import { PreloadedState } from 'redux';
 
 describe('NetworkTopNFlow Table Component', () => {
   const loadPage = jest.fn();
-  const state: State = mockGlobalState;
+  const state: PreloadedState<State> = mockGlobalState;
 
   let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
   const mount = useMountAppended();

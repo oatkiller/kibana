@@ -4,17 +4,15 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { AlertListState, Immutable } from '../../../common/endpoint_alerts/types';
-import { ImmutableReducer } from '../../common/store';
-import { AppAction } from '../../common/store/actions';
+import { alertListReducer } from './reducer';
 
 export { alertListReducer } from './reducer';
 export { AlertAction } from './action';
 
 export interface EndpointAlertsPluginState {
-  alertList: Immutable<AlertListState>;
+  alertList: ReturnType<typeof alertListReducer>;
 }
 
 export interface EndpointAlertsPluginReducer {
-  alertList: ImmutableReducer<AlertListState, AppAction>;
+  alertList: typeof alertListReducer;
 }

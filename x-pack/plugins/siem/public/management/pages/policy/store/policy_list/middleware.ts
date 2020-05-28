@@ -8,11 +8,8 @@ import { GetPolicyListResponse, PolicyListState } from '../../types';
 import { sendGetEndpointSpecificDatasources } from './services/ingest';
 import { isOnPolicyListPage, urlSearchParams } from './selectors';
 import { ImmutableMiddlewareFactory } from '../../../../../common/store';
-import { Immutable } from '../../../../../../common/endpoint/types';
 
-export const policyListMiddlewareFactory: ImmutableMiddlewareFactory<Immutable<PolicyListState>> = (
-  coreStart
-) => {
+export const policyListMiddlewareFactory: ImmutableMiddlewareFactory<PolicyListState> = coreStart => {
   const http = coreStart.http;
 
   return ({ getState, dispatch }) => (next) => async (action) => {
