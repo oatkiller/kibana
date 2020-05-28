@@ -86,15 +86,24 @@ export type ImmutableCombineReducers = <M extends ImmutableReducersMapObject<unk
   ActionFromImmutableReducersMapObject<M>
 >;
 
+/**
+ * Helper type for `ImmutableCombineReducers`. Infers the combined state type from an immutable reducer map.
+ */
 type StateFromImmutableReducersMapObject<M> = M extends ImmutableReducersMapObject<unknown, never>
   ? { [P in keyof M]: M[P] extends ImmutableReducer<infer S, infer _A> ? S : never }
   : never;
 
+/**
+ * Helper type for `ImmutableCombineReducers`. Infers the combined action type from an immutable reducer map.
+ */
 type ActionFromImmutableReducersMapObject<M> = M extends ImmutableReducersMapObject<unknown, never>
-  ? ActionFromReducer<ReducerFromReducersMapObject<M>>
+  ? ActionFromImmutableReducer<ImmutableReducerFromImmutableReducersMapObject<M>>
   : never;
 
-export type ReducerFromReducersMapObject<M> = M extends {
+/**
+ * Helper type for `ImmutableCombineReducers`. Infers the combined reducer type from an immutable reducer map.
+ */
+type ImmutableReducerFromImmutableReducersMapObject<M> = M extends {
   [P in keyof M]: infer R;
 }
   ? R extends ImmutableReducer<infer _S, infer _A>
@@ -102,18 +111,23 @@ export type ReducerFromReducersMapObject<M> = M extends {
     : never
   : never;
 
-type ActionFromReducer<R> = R extends ImmutableReducer<infer _S, infer A> ? A : never;
+/**
+ * Helper type for `ImmutableCombineReducers`. Infers the action type for an immutable reducer.
+ */
+type ActionFromImmutableReducer<R> = R extends ImmutableReducer<infer _S, infer A> ? A : never;
 
 /**
+ * Helper type for `ImmutableCombineReducers`.
  * Like `redux`'s `ReducersMapObject` (which is used by `combineReducers`) but enforces that
  * the `state` and `action` received are `Immutable` versions.
  */
-export type ImmutableReducersMapObject<S, A extends Action = Action> = {
+type ImmutableReducersMapObject<S, A extends Action = Action> = {
   [K in keyof S]: ImmutableReducer<S[K], A>;
 };
 
 /**
  * A better type for createStructuredSelector. This doesn't support the options object.
+ * https://github.com/reduxjs/reselect/pull/454
  */
 export type CreateStructuredSelector = <
   SelectorMap extends { [key: string]: (...args: never[]) => unknown }

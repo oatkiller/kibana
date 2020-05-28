@@ -40,6 +40,10 @@ declare global {
 export type SecurityAppStore = Store<State, Action>;
 let store: Store<State, Action> | null = null;
 export { SubPluginsInitReducer };
+
+/**
+ * Factory for Security App's redux store.
+ */
 export const createStore = (
   state: PreloadedState<State>,
   pluginsReducer: SubPluginsInitReducer,
