@@ -16,17 +16,15 @@ import {
   SUB_PLUGINS_REDUCER,
   mockInputsState,
 } from '../../mock';
-import { createStore, State } from '../../store';
+import { createStore } from '../../store';
 import { UpdateQueryParams, upsertQuery } from '../../store/inputs/helpers';
 
 import { InspectButton, InspectButtonContainer, BUTTON_CLASS } from '.';
 import { cloneDeep } from 'lodash/fp';
-import { PreloadedState } from 'redux';
 
 describe('Inspect Button', () => {
   const theme = () => ({ eui: euiDarkVars, darkMode: true });
   const refetch = jest.fn();
-  const state: PreloadedState<State> = mockGlobalState;
   const newQuery: UpdateQueryParams = {
     inputId: 'global',
     id: 'myQuery',
@@ -36,11 +34,11 @@ describe('Inspect Button', () => {
     state: mockInputsState,
   };
 
-  let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  let store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
 
   describe('Render', () => {
     beforeEach(() => {
-      const myState = cloneDeep(state);
+      const myState = cloneDeep(mockGlobalState);
       myState.inputs = upsertQuery(newQuery);
       store = createStore(myState, SUB_PLUGINS_REDUCER, apolloClientObservable);
     });
@@ -139,7 +137,7 @@ describe('Inspect Button', () => {
 
   describe('Modal Inspect - happy path', () => {
     beforeEach(() => {
-      const myState = cloneDeep(state);
+      const myState = cloneDeep(mockGlobalState);
       const myQuery = cloneDeep(newQuery);
       myQuery.inspect = {
         dsl: ['my dsl'],

@@ -13,9 +13,9 @@ import {
   TestProviders,
   SUB_PLUGINS_REDUCER,
 } from '../../mock';
-import { createStore, State } from '../../store';
+import { createStore } from '../../store';
 import { AddFilterToGlobalSearchBar } from '.';
-import { PreloadedState } from 'redux';
+import { SecurityAppStore } from '../../store/store';
 
 const mockAddFilters = jest.fn();
 jest.mock('../../lib/kibana', () => ({
@@ -33,11 +33,10 @@ jest.mock('../../lib/kibana', () => ({
 }));
 
 describe('AddFilterToGlobalSearchBar Component', () => {
-  const state: PreloadedState<State> = mockGlobalState;
-  let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  let store: SecurityAppStore;
 
   beforeEach(() => {
-    store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+    store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
     mockAddFilters.mockClear();
   });
 

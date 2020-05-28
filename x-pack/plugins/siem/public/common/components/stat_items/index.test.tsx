@@ -31,10 +31,9 @@ import {
   mockNarrowDateRange,
 } from '../../../network/components/kpi_network/mock';
 import { mockGlobalState, apolloClientObservable, SUB_PLUGINS_REDUCER } from '../../mock';
-import { State, createStore } from '../../store';
+import { createStore } from '../../store';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 import { KpiNetworkData, KpiHostsData } from '../../../graphql/types';
-import { PreloadedState } from 'redux';
 
 const from = new Date('2019-06-15T06:00:00.000Z').valueOf();
 const to = new Date('2019-06-18T06:00:00.000Z').valueOf();
@@ -49,8 +48,7 @@ jest.mock('../charts/barchart', () => {
 
 describe('Stat Items Component', () => {
   const theme = () => ({ eui: euiDarkVars, darkMode: true });
-  const state: PreloadedState<State> = mockGlobalState;
-  const store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  const store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
 
   describe.each([
     [

@@ -36,6 +36,10 @@ const mockUiSettingsForFilterManager = createKibanaCoreStartMock().uiSettings;
 const field = 'process.name';
 const value = 'nice';
 
+/**
+ * This is used with `createStore`, which takes initial state. That's why we use `PreloadedState`.
+ * However this test requires `state.inputs`, so mark that as required.
+ */
 const state: PreloadedState<State> & Pick<State, 'inputs'> = {
   ...mockGlobalState,
   inputs: {

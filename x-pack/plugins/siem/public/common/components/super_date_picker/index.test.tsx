@@ -10,12 +10,7 @@ import { Provider as ReduxStoreProvider } from 'react-redux';
 
 import { DEFAULT_TIMEPICKER_QUICK_RANGES } from '../../../../common/constants';
 import { useUiSetting$ } from '../../lib/kibana';
-import {
-  apolloClientObservable,
-  mockGlobalState,
-  SUB_PLUGINS_REDUCER,
-  mockInputsState,
-} from '../../mock';
+import { apolloClientObservable, mockGlobalState, SUB_PLUGINS_REDUCER } from '../../mock';
 import { createUseUiSetting$Mock } from '../../mock/kibana_react';
 import { createStore } from '../../store';
 
@@ -79,7 +74,7 @@ const timepickerRanges = [
 
 describe('SIEM Super Date Picker', () => {
   describe('#SuperDatePicker', () => {
-    const state = { ...mockGlobalState, inputs: mockInputsState };
+    const state = { ...mockGlobalState };
     let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
 
     beforeEach(() => {

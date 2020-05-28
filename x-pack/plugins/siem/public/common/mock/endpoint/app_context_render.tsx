@@ -7,7 +7,7 @@
 import React from 'react';
 import { createMemoryHistory } from 'history';
 import { render as reactRender, RenderOptions, RenderResult } from '@testing-library/react';
-import { Store, PreloadedState } from 'redux';
+import { Store } from 'redux';
 
 import { coreMock } from '../../../../../../../src/core/public/mocks';
 import { StartPlugins } from '../../../types';
@@ -56,8 +56,7 @@ export const createAppRootMockRenderer = (): AppContextTestRender => {
   const coreStart = coreMock.createStart({ basePath: '/mock' });
   const depsStart = depsStartMock();
   const middlewareSpy = createSpyMiddleware();
-  const state: PreloadedState<State> = mockGlobalState;
-  const store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable, [
+  const store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable, [
     substateMiddlewareFactory(
       (globalState) => globalState.hostList,
       hostMiddlewareFactory(coreStart, depsStart)

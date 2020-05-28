@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { PreloadedState } from 'redux';
 import { DEFAULT_TIMELINE_WIDTH } from '../../timelines/components/timeline/body/constants';
 import {
   Direction,
@@ -108,7 +107,14 @@ export const mockTimelineState: State['timeline'] = {
   },
 };
 
-export const mockGlobalState: PreloadedState<State> = {
+/**
+ * Used when tests call `createStore`. Passed as the 'initialState' parameter.
+ * Not all subplugins provide initial state, but many tests expect this object to be
+ * a complete `State` object.
+ *
+ * For this reason, the type is `State`, but with certain subplugins omitted.
+ */
+export const mockGlobalState: Omit<State, 'alertList' | 'hostList' | 'management'> = {
   app: {
     notesById: {},
     errors: [

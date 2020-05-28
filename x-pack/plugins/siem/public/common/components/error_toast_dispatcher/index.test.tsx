@@ -9,18 +9,15 @@ import React from 'react';
 import { Provider } from 'react-redux';
 
 import { apolloClientObservable, mockGlobalState, SUB_PLUGINS_REDUCER } from '../../mock';
-import { createStore } from '../../store/store';
+import { createStore, SecurityAppStore } from '../../store/store';
 
 import { ErrorToastDispatcher } from '.';
-import { State } from '../../store/reducer';
-import { PreloadedState } from 'redux';
 
 describe('Error Toast Dispatcher', () => {
-  const state: PreloadedState<State> = mockGlobalState;
-  let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  let store: SecurityAppStore;
 
   beforeEach(() => {
-    store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+    store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
   });
 
   describe('rendering', () => {
