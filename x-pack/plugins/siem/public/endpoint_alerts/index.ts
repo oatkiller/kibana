@@ -5,7 +5,7 @@
  */
 
 import { SecuritySubPluginWithStore } from '../app/types';
-import { getEndpointAlertsRoutes } from './routes';
+import { endpointAlertsRoutes } from './routes';
 import { Immutable } from '../../common/endpoint/types';
 import { initialAlertListState, alertListReducer } from './store/reducer';
 import { AlertListState } from '../../common/endpoint_alerts/types';
@@ -23,14 +23,14 @@ export class EndpointAlerts {
   ): SecuritySubPluginWithStore<'alertList', Immutable<AlertListState>> {
     const { data, ingestManager } = plugins;
     const middleware = [
-      substateMiddlewareFactory(
+      substateMiddlewareFactory<AlertListState>(
         (globalState) => globalState.alertList,
         alertMiddlewareFactory(core, { data, ingestManager })
       ),
     ];
 
     return {
-      routes: getEndpointAlertsRoutes(),
+      routes: endpointAlertsRoutes(),
       store: {
         initialState: { alertList: initialAlertListState() },
         reducer: { alertList: alertListReducer },

@@ -30,10 +30,10 @@ export { createStore, getStore };
  * Returns a regular middleware, meant to be used with `applyMiddleware`.
  */
 export const substateMiddlewareFactory = <Substate>(
-  selector: (state: State) => Substate,
+  selector: (state: State) => Substate | Immutable<Substate>,
   middleware: ImmutableMiddleware<Substate, AppAction>
 ): Middleware<{}, State, Dispatch<AppAction | Immutable<AppAction>>> => {
-  return api => {
+  return (api) => {
     const substateAPI = {
       ...api,
       // Return just the substate instead of global state.

@@ -17,13 +17,17 @@ export const managementMiddlewareFactory: SecuritySubPluginMiddlewareFactory = (
   coreStart,
   depsStart
 ) => {
-  const listSelector: (state: State) => PolicyListState = state =>
-    state.management.policyList as PolicyListState;
-  const detailSelector: (state: State) => PolicyDetailsState = state =>
-    state.management.policyDetails as PolicyDetailsState;
+  const listSelector = (state: State) => state.management.policyList;
+  const detailSelector = (state: State) => state.management.policyDetails;
 
   return [
-    substateMiddlewareFactory(listSelector, policyListMiddlewareFactory(coreStart, depsStart)),
-    substateMiddlewareFactory(detailSelector, policyDetailsMiddlewareFactory(coreStart, depsStart)),
+    substateMiddlewareFactory<PolicyListState>(
+      listSelector,
+      policyListMiddlewareFactory(coreStart, depsStart)
+    ),
+    substateMiddlewareFactory<PolicyDetailsState>(
+      detailSelector,
+      policyDetailsMiddlewareFactory(coreStart, depsStart)
+    ),
   ];
 };

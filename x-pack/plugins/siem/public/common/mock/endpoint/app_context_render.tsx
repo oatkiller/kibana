@@ -19,6 +19,8 @@ import { hostMiddlewareFactory } from '../../../endpoint_hosts/store';
 import { alertMiddlewareFactory } from '../../../endpoint_alerts/store/middleware';
 import { AppRootProvider } from './app_root_provider';
 import { managementMiddlewareFactory } from '../../../management/store';
+import { HostState } from '../../../endpoint_hosts/types';
+import { AlertListState } from '../../../../common/endpoint_alerts/types';
 import { SUB_PLUGINS_REDUCER, mockGlobalState } from '..';
 
 type UiRender = (ui: React.ReactElement, options?: RenderOptions) => RenderResult;
@@ -57,11 +59,11 @@ export const createAppRootMockRenderer = (): AppContextTestRender => {
   const depsStart = depsStartMock();
   const middlewareSpy = createSpyMiddleware();
   const store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable, [
-    substateMiddlewareFactory(
+    substateMiddlewareFactory<HostState>(
       (globalState) => globalState.hostList,
       hostMiddlewareFactory(coreStart, depsStart)
     ),
-    substateMiddlewareFactory(
+    substateMiddlewareFactory<AlertListState>(
       (globalState) => globalState.alertList,
       alertMiddlewareFactory(coreStart, depsStart)
     ),

@@ -10,21 +10,20 @@ import React from 'react';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 
 import { apolloClientObservable, mockGlobalState, SUB_PLUGINS_REDUCER } from '../../../common/mock';
-import { createStore, State } from '../../../common/store';
+import { createStore } from '../../../common/store';
 import { hostsModel } from '../../store';
 import { mockData } from './mock';
 import * as i18n from './translations';
 import { AuthenticationTable, getAuthenticationColumnsCurated } from '.';
-import { PreloadedState } from 'redux';
+import { SecurityAppStore } from '../../../common/store/store';
 
 describe('Authentication Table Component', () => {
   const loadPage = jest.fn();
-  const state: PreloadedState<State> = mockGlobalState;
 
-  let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  let store: SecurityAppStore;
 
   beforeEach(() => {
-    store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+    store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
   });
 
   describe('rendering', () => {
