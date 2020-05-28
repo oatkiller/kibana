@@ -5,7 +5,7 @@
  */
 
 import { SecuritySubPluginWithStore } from '../app/types';
-import { getEndpointHostsRoutes } from './routes';
+import { endpointHostsRoutes } from './routes';
 import { initialHostListState, hostListReducer } from './store/reducer';
 import { Immutable } from '../../common/endpoint/types';
 import { HostState } from './types';
@@ -23,13 +23,13 @@ export class EndpointHosts {
   ): SecuritySubPluginWithStore<'hostList', Immutable<HostState>> {
     const { data, ingestManager } = plugins;
     const middleware = [
-      substateMiddlewareFactory(
+      substateMiddlewareFactory<HostState>(
         (globalState) => globalState.hostList,
         hostMiddlewareFactory(core, { data, ingestManager })
       ),
     ];
     return {
-      routes: getEndpointHostsRoutes(),
+      routes: endpointHostsRoutes(),
       store: {
         initialState: { hostList: initialHostListState() },
         reducer: { hostList: hostListReducer },

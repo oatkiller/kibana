@@ -6,7 +6,7 @@
 
 import { CoreStart } from 'kibana/public';
 import { managementReducer, managementMiddlewareFactory } from './store';
-import { getManagementRoutes } from './routes';
+import { managementRoutes } from './routes';
 import { StartPlugins } from '../types';
 import { MANAGEMENT_STORE_GLOBAL_NAMESPACE } from './common/constants';
 import { SecuritySubPluginWithStore } from '../app/types';
@@ -24,7 +24,7 @@ export class Management {
     plugins: StartPlugins
   ): SecuritySubPluginWithStore<ManagementStoreGlobalNamespace, Immutable<ManagementState>> {
     return {
-      routes: getManagementRoutes(),
+      routes: managementRoutes(),
       store: {
         initialState: {
           [MANAGEMENT_STORE_GLOBAL_NAMESPACE]: undefined,
