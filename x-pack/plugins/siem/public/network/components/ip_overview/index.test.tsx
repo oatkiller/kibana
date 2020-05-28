@@ -15,22 +15,20 @@ import {
   TestProviders,
   SUB_PLUGINS_REDUCER,
 } from '../../../common/mock';
-import { createStore, State } from '../../../common/store';
+import { createStore } from '../../../common/store';
 import { networkModel } from '../../store';
 
 import { IpOverview } from './index';
 import { mockData } from './mock';
 import { mockAnomalies } from '../../../common/components/ml/mock';
 import { NarrowDateRange } from '../../../common/components/ml/types';
-import { PreloadedState } from 'redux';
+import { SecurityAppStore } from '../../../common/store/store';
 
 describe('IP Overview Component', () => {
-  const state: PreloadedState<State> = mockGlobalState;
-
-  let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  let store: SecurityAppStore;
 
   beforeEach(() => {
-    store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+    store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
   });
 
   describe('rendering', () => {

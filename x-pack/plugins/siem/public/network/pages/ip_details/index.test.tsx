@@ -22,10 +22,10 @@ import {
   SUB_PLUGINS_REDUCER,
 } from '../../../common/mock';
 import { useMountAppended } from '../../../common/utils/use_mount_appended';
-import { createStore, State } from '../../../common/store';
+import { createStore } from '../../../common/store';
 import { InputsModelId } from '../../../common/store/inputs/constants';
 import { IPDetailsComponent, IPDetails } from './index';
-import { PreloadedState } from 'redux';
+import { SecurityAppStore } from '../../../common/store/store';
 
 type Action = 'PUSH' | 'POP' | 'REPLACE';
 const pop: Action = 'POP';
@@ -118,11 +118,10 @@ describe('Ip Details', () => {
     delete (global as GlobalWithFetch).fetch;
   });
 
-  const state: PreloadedState<State> = mockGlobalState;
-  let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  let store: SecurityAppStore;
 
   beforeEach(() => {
-    store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+    store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
     localSource = cloneDeep(mocksSource);
   });
 

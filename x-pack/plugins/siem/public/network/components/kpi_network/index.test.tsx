@@ -9,21 +9,20 @@ import React from 'react';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 
 import { apolloClientObservable, mockGlobalState, SUB_PLUGINS_REDUCER } from '../../../common/mock';
-import { createStore, State } from '../../../common/store';
+import { createStore } from '../../../common/store';
 import { KpiNetworkComponent } from '.';
 import { mockData } from './mock';
-import { PreloadedState } from 'redux';
+import { SecurityAppStore } from '../../../common/store/store';
 
 describe('KpiNetwork Component', () => {
-  const state: PreloadedState<State> = mockGlobalState;
   const from = new Date('2019-06-15T06:00:00.000Z').valueOf();
   const to = new Date('2019-06-18T06:00:00.000Z').valueOf();
   const narrowDateRange = jest.fn();
 
-  let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  let store: SecurityAppStore;
 
   beforeEach(() => {
-    store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+    store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
   });
 
   describe('rendering', () => {

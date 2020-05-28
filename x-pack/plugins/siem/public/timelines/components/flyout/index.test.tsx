@@ -15,12 +15,11 @@ import {
   TestProviders,
   SUB_PLUGINS_REDUCER,
 } from '../../../common/mock';
-import { createStore, State } from '../../../common/store';
+import { createStore } from '../../../common/store';
 import { mockDataProviders } from '../timeline/data_providers/mock/mock_data_providers';
 
 import { Flyout, FlyoutComponent } from '.';
 import { FlyoutButton } from './button';
-import { PreloadedState } from 'redux';
 
 jest.mock('../timeline', () => ({
   // eslint-disable-next-line react/display-name
@@ -31,8 +30,6 @@ const testFlyoutHeight = 980;
 const usersViewing = ['elastic'];
 
 describe('Flyout', () => {
-  const state: PreloadedState<State> = mockGlobalState;
-
   describe('rendering', () => {
     test('it renders correctly against snapshot', () => {
       const wrapper = shallow(
@@ -56,7 +53,7 @@ describe('Flyout', () => {
     });
 
     test('it does NOT render the fly out button when its state is set to flyout is true', () => {
-      const stateShowIsTrue = set('timeline.timelineById.test.show', true, state);
+      const stateShowIsTrue = set('timeline.timelineById.test.show', true, mockGlobalState);
       const storeShowIsTrue = createStore(
         stateShowIsTrue,
         SUB_PLUGINS_REDUCER,
@@ -78,7 +75,7 @@ describe('Flyout', () => {
       const stateWithDataProviders = set(
         'timeline.timelineById.test.dataProviders',
         mockDataProviders,
-        state
+        mockGlobalState
       );
       const storeWithDataProviders = createStore(
         stateWithDataProviders,
@@ -99,7 +96,7 @@ describe('Flyout', () => {
       const stateWithDataProviders = set(
         'timeline.timelineById.test.dataProviders',
         mockDataProviders,
-        state
+        mockGlobalState
       );
       const storeWithDataProviders = createStore(
         stateWithDataProviders,
@@ -132,7 +129,7 @@ describe('Flyout', () => {
       const stateWithDataProviders = set(
         'timeline.timelineById.test.dataProviders',
         mockDataProviders,
-        state
+        mockGlobalState
       );
       const storeWithDataProviders = createStore(
         stateWithDataProviders,

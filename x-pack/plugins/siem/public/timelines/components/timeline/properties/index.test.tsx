@@ -13,10 +13,10 @@ import {
   apolloClientObservable,
   SUB_PLUGINS_REDUCER,
 } from '../../../../common/mock';
-import { createStore, State } from '../../../../common/store';
+import { createStore } from '../../../../common/store';
 import { useThrottledResizeObserver } from '../../../../common/components/utils';
 import { Properties, showDescriptionThreshold, showNotesThreshold } from '.';
-import { PreloadedState } from 'redux';
+import { SecurityAppStore } from '../../../../common/store/store';
 
 jest.mock('../../../../common/lib/kibana');
 
@@ -29,12 +29,11 @@ jest.mock('../../../../common/components/utils');
 describe('Properties', () => {
   const usersViewing = ['elastic'];
 
-  const state: PreloadedState<State> = mockGlobalState;
-  let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  let store: SecurityAppStore;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+    store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
     mockedWidth = 1000;
   });
 

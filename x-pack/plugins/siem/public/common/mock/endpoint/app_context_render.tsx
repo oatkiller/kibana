@@ -77,7 +77,6 @@ export const createAppRootMockRenderer = (): AppContextTestRender => {
     </AppRootProvider>
   );
   const render: UiRender = (ui, options) => {
-    // @ts-ignore
     return reactRender(ui, {
       wrapper: AppWrapper as React.ComponentType,
       ...options,

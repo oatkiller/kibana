@@ -18,22 +18,21 @@ import {
   SUB_PLUGINS_REDUCER,
 } from '../../../common/mock';
 import { useMountAppended } from '../../../common/utils/use_mount_appended';
-import { createStore, State } from '../../../common/store';
+import { createStore } from '../../../common/store';
 import { networkModel } from '../../store';
 
 import { UsersTable } from '.';
 import { mockUsersData } from './mock';
-import { PreloadedState } from 'redux';
+import { SecurityAppStore } from '../../../common/store/store';
 
 describe('Users Table Component', () => {
   const loadPage = jest.fn();
-  const state: PreloadedState<State> = mockGlobalState;
 
-  let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  let store: SecurityAppStore;
   const mount = useMountAppended();
 
   beforeEach(() => {
-    store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+    store = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
   });
 
   describe('Rendering', () => {

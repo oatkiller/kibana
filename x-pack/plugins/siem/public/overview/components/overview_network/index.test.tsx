@@ -16,11 +16,11 @@ import {
 } from '../../../common/mock';
 
 import { OverviewNetwork } from '.';
-import { createStore, State } from '../../../common/store';
+import { createStore } from '../../../common/store';
 import { overviewNetworkQuery } from '../../containers/overview_network/index.gql_query';
 import { GetOverviewHostQuery } from '../../../graphql/types';
 import { wait } from '../../../common/lib/helpers';
-import { PreloadedState } from 'redux';
+import { SecurityAppStore } from '../../../common/store/store';
 
 jest.mock('../../../common/lib/kibana');
 
@@ -82,12 +82,10 @@ const mockOpenTimelineQueryResults: MockedProvidedQuery[] = [
 ];
 
 describe('OverviewNetwork', () => {
-  const state: PreloadedState<State> = mockGlobalState;
-
-  let store = createStore(state, SUB_PLUGINS_REDUCER, apolloClientObservable);
+  let store: SecurityAppStore;
 
   beforeEach(() => {
-    const myState = cloneDeep(state);
+    const myState = cloneDeep(mockGlobalState);
     store = createStore(myState, SUB_PLUGINS_REDUCER, apolloClientObservable);
   });
 

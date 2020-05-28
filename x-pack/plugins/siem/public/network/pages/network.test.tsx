@@ -19,12 +19,11 @@ import {
   apolloClientObservable,
   SUB_PLUGINS_REDUCER,
 } from '../../common/mock';
-import { State, createStore } from '../../common/store';
+import { createStore } from '../../common/store';
 import { inputsActions } from '../../common/store/inputs';
 
 import { Network } from './network';
 import { NetworkRoutes } from './navigation';
-import { PreloadedState } from 'redux';
 
 // Test will fail because we will to need to mock some core services to make the test work
 // For now let's forget about SiemSearchBar and QueryBar
@@ -155,8 +154,7 @@ describe('rendering - rendering', () => {
       },
     ];
     localSource[0].result.data.source.status.indicesExist = true;
-    const myState: PreloadedState<State> = mockGlobalState;
-    const myStore = createStore(myState, SUB_PLUGINS_REDUCER, apolloClientObservable);
+    const myStore = createStore(mockGlobalState, SUB_PLUGINS_REDUCER, apolloClientObservable);
     const wrapper = mount(
       <TestProviders store={myStore}>
         <MockedProvider mocks={localSource} addTypename={false}>

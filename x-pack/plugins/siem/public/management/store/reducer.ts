@@ -13,7 +13,6 @@ import {
 } from '../common/constants';
 import { ImmutableCombineReducers } from '../../common/store';
 
-// Change the type of `combineReducers` locally
 const immutableCombineReducers: ImmutableCombineReducers = combineReducers;
 
 export type ManagementState = ReturnType<typeof managementReducer>;
@@ -23,6 +22,5 @@ export type ManagementState = ReturnType<typeof managementReducer>;
  */
 export const managementReducer = immutableCombineReducers({
   [MANAGEMENT_STORE_POLICY_LIST_NAMESPACE]: policyListReducer,
-  // @ts-ignore
   [MANAGEMENT_STORE_POLICY_DETAILS_NAMESPACE]: policyDetailsReducer,
 });
