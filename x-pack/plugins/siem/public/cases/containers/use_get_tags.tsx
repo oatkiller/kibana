@@ -86,7 +86,7 @@ export const useGetTags = (): UseGetTags => {
       abortCtrl.abort();
       didCancel = true;
     };
-  });
+  }, [dispatchToaster]);
   useEffect(() => {
     callFetch();
   }, [callFetch]);
