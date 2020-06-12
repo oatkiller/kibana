@@ -182,9 +182,33 @@ export const hasSelectedAlert: (state: Immutable<AlertListState>) => boolean = c
   ({ selected_alert: selectedAlert }) => selectedAlert !== undefined
 );
 
+<<<<<<< HEAD:x-pack/plugins/security_solution/public/endpoint_alerts/store/selectors.ts
 export const selectedAlertDetailsTabId: (
   state: Immutable<AlertListState>
 ) => string | undefined = createSelector(
   uiQueryParams,
   ({ active_details_tab: activeDetailsTab }) => activeDetailsTab
 );
+=======
+let lastSelectedAlert: string | null = null;
+/**
+ * @returns <boolean> true once per change of `selectedAlert` in query params.
+ *
+ * As opposed to `hasSelectedAlert` which always returns true if the alert is present
+ * query params, which can cause unnecessary requests and re-renders in some cases.
+ */
+export const selectedAlertHasChanged: (
+  state: Immutable<AlertListState>
+) => boolean = createSelector(uiQueryParams, function hasChanged({
+  selected_alert: selectedAlert,
+}) {
+  if (typeof selectedAlert !== 'string') {
+    return false;
+  }
+  if (selectedAlert === lastSelectedAlert) {
+    return false;
+  }
+  lastSelectedAlert = selectedAlert;
+  return true;
+});
+>>>>>>> all brents work:x-pack/plugins/siem/public/endpoint_alerts/store/selectors.ts

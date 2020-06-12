@@ -81,6 +81,7 @@ export const graphableProcesses = createSelector(
   }
 );
 
+
 /**
  * In laying out the graph, we precalculate the 'width' of each subtree. The 'width' of the subtree is determined by its
  * descedants and the rule that each process node must be at least 1 unit apart. Enforcing that all nodes are at least

@@ -13,6 +13,7 @@ import {
 import { AlertConstants } from '../../../common/endpoint_alerts/alert_constants';
 import { ImmutableMiddlewareFactory } from '../../common/store';
 import { cloneHttpFetchQuery } from '../../common/utils/clone_http_fetch_query';
+<<<<<<< HEAD:x-pack/plugins/security_solution/public/endpoint_alerts/store/middleware.ts
 import {
   isOnAlertPage,
   apiQueryParams,
@@ -20,6 +21,10 @@ import {
   uiQueryParams,
   isAlertPageTabChange,
 } from './selectors';
+=======
+import { isOnAlertPage, apiQueryParams, uiQueryParams, selectedAlertHasChanged } from './selectors';
+import { Immutable } from '../../../common/endpoint/types';
+>>>>>>> all brents work:x-pack/plugins/siem/public/endpoint_alerts/store/middleware.ts
 
 export const alertMiddlewareFactory: ImmutableMiddlewareFactory<AlertListState> = (
   coreStart,
@@ -53,6 +58,7 @@ export const alertMiddlewareFactory: ImmutableMiddlewareFactory<AlertListState> 
       });
       api.dispatch({ type: 'serverReturnedAlertsData', payload: listResponse });
 
+<<<<<<< HEAD:x-pack/plugins/security_solution/public/endpoint_alerts/store/middleware.ts
       if (hasSelectedAlert(state)) {
         const uiParams = uiQueryParams(state);
         const detailsResponse: AlertDetails = await coreStart.http.get(
@@ -60,6 +66,14 @@ export const alertMiddlewareFactory: ImmutableMiddlewareFactory<AlertListState> 
         );
         api.dispatch({ type: 'serverReturnedAlertDetailsData', payload: detailsResponse });
       }
+=======
+    if (action.type === 'userChangedUrl' && isOnAlertPage(state) && selectedAlertHasChanged(state)) {
+      const uiParams = uiQueryParams(state);
+      const response: AlertDetails = await coreStart.http.get(
+        `/api/endpoint/alerts/${uiParams.selected_alert}`
+      );
+      api.dispatch({ type: 'serverReturnedAlertDetailsData', payload: response });
+>>>>>>> all brents work:x-pack/plugins/siem/public/endpoint_alerts/store/middleware.ts
     }
   };
 };
