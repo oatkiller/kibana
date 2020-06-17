@@ -10,7 +10,15 @@ import { ResolverEvent } from '../../../common/endpoint/types';
 import { levelOrder as baseLevelOrder } from '../lib/tree_sequencers';
 
 /**
- * Create a new IndexedProcessTree from an array of ProcessEvents
+ * Create a new IndexedProcessTree from an array of 'graphable' ProcessEvents.
+ * This means you should only pass this creation and already running events,
+ * because those intrinsically define the proscess.
+ *
+ * This indexes the tree in the following ways:
+ *   * entity_id (of a process) to it's children (graphable) process events
+ *   * entity_id (of a process) to it's creation (or already running) event
+ *   * entity_id to 'adjacent': deprecated.
+ *
  */
 export function factory(processes: ResolverEvent[]): IndexedProcessTree {
   const idToChildren = new Map<string | undefined, ResolverEvent[]>();

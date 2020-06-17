@@ -146,7 +146,7 @@ export const terminatedProcesses = createSelector(
  *                   H
  *
  */
-export function widthsOfProcessSubtrees(indexedProcessTree: IndexedProcessTree): ProcessWidths {
+function widthsOfProcessSubtrees(indexedProcessTree: IndexedProcessTree): ProcessWidths {
   const widths = new Map<ResolverEvent, number>();
 
   if (size(indexedProcessTree) === 0) {
@@ -177,7 +177,10 @@ export function widthsOfProcessSubtrees(indexedProcessTree: IndexedProcessTree):
   return widths;
 }
 
-export function processEdgeLineSegments(
+/**
+ * Calculate the graphical line segments that connect process nodes.
+ */
+function processEdgeLineSegments(
   indexedProcessTree: IndexedProcessTree,
   widths: ProcessWidths,
   positions: ProcessPositions
@@ -290,6 +293,10 @@ export function processEdgeLineSegments(
   return edgeLineSegments;
 }
 
+/**
+ * Iterate an `IndexedProcessTree` in level order, adding 'width' data. Used
+ * to calculate our 'taxi' layout.
+ */
 function* levelOrderWithWidths(
   tree: IndexedProcessTree,
   widths: ProcessWidths
@@ -357,7 +364,10 @@ function* levelOrderWithWidths(
   }
 }
 
-export function processPositions(
+/**
+ * Returns a map of nodes positioned in the 'taxi'-esque layout, not isometrically transformed yet.
+ */
+function processPositions(
   indexedProcessTree: IndexedProcessTree,
   widths: ProcessWidths
 ): ProcessPositions {
@@ -462,6 +472,9 @@ export function relatedEventsStats(data: DataState) {
   return data.relatedEventsStats;
 }
 
+/**
+ * TODO, what is this?
+ */
 export const processAdjacencies = createSelector(
   indexedProcessTree,
   graphableProcesses,
@@ -483,6 +496,13 @@ export const processAdjacencies = createSelector(
   }
 );
 
+/**
+ * Returns the lay out of the graph, including nodes and edges.
+ * These are isometrically transformed.
+ * TODO, split this into 2 selectors. one that transforms stuff via the
+ * isometric stuff, and puts it into maps. and another that spatially indexes it.
+ * This separates the concerns, the spatial indexing isn't tightly coupled to how we lay out the graph. also, we need to access the position of nodes in O(1) time in order to pan to them.
+ */
 export const processNodePositionsAndEdgeLineSegments = createSelector(
   indexedProcessTree,
   function processNodePositionsAndEdgeLineSegments(
@@ -512,22 +532,32 @@ export const processNodePositionsAndEdgeLineSegments = createSelector(
      */
     const transformedEdgeLineSegments: EdgeLineSegment[] = [];
     const transformedPositions = new Map<ResolverEvent, Vector2>();
-    const processNodeViewWidth = 360;
-    const processNodeViewHeight = 120;
 
+    // Assume that process nodes extend form their center point no more than this
+    const processNodeViewWidth = 360 * 2;
+    const processNodeViewHeight = 120 * 2;
+
+    // Create a spatial index
     const tree: rbush<IndexedEntity> = new rbush();
+
+    // Map the process nodes and edges to a format that can be indexed by `rbush`
     const processesToIndex: IndexedProcessNode[] = [];
     const edgeLineSegmentsToIndex: IndexedEdgeLineSegment[] = [];
 
     for (const [processEvent, position] of positions) {
-      transformedPositions.set(processEvent, applyMatrix3(position, isometricTransformMatrix));
       const transformedPosition = applyMatrix3(position, isometricTransformMatrix);
+      transformedPositions.set(processEvent, transformedPosition);
+
+      // Calculating a bounding box that should cover the entire process node.
+      // We don't have exact measurements, and that's OK. This just needs to
+      // cover the whole area.
       const [nodeX, nodeY] = transformedPosition;
       const indexedEvent: IndexedProcessNode = {
         minX: nodeX - 0.5 * processNodeViewWidth,
         minY: nodeY - 0.5 * processNodeViewHeight,
         maxX: nodeX + 0.5 * processNodeViewWidth,
         maxY: nodeY + 0.5 * processNodeViewHeight,
+        // TODO we should be able to get the transformed position, from a map, in O(1) (for pan to.)
         position: transformedPosition,
         entity: processEvent,
         type: 'processNode',
@@ -538,10 +568,12 @@ export const processNodePositionsAndEdgeLineSegments = createSelector(
     for (const edgeLineSegment of edgeLineSegments) {
       const {
         points: [startPoint, endPoint],
-        metadata,
       } = edgeLineSegment;
 
+      // Clone the edge line segment, but transform its points with the
+      // isometric transform matrix
       const transformedSegment: EdgeLineSegment = {
+        ...edgeLineSegment,
         points: [
           applyMatrix3(startPoint, isometricTransformMatrix),
           applyMatrix3(endPoint, isometricTransformMatrix),
@@ -551,22 +583,27 @@ export const processNodePositionsAndEdgeLineSegments = createSelector(
       const {
         points: [[x1, y1], [x2, y2]],
       } = transformedSegment;
+
+      // expand this AABB by some margin to account for the width of edge lines.
+      // This must be at least as big as half the height of the edge line
+      const margin = 30;
       const indexedLineSegment: IndexedEdgeLineSegment = {
-        minX: Math.min(x1, x2),
-        minY: Math.min(y1, y2),
-        maxX: Math.max(x1, x2),
-        maxY: Math.max(y1, y2),
+        minX: Math.min(x1, x2) - margin,
+        minY: Math.min(y1, y2) - margin,
+        maxX: Math.max(x1, x2) + margin,
+        maxY: Math.max(y1, y2) + margin,
         entity: transformedSegment,
         type: 'edgeLine',
       };
       edgeLineSegmentsToIndex.push(indexedLineSegment);
-      if (metadata) transformedSegment.metadata = metadata;
 
       transformedEdgeLineSegments.push(transformedSegment);
     }
 
+    // Bulk load the spatial index
     tree.load([...processesToIndex, ...edgeLineSegmentsToIndex]);
 
+    // TODO, no longer make this optional.
     return (boundingBox?: AABB) => {
       let entities;
       if (boundingBox) {
