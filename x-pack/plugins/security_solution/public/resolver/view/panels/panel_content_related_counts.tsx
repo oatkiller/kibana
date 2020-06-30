@@ -12,6 +12,7 @@ import { CrumbInfo, StyledBreadcrumbs } from './panel_content_utilities';
 
 import * as event from '../../../../common/endpoint/models/event';
 import { ResolverEvent, ResolverNodeStats } from '../../../../common/endpoint/types';
+import { uniquePidForProcess } from '../../models/process_event';
 
 /**
  * This view gives counts for all the related events of a process grouped by related event type.
@@ -40,7 +41,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
 
   const relatedEventsState = { stats: relatedStats.events.byCategory };
   const processName = processEvent && event.eventName(processEvent);
-  const processEntityId = event.entityId(processEvent);
+  const processEntityId = uniquePidForProcess(processEvent);
   /**
    * totalCount: This will reflect the aggregated total by category for all related events
    * e.g. [dns,file],[dns,file],[registry] will have an aggregate total of 5. This is to keep the
