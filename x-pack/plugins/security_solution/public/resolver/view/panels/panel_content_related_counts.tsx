@@ -41,7 +41,6 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
     count: number;
   }
 
-  const relatedEventsState = { stats: relatedStats.events.byCategory };
   const processName = event.eventName(processEvent);
   const processEntityId = uniquePidForProcess(processEvent);
 
@@ -84,7 +83,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
     ];
   }, [processName, totalCount, processEntityId, pushToQueryParams, eventsString]);
   const rows = useMemo(() => {
-    return Object.entries(relatedEventsState.stats).map(
+    return Object.entries(relatedStats.events.byCategory).map(
       ([eventType, count]): EventCountsTableView => {
         return {
           name: eventType,
@@ -92,7 +91,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
         };
       }
     );
-  }, [relatedEventsState]);
+  }, [relatedStats.events.byCategory]);
   const columns = useMemo<Array<EuiBasicTableColumn<EventCountsTableView>>>(
     () => [
       {
