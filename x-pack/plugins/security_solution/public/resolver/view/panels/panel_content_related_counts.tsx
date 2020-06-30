@@ -42,7 +42,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
   }
 
   const relatedEventsState = { stats: relatedStats.events.byCategory };
-  const processName = processEvent && event.eventName(processEvent);
+  const processName = event.eventName(processEvent);
   const processEntityId = uniquePidForProcess(processEvent);
 
   const totalCount = useSelector(selectors.relatedEventTotalForProcess)(processEvent);
