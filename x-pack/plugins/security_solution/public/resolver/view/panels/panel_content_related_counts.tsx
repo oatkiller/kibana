@@ -68,13 +68,11 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
       },
       {
         text: (
-          <>
-            <FormattedMessage
-              id="xpack.securitySolution.endpoint.resolver.panel.relatedCounts.numberOfEventsInCrumb"
-              values={{ totalCount }}
-              defaultMessage="{totalCount} Events"
-            />
-          </>
+          <FormattedMessage
+            id="xpack.securitySolution.endpoint.resolver.panel.relatedCounts.numberOfEventsInCrumb"
+            values={{ totalCount }}
+            defaultMessage="{totalCount} Events"
+          />
         ),
         onClick: () => {
           pushToQueryParams({ crumbId: processEntityId, crumbEvent: '' });
@@ -132,4 +130,3 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
     </>
   );
 });
-EventCountsForProcess.displayName = 'EventCountsForProcess';
