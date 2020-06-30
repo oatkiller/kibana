@@ -8,8 +8,10 @@ import React, { memo, useMemo } from 'react';
 import { i18n } from '@kbn/i18n';
 import { EuiBasicTableColumn, EuiButtonEmpty, EuiSpacer, EuiInMemoryTable } from '@elastic/eui';
 import { FormattedMessage } from 'react-intl';
+import { useSelector } from 'react-redux';
 import { CrumbInfo, StyledBreadcrumbs } from './panel_content_utilities';
 
+import * as selectors from '../../store/selectors';
 import * as event from '../../../../common/endpoint/models/event';
 import { ResolverEvent, ResolverNodeStats } from '../../../../common/endpoint/types';
 import { uniquePidForProcess } from '../../models/process_event';
@@ -52,10 +54,9 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
    * 1 registry
    * So it would be extremely disorienting to show the user a "3" above that as a total.
    */
-  const totalCount = Object.values(relatedStats.events.byCategory).reduce(
-    (sum, val) => sum + val,
-    0
-  );
+
+  const totalCount = useSelector(selectors.relatedEventTotalForProcess)(processEvent);
+
   const eventsString = i18n.translate(
     'xpack.securitySolution.endpoint.resolver.panel.processEventCounts.events',
     {
