@@ -26,7 +26,7 @@ export const StyledMapContainer = styled.div<{ backgroundColor: string }>`
     flex-grow: 1;
   }
   /**
-   * The placeholder components use absolute positioning.
+   * Nodes use absolute positioning
    */
   position: relative;
   /**
