@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import {writeFile} from 'fs';
+import { writeFile } from 'fs';
 import os from 'os';
 
 import Boom from 'boom';
@@ -30,11 +30,11 @@ import webpackMerge from 'webpack-merge';
 import WrapperPlugin from 'wrapper-webpack-plugin';
 import * as UiSharedDeps from '@kbn/ui-shared-deps';
 
-import {DynamicDllPlugin} from './dynamic_dll_plugin';
+import { DynamicDllPlugin } from './dynamic_dll_plugin';
 
-import {IS_KIBANA_DISTRIBUTABLE} from '../legacy/utils';
-import {fromRoot} from '../core/server/utils';
-import {PUBLIC_PATH_PLACEHOLDER} from './public_path_placeholder';
+import { IS_KIBANA_DISTRIBUTABLE } from '../legacy/utils';
+import { fromRoot } from '../core/server/utils';
+import { PUBLIC_PATH_PLACEHOLDER } from './public_path_placeholder';
 
 const POSTCSS_CONFIG_PATH = require.resolve('./postcss.config');
 const BABEL_PRESET_PATH = require.resolve('@kbn/babel-preset/webpack_preset');
@@ -242,7 +242,7 @@ export default class BaseOptimizer {
 
     const commonConfig = {
       mode: 'development',
-      node: {fs: 'empty'},
+      node: { fs: 'empty' },
       context: fromRoot('.'),
       cache: true,
       entry: {
@@ -321,7 +321,7 @@ export default class BaseOptimizer {
             '?',
             // this JSON is parsed by create_ui_exports_module and determines
             // what require() calls it will execute within the bundle
-            JSON.stringify({type, modules: extensions[type] || []}),
+            JSON.stringify({ type, modules: extensions[type] || [] }),
           ].join('');
         }),
 
@@ -473,8 +473,7 @@ export default class BaseOptimizer {
         IS_CODE_COVERAGE ? coverageConfig : {},
         commonConfig,
         IS_KIBANA_DISTRIBUTABLE ? isDistributableConfig : {},
-        watchingConfig, productionConfig
-        //this.uiBundles.isDevMode() ? watchingConfig : productionConfig
+        this.uiBundles.isDevMode() ? watchingConfig : productionConfig
       )
     );
   }
@@ -484,7 +483,7 @@ export default class BaseOptimizer {
       return true;
     }
 
-    const {warnings} = stats.toJson({all: false, warnings: true});
+    const { warnings } = stats.toJson({ all: false, warnings: true });
 
     // 1 - when typescript doesn't do a full type check, as we have the ts-loader
     // configured here, it does not have enough information to determine
