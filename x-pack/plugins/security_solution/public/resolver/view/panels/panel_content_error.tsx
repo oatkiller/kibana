@@ -4,10 +4,13 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+/* eslint-disable react/display-name */
+
 import { i18n } from '@kbn/i18n';
 import { EuiSpacer, EuiText, EuiButtonEmpty } from '@elastic/eui';
 import React, { memo, useMemo } from 'react';
-import { CrumbInfo, StyledBreadcrumbs } from './panel_content_utilities';
+import { StyledBreadcrumbs } from './panel_content_utilities';
+import { BreadcrumbState } from '../../types';
 
 /**
  * Display an error in the panel when something goes wrong and give the user a way to "retreat" back to a default state.
@@ -20,7 +23,7 @@ export const PanelContentError = memo(function ({
   pushToQueryParams,
 }: {
   translatedErrorMessage: string;
-  pushToQueryParams: (arg0: CrumbInfo) => unknown;
+  pushToQueryParams: (arg0: BreadcrumbState) => unknown;
 }) {
   const crumbs = useMemo(() => {
     return [
@@ -29,7 +32,7 @@ export const PanelContentError = memo(function ({
           defaultMessage: 'Events',
         }),
         onClick: () => {
-          pushToQueryParams({ crumbId: '', crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
         },
       },
       {
@@ -48,7 +51,7 @@ export const PanelContentError = memo(function ({
       <EuiSpacer size="l" />
       <EuiButtonEmpty
         onClick={() => {
-          pushToQueryParams({ crumbId: '', crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
         }}
       >
         {i18n.translate('xpack.securitySolution.endpoint.resolver.panel.error.goBack', {
@@ -58,4 +61,3 @@ export const PanelContentError = memo(function ({
     </>
   );
 });
-PanelContentError.displayName = 'TableServiceError';

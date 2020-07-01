@@ -22,6 +22,7 @@ import { useStateSyncingActions } from './use_state_syncing_actions';
 import { StyledMapContainer, StyledPanel, GraphContainer } from './styles';
 import { entityId } from '../../../common/endpoint/models/event';
 import { SideEffectContext } from './side_effect_context';
+import { ProcessNode } from './process_node';
 
 /**
  * The highest level connected Resolver component. Needs a `Provider` in its ancestry to work.
@@ -58,6 +59,10 @@ export const ResolverMap = React.memo(function ({
   const hasError = useSelector(selectors.hasError);
   const activeDescendantId = useSelector(selectors.uiActiveDescendantId);
   const { colorMap } = useResolverTheme();
+
+  // TODO
+  // const useDot = false
+  const useDot = true;
 
   return (
     <StyledMapContainer className={className} backgroundColor={colorMap.resolverBackground}>
@@ -101,18 +106,29 @@ export const ResolverMap = React.memo(function ({
               throw new Error('Issue calculating adjacency node map.');
             }
             return (
-              <ProcessEventDot
-                key={processEntityId}
-                position={position}
-                projectionMatrix={projectionMatrix}
-                event={processEvent}
-                adjacentNodeMap={adjacentNodeMap}
-                relatedEventsStatsForProcess={
-                  relatedEventsStats ? relatedEventsStats.get(entityId(processEvent)) : undefined
-                }
-                isProcessTerminated={terminatedProcesses.has(processEntityId)}
-                isProcessOrigin={false}
-              />
+              <>
+                {useDot && (
+                  <ProcessEventDot
+                    key={`${processEntityId}:debugging`}
+                    position={position}
+                    projectionMatrix={projectionMatrix}
+                    event={processEvent}
+                    isProcessTerminated={terminatedProcesses.has(processEntityId)}
+                  />
+                )}
+                <ProcessNode
+                  key={processEntityId}
+                  position={position}
+                  projectionMatrix={projectionMatrix}
+                  event={processEvent}
+                  adjacentNodeMap={adjacentNodeMap}
+                  relatedEventsStatsForProcess={
+                    relatedEventsStats ? relatedEventsStats.get(entityId(processEvent)) : undefined
+                  }
+                  isProcessTerminated={terminatedProcesses.has(processEntityId)}
+                  isProcessOrigin={false}
+                />
+              </>
             );
           })}
         </GraphContainer>

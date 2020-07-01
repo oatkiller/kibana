@@ -18,7 +18,6 @@ import { useHistory } from 'react-router-dom';
 // eslint-disable-next-line import/no-nodejs-modules
 import querystring from 'querystring';
 import { EuiPanel } from '@elastic/eui';
-import { displayNameRecord } from './process_event_dot';
 import * as selectors from '../store/selectors';
 import { useResolverDispatch } from './use_resolver_dispatch';
 import * as event from '../../../common/endpoint/models/event';
@@ -29,12 +28,12 @@ import { EventCountsForProcess } from './panels/panel_content_related_counts';
 import { ProcessDetails } from './panels/panel_content_process_detail';
 import { ProcessListWithCounts } from './panels/panel_content_process_list';
 import { RelatedEventDetail } from './panels/panel_content_related_detail';
-import { CrumbInfo } from './panels/panel_content_utilities';
+import { BreadcrumbState } from '../types';
 
 /**
  * The team decided to use this table to determine which breadcrumbs/view to display:
  *
- * | Crumb/Table            | &crumbId                   | &crumbEvent              |
+ * | Breadcrumb/Table            | &breadcrumbId                   | &breadcrumbEvent              |
  * | :--------------------- | :------------------------- | :----------------------  |
  * | all processes/default  | null                       | null                     |
  * | process detail         | entity_id of process       | null                     |
@@ -52,8 +51,8 @@ const PanelContent = memo(function PanelContent() {
   const dispatch = useResolverDispatch();
 
   const { timestamp } = useContext(SideEffectContext);
-  const queryParams: CrumbInfo = useMemo(() => {
-    return { crumbId: '', crumbEvent: '', ...querystring.parse(urlSearch.slice(1)) };
+  const queryParams: BreadcrumbState = useMemo(() => {
+    return { breadcrumbId: '', breadcrumbEvent: '', ...querystring.parse(urlSearch.slice(1)) };
   }, [urlSearch]);
 
   const graphableProcesses = useSelector(selectors.graphableProcesses);
@@ -61,13 +60,13 @@ const PanelContent = memo(function PanelContent() {
     return new Set(graphableProcesses.map(event.entityId));
   }, [graphableProcesses]);
   // The entity id in query params of a graphable process (or false if none is found)
-  // For 1 case (the related detail, see below), the process id will be in crumbEvent instead of crumbId
+  // For 1 case (the related detail, see below), the process id will be in breadcrumbEvent instead of breadcrumbId
   const idFromParams = useMemo(() => {
-    if (graphableProcessEntityIds.has(queryParams.crumbId)) {
-      return queryParams.crumbId;
+    if (graphableProcessEntityIds.has(queryParams.breadcrumbId)) {
+      return queryParams.breadcrumbId;
     }
-    if (graphableProcessEntityIds.has(queryParams.crumbEvent)) {
-      return queryParams.crumbEvent;
+    if (graphableProcessEntityIds.has(queryParams.breadcrumbEvent)) {
+      return queryParams.breadcrumbEvent;
     }
     return '';
   }, [queryParams, graphableProcessEntityIds]);
@@ -117,23 +116,23 @@ const PanelContent = memo(function PanelContent() {
    * panel content view to allow them to dispatch transitions to each other.
    */
   const pushToQueryParams = useCallback(
-    (newCrumbs: CrumbInfo) => {
+    (newCrumbs: BreadcrumbState) => {
       // Construct a new set of params from the current set (minus empty params)
       // by assigning the new set of params provided in `newCrumbs`
-      const crumbsToPass = {
+      const breadcrumbsToPass = {
         ...querystring.parse(urlSearch.slice(1)),
         ...newCrumbs,
       };
 
       // If either was passed in as empty, remove it from the record
-      if (crumbsToPass.crumbId === '') {
-        delete crumbsToPass.crumbId;
+      if (breadcrumbsToPass.breadcrumbId === '') {
+        delete breadcrumbsToPass.breadcrumbId;
       }
-      if (crumbsToPass.crumbEvent === '') {
-        delete crumbsToPass.crumbEvent;
+      if (breadcrumbsToPass.breadcrumbEvent === '') {
+        delete breadcrumbsToPass.breadcrumbEvent;
       }
 
-      const relativeURL = { search: querystring.stringify(crumbsToPass) };
+      const relativeURL = { search: querystring.stringify(breadcrumbsToPass) };
       // We probably don't want to nuke the user's history with a huge
       // trail of these, thus `.replace` instead of `.push`
       return history.replace(relativeURL);
@@ -142,7 +141,7 @@ const PanelContent = memo(function PanelContent() {
   );
 
   const relatedEventStats = useSelector(selectors.relatedEventsStats);
-  const { crumbId, crumbEvent } = queryParams;
+  const { breadcrumbId, breadcrumbEvent } = queryParams;
   const relatedStatsForIdFromParams: ResolverNodeStats | undefined =
     idFromParams && relatedEventStats ? relatedEventStats.get(idFromParams) : undefined;
 
@@ -152,49 +151,52 @@ const PanelContent = memo(function PanelContent() {
    *
    */
   const panelToShow = useMemo(() => {
-    if (crumbEvent === '' && crumbId === '') {
+    if (breadcrumbEvent === '' && breadcrumbId === '') {
       /**
-       * | Crumb/Table            | &crumbId                   | &crumbEvent              |
+       * | Breadcrumb/Table            | &breadcrumbId                   | &breadcrumbEvent              |
        * | :--------------------- | :------------------------- | :----------------------  |
        * | all processes/default  | null                       | null                     |
        */
       return 'processListWithCounts';
     }
 
-    if (graphableProcessEntityIds.has(crumbId)) {
+    if (graphableProcessEntityIds.has(breadcrumbId)) {
       /**
-       * | Crumb/Table            | &crumbId                   | &crumbEvent              |
+       * | Breadcrumb/Table            | &breadcrumbId                   | &breadcrumbEvent              |
        * | :--------------------- | :------------------------- | :----------------------  |
        * | process detail         | entity_id of process       | null                     |
        */
-      if (crumbEvent === '' && uiSelectedEvent) {
+      if (breadcrumbEvent === '' && uiSelectedEvent) {
         return 'processDetails';
       }
 
       /**
-       * | Crumb/Table            | &crumbId                   | &crumbEvent              |
+       * | Breadcrumb/Table            | &breadcrumbId                   | &breadcrumbEvent              |
        * | :--------------------- | :------------------------- | :----------------------  |
        * | relateds count by type | entity_id of process       | 'all'                    |
        */
 
-      if (crumbEvent === 'all' && uiSelectedEvent) {
+      if (breadcrumbEvent === 'all' && uiSelectedEvent) {
         return 'eventCountsForProcess';
       }
 
       /**
-       * | Crumb/Table            | &crumbId                   | &crumbEvent              |
+       * | Breadcrumb/Table            | &breadcrumbId                   | &breadcrumbEvent              |
        * | :--------------------- | :------------------------- | :----------------------  |
        * | relateds list 1 type   | entity_id of process       | valid related event type |
        */
 
-      if (crumbEvent in displayNameRecord && uiSelectedEvent) {
+      // TODO, we won't know all categories in advance.
+      // if breadcrumbEvent was passed, and there is a select event
+      if (breadcrumbEvent !== '' && breadcrumbEvent !== 'all' && uiSelectedEvent) {
         return 'processEventListNarrowedByType';
       }
     }
 
-    if (graphableProcessEntityIds.has(crumbEvent)) {
+    // TODO, If an event ID is provided, we should show the event detail, even if we don't have info for it.
+    if (graphableProcessEntityIds.has(breadcrumbEvent)) {
       /**
-       * | Crumb/Table            | &crumbId                   | &crumbEvent              |
+       * | Breadcrumb/Table            | &breadcrumbId                   | &breadcrumbEvent              |
        * | :--------------------- | :------------------------- | :----------------------  |
        * | related event detail   | event_id of related event  | entity_id of process     |
        */
@@ -203,7 +205,7 @@ const PanelContent = memo(function PanelContent() {
 
     // The default 'Event List' / 'List of all processes' view
     return 'processListWithCounts';
-  }, [uiSelectedEvent, crumbEvent, crumbId, graphableProcessEntityIds]);
+  }, [uiSelectedEvent, breadcrumbEvent, breadcrumbId, graphableProcessEntityIds]);
 
   useEffect(() => {
     // dispatch `appDisplayedDifferentPanel` to sync state with which panel gets displayed
@@ -246,7 +248,7 @@ const PanelContent = memo(function PanelContent() {
           processEvent={uiSelectedEvent!}
           pushToQueryParams={pushToQueryParams}
           relatedStats={relatedStatsForIdFromParams!}
-          eventType={crumbEvent}
+          eventType={breadcrumbEvent}
         />
       );
     }
@@ -257,7 +259,7 @@ const PanelContent = memo(function PanelContent() {
       ).reduce((sum, val) => sum + val, 0);
       return (
         <RelatedEventDetail
-          relatedEventId={crumbId}
+          relatedEventId={breadcrumbId}
           parentEvent={uiSelectedEvent!}
           pushToQueryParams={pushToQueryParams}
           countForParent={parentCount}
@@ -274,8 +276,8 @@ const PanelContent = memo(function PanelContent() {
     );
   }, [
     uiSelectedEvent,
-    crumbEvent,
-    crumbId,
+    breadcrumbEvent,
+    breadcrumbId,
     pushToQueryParams,
     relatedStatsForIdFromParams,
     currentPanelView,
@@ -284,7 +286,6 @@ const PanelContent = memo(function PanelContent() {
 
   return <>{panelInstance}</>;
 });
-PanelContent.displayName = 'PanelContent';
 
 export const Panel = memo(function Event({ className }: { className?: string }) {
   return (
@@ -293,4 +294,3 @@ export const Panel = memo(function Event({ className }: { className?: string }) 
     </EuiPanel>
   );
 });
-Panel.displayName = 'Panel';

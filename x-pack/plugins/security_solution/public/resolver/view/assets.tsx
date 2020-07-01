@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+/* eslint-disable react/display-name */
+
 import React, { memo } from 'react';
 import euiThemeAmsterdamDark from '@elastic/eui/dist/eui_theme_amsterdam_dark.json';
 import euiThemeAmsterdamLight from '@elastic/eui/dist/eui_theme_amsterdam_light.json';
@@ -46,6 +48,7 @@ const idGenerator = htmlIdGenerator();
 /**
  * Ids of paint servers to be referenced by fill and stroke attributes
  */
+// TODO
 export const PaintServerIds = {
   runningProcessCube: idGenerator('psRunningProcessCube'),
   runningTriggerCube: idGenerator('psRunningTriggerCube'),
@@ -140,11 +143,10 @@ const PaintServers = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
   </>
 ));
 
-PaintServers.displayName = 'PaintServers';
-
 /**
  * Ids of symbols to be linked by <use> elements
  */
+// TODO
 export const SymbolIds = {
   processNodeLabel: idGenerator('nodeSymbol'),
   runningProcessCube: idGenerator('runningCube'),
@@ -175,7 +177,7 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
       />
     </symbol>
     <symbol id={SymbolIds.runningProcessCube} viewBox="0 0 88 100">
-      <title>{'Running Process'}</title>
+      {/* Running Process*/}
       <path
         d="M87.52127,25.129a3.79536,3.79536,0,0,0-1.43184-1.47165L45.91025.57471a3.83652,3.83652,0,0,0-3.8205,0L1.91039,23.65739A3.86308,3.86308,0,0,0,0,26.95V73.11541a3.79835,3.79835,0,0,0,1.9104,3.2925L42.08975,99.49067a3.83691,3.83691,0,0,0,3.8205,0L86.08943,76.40791A3.79852,3.79852,0,0,0,88,73.11541V26.95A3.77641,3.77641,0,0,0,87.52127,25.129Z"
         transform="translate(0.00001 0)"
@@ -235,7 +237,7 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
       />
     </symbol>
     <symbol id={SymbolIds.runningTriggerCube} viewBox="0 0 88 100">
-      <title>{'resolver_dark process running'}</title>
+      {/* resolver_dark process running*/}
       <path
         d="M87.52127,25.129a3.79536,3.79536,0,0,0-1.43184-1.47165L45.91025.57471a3.83652,3.83652,0,0,0-3.8205,0L1.91039,23.65739A3.86308,3.86308,0,0,0,0,26.95V73.11541a3.79835,3.79835,0,0,0,1.9104,3.2925L42.08975,99.49067a3.83691,3.83691,0,0,0,3.8205,0L86.08943,76.40791A3.79852,3.79852,0,0,0,88,73.11541V26.95A3.77641,3.77641,0,0,0,87.52127,25.129Z"
         transform="translate(0.00001 0)"
@@ -295,7 +297,7 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
       />
     </symbol>
     <symbol viewBox="0 0 88 100" id={SymbolIds.terminatedProcessCube}>
-      <title>{'Terminated Process'}</title>
+      {/* Terminated Process*/}
       <path
         d="M87.52113,24.73352a3.7956,3.7956,0,0,0-1.43182-1.47166L45.91012.17918a3.8365,3.8365,0,0,0-3.82049,0L1.91029,23.26186A3.86312,3.86312,0,0,0-.00009,26.55445V72.7199a3.79834,3.79834,0,0,0,1.91041,3.29249L42.08963,99.09514a3.83689,3.83689,0,0,0,3.82049,0L86.08931,76.01239a3.79852,3.79852,0,0,0,1.91056-3.29249V26.55445A3.77643,3.77643,0,0,0,87.52113,24.73352Z"
         transform="translate(0.00013 0.39551)"
@@ -325,7 +327,7 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
       </g>
     </symbol>
     <symbol id={SymbolIds.terminatedTriggerCube} viewBox="0 0 88 100">
-      <title>{'Terminated Trigger Process'}</title>
+      {/* Terminated Trigger Process*/}
       {isDarkMode && (
         <path
           opacity="1"
@@ -366,7 +368,7 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
       </g>
     </symbol>
     <symbol viewBox="0 -3 88 106" id={SymbolIds.processCubeActiveBacking}>
-      <title>{'resolver active backing'}</title>
+      {/* resolver active backing*/}
       <path
         d="m87.521 25.064a3.795 3.795 0 0 0-1.4313-1.4717l-40.164-23.083a3.8338 3.8338 0 0 0-3.8191 0l-40.165 23.083a3.8634 3.8634 0 0 0-1.9097 3.2926v46.165a3.7986 3.7986 0 0 0 1.9097 3.2925l40.164 23.083a3.8342 3.8342 0 0 0 3.8191 0l40.164-23.083a3.7988 3.7988 0 0 0 1.9099-3.2925v-46.165a3.7775 3.7775 0 0 0-0.47857-1.8209z"
         strokeWidth="2"
@@ -374,8 +376,6 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
     </symbol>
   </>
 ));
-
-SymbolsAndShapes.displayName = 'SymbolsAndShapes';
 
 /**
  * This `<defs>` element is used to define the reusable assets for the Resolver
@@ -395,8 +395,6 @@ const SymbolDefinitionsComponent = memo(({ className }: { className?: string }) 
     </svg>
   );
 });
-
-SymbolDefinitionsComponent.displayName = 'SymbolDefinitions';
 
 export const SymbolDefinitions = styled(SymbolDefinitionsComponent)`
   position: absolute;
@@ -418,6 +416,7 @@ const processTypeToCube: Record<ResolverProcessType, keyof NodeStyleMap> = {
 /**
  * A hook to bring Resolver theming information into components.
  */
+// TODO own file
 export const useResolverTheme = (): {
   colorMap: ColorMap;
   nodeAssets: NodeStyleMap;
@@ -508,6 +507,7 @@ export const useResolverTheme = (): {
   return { colorMap, nodeAssets, cubeAssetsForNode };
 };
 
+// TODO delete
 export const calculateResolverFontSize = (
   magFactorX: number,
   minFontSize: number,

@@ -4,18 +4,21 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+/* eslint-disable react/display-name */
+
 import React, { memo, useMemo, useEffect, Fragment } from 'react';
 import { i18n } from '@kbn/i18n';
 import { EuiSpacer, EuiText, EuiDescriptionList, EuiTextColor, EuiTitle } from '@elastic/eui';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
-import { CrumbInfo, formatDate, StyledBreadcrumbs, BoldCode } from './panel_content_utilities';
+import { formatDate, StyledBreadcrumbs, BoldCode } from './panel_content_utilities';
 import * as event from '../../../../common/endpoint/models/event';
 import { ResolverEvent } from '../../../../common/endpoint/types';
 import * as selectors from '../../store/selectors';
 import { useResolverDispatch } from '../use_resolver_dispatch';
 import { PanelContentError } from './panel_content_error';
+import { BreadcrumbState } from '../../types';
 
 /**
  * A helper function to turn objects into EuiDescriptionList entries.
@@ -82,7 +85,6 @@ const TitleHr = memo(() => {
     <StyledTitleRule className="euiHorizontalRule euiHorizontalRule--full euiHorizontalRule--marginSmall override" />
   );
 });
-TitleHr.displayName = 'TitleHR';
 
 /**
  * This view presents a detailed view of all the available data for a related event, split and titled by the "section"
@@ -96,10 +98,10 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
 }: {
   relatedEventId: string;
   parentEvent: ResolverEvent;
-  pushToQueryParams: (queryStringKeyValuePair: CrumbInfo) => unknown;
+  pushToQueryParams: (queryStringKeyValuePair: BreadcrumbState) => unknown;
   countForParent: number | undefined;
 }) {
-  const processName = (parentEvent && event.eventName(parentEvent)) || '*';
+  const processName = (parentEvent && event.eventName(parentEvent)) || '';
   const processEntityId = parentEvent && event.entityId(parentEvent);
   const totalCount = countForParent || 0;
   const eventsString = i18n.translate(
@@ -189,7 +191,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
       {
         text: eventsString,
         onClick: () => {
-          pushToQueryParams({ crumbId: '', crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
         },
       },
     ];
@@ -203,13 +205,13 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
       {
         text: eventsString,
         onClick: () => {
-          pushToQueryParams({ crumbId: '', crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
         },
       },
       {
         text: processName,
         onClick: () => {
-          pushToQueryParams({ crumbId: processEntityId!, crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: processEntityId, breadcrumbEvent: '' });
         },
       },
       {
@@ -223,7 +225,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
           </>
         ),
         onClick: () => {
-          pushToQueryParams({ crumbId: processEntityId!, crumbEvent: 'all' });
+          pushToQueryParams({ breadcrumbId: processEntityId, breadcrumbEvent: 'all' });
         },
       },
       {
@@ -238,8 +240,8 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
         ),
         onClick: () => {
           pushToQueryParams({
-            crumbId: processEntityId!,
-            crumbEvent: relatedEventCategory || 'all',
+            breadcrumbId: processEntityId,
+            breadcrumbEvent: relatedEventCategory !== undefined ? relatedEventCategory : 'all',
           });
         },
       },
@@ -362,4 +364,3 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
     </>
   );
 });
-RelatedEventDetail.displayName = 'RelatedEventDetail';

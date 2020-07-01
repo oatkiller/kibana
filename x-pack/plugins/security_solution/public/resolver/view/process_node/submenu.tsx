@@ -4,7 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { i18n } from '@kbn/i18n';
+/* eslint-disable react/display-name */
+
 import React, { ReactNode, useState, useMemo, useCallback } from 'react';
 import {
   EuiI18nNumber,
@@ -21,30 +22,17 @@ import styled from 'styled-components';
  *   initialMenuStatus: submenu before it has been opened / requested data
  *   menuError: if the submenu requested data, but received an error
  */
-export const subMenuAssets = {
-  initialMenuStatus: i18n.translate(
-    'xpack.securitySolution.endpoint.resolver.relatedNotRetrieved',
-    {
-      defaultMessage: 'Related Events have not yet been retrieved.',
-    }
-  ),
-  menuError: i18n.translate('xpack.securitySolution.endpoint.resolver.relatedRetrievalError', {
-    defaultMessage: 'There was an error retrieving related events.',
-  }),
-  relatedEvents: {
-    title: i18n.translate('xpack.securitySolution.endpoint.resolver.relatedEvents', {
-      defaultMessage: 'Events',
-    }),
-  },
-};
+
+// TODO
 const idGenerator = htmlIdGenerator();
+
 interface ResolverSubmenuOption {
   optionTitle: string;
   action: () => unknown;
   prefix?: number | JSX.Element;
 }
 
-export type ResolverSubmenuOptionList = ResolverSubmenuOption[] | string;
+type ResolverSubmenuOptionList = ResolverSubmenuOption[] | string;
 
 const OptionListItem = styled.div`
   width: 175px;
@@ -117,8 +105,6 @@ const OptionList = React.memo(
     );
   }
 );
-
-OptionList.displayName = 'OptionList';
 
 /**
  * A Submenu to be displayed in one of two forms:
@@ -225,8 +211,6 @@ const NodeSubMenuComponents = React.memo(
     );
   }
 );
-
-NodeSubMenuComponents.displayName = 'NodeSubMenu';
 
 export const NodeSubMenu = styled(NodeSubMenuComponents)`
   margin: 2px 0 0 0;

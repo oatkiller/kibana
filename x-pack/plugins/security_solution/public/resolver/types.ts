@@ -458,3 +458,11 @@ export interface IsometricTaxiLayout {
    */
   edgeLineSegments: EdgeLineSegment[];
 }
+
+/**
+ * The two query parameters we read/write on to control which view the table presents:
+ */
+export interface BreadcrumbState {
+  readonly breadcrumbId: string;
+  readonly breadcrumbEvent: string;
+}
