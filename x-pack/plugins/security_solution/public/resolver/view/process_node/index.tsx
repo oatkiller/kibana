@@ -32,6 +32,7 @@ import {
   ButtonWrapper,
   DropdownWrapper,
 } from './styles';
+import { descriptionForNode } from '../description_for_node';
 
 /**
  * An artifact that represents a process node and the things associated with it in the Resolver
@@ -106,7 +107,7 @@ export const ProcessNode = React.memo(
     const svgViewportLength = markerSize + backingBorder * 2;
 
     // The SVG has its own unit. Multiply it by this value to get world units.
-    const worldUnitsPerSvgUnit = 5;
+    const worldUnitsPerSvgUnit = 4;
 
     // the width/height of the SVG element, in pixels
     const svgScreenLength = svgViewportLength * xScale * worldUnitsPerSvgUnit;
@@ -135,26 +136,25 @@ export const ProcessNode = React.memo(
     /**
      * An element that should be animated when the node is clicked.
      */
-    const animationTarget: {
-      current:
-        | (SVGAnimationElement & {
-            /**
-             * `beginElement` is by [w3](https://www.w3.org/TR/SVG11/animate.html#__smil__ElementTimeControl__beginElement)
-             * but missing in [TSJS-lib-generator](https://github.com/microsoft/TSJS-lib-generator/blob/15a4678e0ef6de308e79451503e444e9949ee849/inputfiles/addedTypes.json#L1819)
-             */
-            beginElement: () => void;
-          })
-        | null;
-    } = useRef();
+    const animationTarget = useRef<
+      SVGAnimationElement & {
+        /**
+         * `beginElement` is by [w3](https://www.w3.org/TR/SVG11/animate.html#__smil__ElementTimeControl__beginElement)
+         * but missing in [TSJS-lib-generator](https://github.com/microsoft/TSJS-lib-generator/blob/15a4678e0ef6de308e79451503e444e9949ee849/inputfiles/addedTypes.json#L1819)
+         */
+        beginElement: () => void;
+      }
+    >(null);
     const { colorMap, cubeAssetsForNode } = useResolverTheme();
     const {
       backingFill,
       cubeSymbol,
-      descriptionText,
       isLabelFilled,
       labelButtonFill,
       strokeColor,
     } = cubeAssetsForNode(isProcessTerminated, isProcessOrigin);
+
+    const descriptionText = descriptionForNode(isProcessTerminated, isProcessOrigin);
 
     const resolverNodeIdGenerator = useMemo(() => htmlIdGenerator('resolverNode'), []);
 

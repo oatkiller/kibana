@@ -8,8 +8,6 @@
 import { i18n } from '@kbn/i18n';
 
 import React, { useMemo } from 'react';
-import styled from 'styled-components';
-import { FormattedMessage } from '@kbn/i18n/react';
 import { applyMatrix3, distance, angle } from '../../models/vector2';
 import { Vector2, Matrix3, EdgeLineMetadata } from '../../types';
 import { useResolverTheme, calculateResolverFontSize } from '../assets';

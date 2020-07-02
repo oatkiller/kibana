@@ -11,7 +11,6 @@ import euiThemeAmsterdamDark from '@elastic/eui/dist/eui_theme_amsterdam_dark.js
 import euiThemeAmsterdamLight from '@elastic/eui/dist/eui_theme_amsterdam_light.json';
 import { htmlIdGenerator, ButtonColor } from '@elastic/eui';
 import styled from 'styled-components';
-import { i18n } from '@kbn/i18n';
 import { useUiSetting } from '../../common/lib/kibana';
 import { DEFAULT_DARK_MODE } from '../../../common/constants';
 import { ResolverProcessType } from '../types';
@@ -30,17 +29,15 @@ interface NodeStyleConfig {
   backingFill: string;
   cubeSymbol: string;
   descriptionFill: string;
-  descriptionText: string;
   isLabelFilled: boolean;
   labelButtonFill: ButtonColor;
   strokeColor: string;
 }
 
-export interface NodeStyleMap {
+interface NodeStyleMap {
   runningProcessCube: NodeStyleConfig;
   runningTriggerCube: NodeStyleConfig;
   terminatedProcessCube: NodeStyleConfig;
-  terminatedTriggerCube: NodeStyleConfig;
 }
 
 const idGenerator = htmlIdGenerator();
@@ -420,7 +417,7 @@ const processTypeToCube: Record<ResolverProcessType, keyof NodeStyleMap> = {
 export const useResolverTheme = (): {
   colorMap: ColorMap;
   nodeAssets: NodeStyleMap;
-  cubeAssetsForNode: (isProcessTerimnated: boolean, isProcessOrigin: boolean) => NodeStyleConfig;
+  cubeAssetsForNode: (isProcessTerminated: boolean, isProcessOrigin: boolean) => NodeStyleConfig;
 } => {
   const isDarkMode = useUiSetting<boolean>(DEFAULT_DARK_MODE);
   const theme = isDarkMode ? euiThemeAmsterdamDark : euiThemeAmsterdamLight;
@@ -446,9 +443,6 @@ export const useResolverTheme = (): {
       backingFill: colorMap.processBackingFill,
       cubeSymbol: `#${SymbolIds.runningProcessCube}`,
       descriptionFill: colorMap.descriptionText,
-      descriptionText: i18n.translate('xpack.securitySolution.endpoint.resolver.runningProcess', {
-        defaultMessage: 'Running Process',
-      }),
       isLabelFilled: true,
       labelButtonFill: 'primary',
       strokeColor: theme.euiColorPrimary,
@@ -457,9 +451,6 @@ export const useResolverTheme = (): {
       backingFill: colorMap.triggerBackingFill,
       cubeSymbol: `#${SymbolIds.runningTriggerCube}`,
       descriptionFill: colorMap.descriptionText,
-      descriptionText: i18n.translate('xpack.securitySolution.endpoint.resolver.runningTrigger', {
-        defaultMessage: 'Running Trigger',
-      }),
       isLabelFilled: true,
       labelButtonFill: 'danger',
       strokeColor: theme.euiColorDanger,
@@ -468,29 +459,9 @@ export const useResolverTheme = (): {
       backingFill: colorMap.processBackingFill,
       cubeSymbol: `#${SymbolIds.terminatedProcessCube}`,
       descriptionFill: colorMap.descriptionText,
-      descriptionText: i18n.translate(
-        'xpack.securitySolution.endpoint.resolver.terminatedProcess',
-        {
-          defaultMessage: 'Terminated Process',
-        }
-      ),
       isLabelFilled: false,
       labelButtonFill: 'primary',
       strokeColor: `${theme.euiColorPrimary}33`, // 33 = 20% opacity
-    },
-    terminatedTriggerCube: {
-      backingFill: colorMap.triggerBackingFill,
-      cubeSymbol: `#${SymbolIds.terminatedTriggerCube}`,
-      descriptionFill: colorMap.descriptionText,
-      descriptionText: i18n.translate(
-        'xpack.securitySolution.endpoint.resolver.terminatedTrigger',
-        {
-          defaultMessage: 'Terminated Trigger',
-        }
-      ),
-      isLabelFilled: false,
-      labelButtonFill: 'danger',
-      strokeColor: `${theme.euiColorDanger}33`,
     },
   };
 

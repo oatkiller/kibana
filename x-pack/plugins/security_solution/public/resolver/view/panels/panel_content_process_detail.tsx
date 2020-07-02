@@ -16,7 +16,7 @@ import {
 import styled from 'styled-components';
 import { FormattedMessage } from 'react-intl';
 import * as event from '../../../../common/endpoint/models/event';
-import { CrumbInfo, formatDate, StyledBreadcrumbs } from './panel_content_utilities';
+import { formatDate, StyledBreadcrumbs } from './panel_content_utilities';
 import {
   processPath,
   processPid,
@@ -27,7 +27,8 @@ import {
 } from '../../models/process_event';
 import { CubeForProcess } from './process_cube_icon';
 import { ResolverEvent } from '../../../../common/endpoint/types';
-import { useResolverTheme } from '../assets';
+import { descriptionForNode } from '../description_for_node';
+import { BreadcrumbState } from '../../types';
 
 const StyledDescriptionList = styled(EuiDescriptionList)`
   &.euiDescriptionList.euiDescriptionList--column dt.euiDescriptionList__title.desc-title {
@@ -48,7 +49,7 @@ export const ProcessDetails = memo(function ProcessDetails({
   processEvent: ResolverEvent;
   isProcessTerminated: boolean;
   isProcessOrigin: boolean;
-  pushToQueryParams: (queryStringKeyValuePair: CrumbInfo) => unknown;
+  pushToQueryParams: (queryStringKeyValuePair: BreadcrumbState) => unknown;
 }) {
   const processName = event.eventName(processEvent);
   const processInfoEntry = useMemo(() => {
@@ -160,7 +161,7 @@ export const ProcessDetails = memo(function ProcessDetails({
           }
         ),
         onClick: () => {
-          pushToQueryParams({ crumbId: '', crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
         },
       },
       {
@@ -177,13 +178,6 @@ export const ProcessDetails = memo(function ProcessDetails({
       },
     ];
   }, [processName, pushToQueryParams]);
-  const { cubeAssetsForNode } = useResolverTheme();
-  const { descriptionText } = useMemo(() => {
-    if (!processEvent) {
-      return { descriptionText: '' };
-    }
-    return cubeAssetsForNode(isProcessTerminated, isProcessOrigin);
-  }, [processEvent, cubeAssetsForNode, isProcessTerminated, isProcessOrigin]);
 
   const titleId = useMemo(() => htmlIdGenerator('resolverTable')(), []);
   return (
@@ -201,7 +195,7 @@ export const ProcessDetails = memo(function ProcessDetails({
       </EuiTitle>
       <EuiText>
         <EuiTextColor color="subdued">
-          <span id={titleId}>{descriptionText}</span>
+          <span id={titleId}>{descriptionForNode(isProcessTerminated, isProcessOrigin)}</span>
         </EuiTextColor>
       </EuiText>
       <EuiSpacer size="l" />
