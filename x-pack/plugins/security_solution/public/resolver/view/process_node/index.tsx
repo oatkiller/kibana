@@ -25,47 +25,13 @@ import { useResolverDispatch } from '../use_resolver_dispatch';
 // TODO
 import * as eventModel from '../../../../common/endpoint/models/event';
 import * as selectors from '../../store/selectors';
-import { CubeSvg } from './styles';
-
-const StyledActionsContainer = styled.div<{
-  readonly color: string;
-}>`
-  background-color: transparent;
-  color: ${(props) => props.color};
-  display: flex;
-  flex-flow: column;
-  line-height: 140%;
-  padding: 0.25rem 0 0 0.1rem;
-  position: absolute;
-`;
-
-interface StyledDescriptionText {
-  readonly backgroundColor: string;
-  readonly color: string;
-  readonly isDisplaying: boolean;
-}
-
-const StyledDescriptionText = styled.div<StyledDescriptionText>`
-  background-color: ${(props) => props.backgroundColor};
-  color: ${(props) => props.color};
-  display: ${(props) => (props.isDisplaying ? 'block' : 'none')};
-  font-size: 0.8rem;
-  font-weight: bold;
-  letter-spacing: -0.01px;
-  line-height: 1;
-  margin: 0;
-  padding: 4px 0 0 2px;
-  text-align: left;
-  text-transform: uppercase;
-  width: fit-content;
-`;
+import { CubeSvg, Wrapper, StyledActionsContainer, StyledDescriptionText } from './styles';
 
 /**
  * An artifact that represents a process node and the things associated with it in the Resolver
  */
-const UnstyledProcessNode = React.memo(
+export const ProcessNode = React.memo(
   ({
-    className,
     position,
     event,
     projectionMatrix,
@@ -74,10 +40,6 @@ const UnstyledProcessNode = React.memo(
     isProcessOrigin,
     relatedEventsStatsForProcess,
   }: {
-    /**
-     * A `className` string provided by `styled`
-     */
-    className?: string;
     /**
      * The positon of the process node, in 'world' coordinates.
      */
@@ -312,8 +274,8 @@ const UnstyledProcessNode = React.memo(
      * Key event handling (e.g. 'Enter'/'Space') is provisioned by the `EuiKeyboardAccessible` component
      */
     return (
-      <div
-        className={`${className} kbn-resetFocusState`}
+      <Wrapper
+        className="kbn-resetFocusState"
         role="treeitem"
         aria-level={adjacentNodeMap.level}
         aria-flowto={adjacentNodeMap.nextSibling === null ? undefined : adjacentNodeMap.nextSibling}
@@ -449,64 +411,8 @@ const UnstyledProcessNode = React.memo(
             </EuiFlexItem>
           </EuiFlexGroup>
         </StyledActionsContainer>
-      </div>
+      </Wrapper>
     );
     /* eslint-enable jsx-a11y/click-events-have-key-events */
   }
 );
-
-export const ProcessNode = styled(UnstyledProcessNode)`
-  position: absolute;
-  text-align: left;
-  font-size: 10px;
-  user-select: none;
-  box-sizing: border-box;
-  border-radius: 10%;
-  white-space: nowrap;
-  will-change: left, top, width, height;
-  contain: layout;
-  // why?
-  min-width: 280px;
-  // why?
-  min-height: 90px;
-  overflow-y: visible;
-
-  //dasharray & dashoffset should be equal to "pull" the stroke back
-  //when it is transitioned.
-  //The value is tuned to look good when animated, but to preserve
-  //the effect, it should always be _at least_ the length of the stroke
-  & .backing {
-    stroke-dasharray: 500;
-    stroke-dashoffset: 500;
-    fill-opacity: 0;
-  }
-  &:hover:not([aria-current]) .backing {
-    transition-property: fill-opacity;
-    transition-duration: 0.25s;
-    fill-opacity: 1; // actual color opacity handled in the fill hex
-  }
-
-  &[aria-current] .backing {
-    transition-property: stroke-dashoffset;
-    transition-duration: 1s;
-    stroke-dashoffset: 0;
-  }
-
-  & .euiButton {
-    width: fit-content;
-  }
-
-  & .euiSelectableList-bordered {
-    border-top-right-radius: 0px;
-    border-top-left-radius: 0px;
-  }
-  & .euiSelectableListItem {
-    background-color: black;
-  }
-  & .euiSelectableListItem path {
-    fill: white;
-  }
-  & .euiSelectableListItem__text {
-    color: white;
-  }
-`;

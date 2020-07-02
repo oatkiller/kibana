@@ -107,15 +107,6 @@ export const ResolverMap = React.memo(function ({
             }
             return (
               <>
-                {useDot && (
-                  <ProcessEventDot
-                    key={`${processEntityId}:debugging`}
-                    position={position}
-                    projectionMatrix={projectionMatrix}
-                    event={processEvent}
-                    isProcessTerminated={terminatedProcesses.has(processEntityId)}
-                  />
-                )}
                 <ProcessNode
                   key={processEntityId}
                   position={position}
@@ -128,6 +119,15 @@ export const ResolverMap = React.memo(function ({
                   isProcessTerminated={terminatedProcesses.has(processEntityId)}
                   isProcessOrigin={false}
                 />
+                {useDot && (
+                  <ProcessEventDot
+                    key={`${processEntityId}:debugging`}
+                    position={position}
+                    projectionMatrix={projectionMatrix}
+                    event={processEvent}
+                    isProcessTerminated={terminatedProcesses.has(processEntityId)}
+                  />
+                )}
               </>
             );
           })}
