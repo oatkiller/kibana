@@ -60,9 +60,7 @@ export const ResolverMap = React.memo(function ({
   const activeDescendantId = useSelector(selectors.uiActiveDescendantId);
   const { colorMap } = useResolverTheme();
 
-  // TODO
-  // const useDot = false
-  const useDot = true;
+  const useDot = false;
 
   return (
     <StyledMapContainer className={className} backgroundColor={colorMap.resolverBackground}>

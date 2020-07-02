@@ -5,13 +5,13 @@
  */
 
 import styled from 'styled-components';
+import { EuiFlexGroup } from '@elastic/eui';
 
 export const CubeSvg = styled('svg')`
   display: block;
   position: absolute;
   top: 0;
   left: 0;
-  background-color: rgba(255, 100, 100, 0.3);
 `;
 
 export const StyledDescriptionText = styled.div<{
@@ -43,6 +43,7 @@ export const StyledActionsContainer = styled.div<{
   line-height: 140%;
   padding: 0.25rem 0 0 0.1rem;
   position: absolute;
+  top: 0;
 `;
 
 export const Wrapper = styled.div`
@@ -99,4 +100,18 @@ export const Wrapper = styled.div`
   & .euiSelectableListItem__text {
     color: white;
   }
+`;
+
+export const ButtonWrapper = styled.div<{ backgroundColor: string }>`
+  background-color: ${(props) => props.backgroundColor};
+  alignself: flex-start;
+  padding: 0;
+`;
+
+export const DropdownWrapper = styled(EuiFlexGroup)<{ background: string }>`
+  alignself: flex-start;
+  background: ${(props) => props.background};
+  display: flex;
+  margin: 0;
+  padding: 0;
 `;
