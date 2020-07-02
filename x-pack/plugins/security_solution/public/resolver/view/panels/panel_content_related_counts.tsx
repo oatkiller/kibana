@@ -8,10 +8,12 @@ import React, { memo, useMemo } from 'react';
 import { i18n } from '@kbn/i18n';
 import { EuiBasicTableColumn, EuiButtonEmpty, EuiSpacer, EuiInMemoryTable } from '@elastic/eui';
 import { FormattedMessage } from 'react-intl';
-import { CrumbInfo, StyledBreadcrumbs } from './panel_content_utilities';
+import { StyledBreadcrumbs } from './panel_content_utilities';
 
 import * as event from '../../../../common/endpoint/models/event';
 import { ResolverEvent, ResolverNodeStats } from '../../../../common/endpoint/types';
+import { BreadcrumbState } from '../../types';
+import { uniquePidForProcess } from '../../models/process_event';
 
 /**
  * This view gives counts for all the related events of a process grouped by related event type.
@@ -30,7 +32,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
   relatedStats,
 }: {
   processEvent: ResolverEvent;
-  pushToQueryParams: (queryStringKeyValuePair: CrumbInfo) => unknown;
+  pushToQueryParams: (queryStringKeyValuePair: BreadcrumbState) => unknown;
   relatedStats: ResolverNodeStats;
 }) {
   interface EventCountsTableView {
@@ -66,13 +68,13 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
       {
         text: eventsString,
         onClick: () => {
-          pushToQueryParams({ crumbId: '', crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
         },
       },
       {
         text: processName,
         onClick: () => {
-          pushToQueryParams({ crumbId: processEntityId, crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: processEntityId, breadcrumbEvent: '' });
         },
       },
       {
@@ -86,7 +88,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
           </>
         ),
         onClick: () => {
-          pushToQueryParams({ crumbId: processEntityId, crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: processEntityId, breadcrumbEvent: '' });
         },
       },
     ];
@@ -122,7 +124,10 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
           return (
             <EuiButtonEmpty
               onClick={() => {
-                pushToQueryParams({ crumbId: event.entityId(processEvent), crumbEvent: name });
+                pushToQueryParams({
+                  breadcrumbId: uniquePidForProcess(processEvent),
+                  breadcrumbEvent: name,
+                });
               }}
             >
               {name}

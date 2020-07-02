@@ -5,7 +5,6 @@
  */
 
 import styled from 'styled-components';
-import { EuiFlexGroup } from '@elastic/eui';
 
 export const CubeSvg = styled('svg')`
   display: block;
@@ -17,16 +16,19 @@ export const CubeSvg = styled('svg')`
 export const StyledDescriptionText = styled.div<{
   readonly backgroundColor: string;
   readonly color: string;
-  readonly isDisplaying: boolean;
 }>`
   background-color: ${(props) => props.backgroundColor};
   color: ${(props) => props.color};
-  display: ${(props) => (props.isDisplaying ? 'block' : 'none')};
   font-size: 0.8rem;
   font-weight: bold;
   letter-spacing: -0.01px;
   line-height: 1;
-  margin: 0;
+  // This element and its siblings make up the 'actions container'.
+  // The actions container should have its vertical center aligned with the vertical center of the cube.
+  // This element has no background color, so it doesn't really add to the visual weight.
+  // Therefore give it a negative top margin, shifting everything up to accomodate.
+  // The margin should be the same as font-size * -1 because line-height is 1
+  margin: -0.8rem 0 0 0;
   padding: 4px 0 0 2px;
   text-align: left;
   text-transform: uppercase;
@@ -35,15 +37,18 @@ export const StyledDescriptionText = styled.div<{
 
 export const StyledActionsContainer = styled.div<{
   readonly color: string;
+  readonly backgroundColor: string;
 }>`
-  background-color: transparent;
   color: ${(props) => props.color};
+  background-color: ${(props) => props.backgroundColor};
+  padding: 2px;
+  border-radius: 2px;
   display: flex;
   flex-flow: column;
-  line-height: 140%;
-  padding: 0.25rem 0 0 0.1rem;
-  position: absolute;
-  top: 0;
+  align-items: flex-start;
+  // the marginTop is set via style to the position that we want the vertical center of the component to be
+  // so we translate up by half
+  transform: translateY(-50%);
 `;
 
 export const Wrapper = styled.div`
@@ -54,13 +59,8 @@ export const Wrapper = styled.div`
   box-sizing: border-box;
   border-radius: 10%;
   white-space: nowrap;
-  will-change: left, top, width, height;
+  will-change: left, top, min-width, min-height;
   contain: layout;
-  // why?
-  min-width: 280px;
-  // why?
-  min-height: 90px;
-  overflow-y: visible;
 
   //dasharray & dashoffset should be equal to "pull" the stroke back
   //when it is transitioned.
@@ -100,18 +100,4 @@ export const Wrapper = styled.div`
   & .euiSelectableListItem__text {
     color: white;
   }
-`;
-
-export const ButtonWrapper = styled.div<{ backgroundColor: string }>`
-  background-color: ${(props) => props.backgroundColor};
-  alignself: flex-start;
-  padding: 0;
-`;
-
-export const DropdownWrapper = styled(EuiFlexGroup)<{ background: string }>`
-  alignself: flex-start;
-  background: ${(props) => props.background};
-  display: flex;
-  margin: 0;
-  padding: 0;
 `;
