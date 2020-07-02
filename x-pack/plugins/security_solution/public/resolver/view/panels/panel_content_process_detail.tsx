@@ -14,7 +14,6 @@ import {
   EuiDescriptionList,
 } from '@elastic/eui';
 import styled from 'styled-components';
-import { FormattedMessage } from 'react-intl';
 import * as event from '../../../../common/endpoint/models/event';
 import { formatDate, StyledBreadcrumbs } from './panel_content_utilities';
 import {
@@ -84,7 +83,7 @@ export const ProcessDetails = memo(function ProcessDetails({
       title: i18n.translate('xpack.securitySolution.endpoint.resolver.panel.processDescList.user', {
         defaultMessage: 'User',
       }),
-      description: (userInfoForProcess(processEvent) as { name: string }).name,
+      description: userInfoForProcess(processEvent)?.user,
     };
 
     const domainEntry = {
@@ -94,7 +93,7 @@ export const ProcessDetails = memo(function ProcessDetails({
           defaultMessage: 'Domain',
         }
       ),
-      description: (userInfoForProcess(processEvent) as { domain: string }).domain,
+      description: userInfoForProcess(processEvent)?.domain,
     };
 
     const parentPidEntry = {
@@ -165,16 +164,10 @@ export const ProcessDetails = memo(function ProcessDetails({
         },
       },
       {
-        text: (
-          <>
-            <FormattedMessage
-              id="xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.detailsForProcessName"
-              values={{ processName }}
-              defaultMessage="Details for: {processName}"
-            />
-          </>
+        text: i18n.translate(
+          'xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.detailsForProcessName',
+          { values: { processName }, defaultMessage: 'Details for: {processName}' }
         ),
-        onClick: () => {},
       },
     ];
   }, [processName, pushToQueryParams]);
