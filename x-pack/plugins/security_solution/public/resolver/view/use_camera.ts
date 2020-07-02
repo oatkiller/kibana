@@ -54,6 +54,12 @@ export function useCamera(): {
   const projectionMatrixAtTimeRef = useRef<typeof projectionMatrixAtTime>();
 
   /**
+   * Allow rAF loop to indirectly read projectionMatrixAtTime via a ref. Since it also
+   * sets projectionMatrixAtTime, relying directly on it would cause considerable jank.
+   */
+  projectionMatrixAtTimeRef.current = projectionMatrixAtTime;
+
+  /**
    * The projection matrix is stateful, depending on the current time.
    * When the projection matrix changes, the component should be rerendered.
    */
@@ -183,14 +189,6 @@ export function useCamera(): {
       };
     }
   }, [ref, handleWheel]);
-
-  /**
-   * Allow rAF loop to indirectly read projectionMatrixAtTime via a ref. Since it also
-   * sets projectionMatrixAtTime, relying directly on it causes considerable jank.
-   */
-  useLayoutEffect(() => {
-    projectionMatrixAtTimeRef.current = projectionMatrixAtTime;
-  }, [projectionMatrixAtTime]);
 
   /**
    * Keep the projection matrix state in sync with the selector.

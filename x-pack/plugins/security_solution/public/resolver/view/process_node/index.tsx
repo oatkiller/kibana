@@ -6,7 +6,7 @@
 
 /* eslint-disable react/display-name */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { i18n } from '@kbn/i18n';
 import { htmlIdGenerator, EuiButton, EuiI18nNumber, EuiFlexItem } from '@elastic/eui';
 import { useHistory } from 'react-router-dom';
@@ -145,7 +145,7 @@ export const ProcessNode = React.memo(
             beginElement: () => void;
           })
         | null;
-    } = React.createRef();
+    } = useRef();
     const { colorMap, cubeAssetsForNode } = useResolverTheme();
     const {
       backingFill,
@@ -275,6 +275,144 @@ export const ProcessNode = React.memo(
 
     const grandTotal: number | null = useSelector(selectors.relatedEventTotalForProcess)(event);
 
+    const inner = useMemo(() => {
+      return (
+        <>
+          <CubeSvg
+            viewBox={`0 0 ${svgViewportLength} ${svgViewportLength}`}
+            style={{
+              width: `${svgScreenLength}px`,
+              height: `${svgScreenLength}px`,
+            }}
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <g>
+              <use
+                xlinkHref={`#${SymbolIds.processCubeActiveBacking}`}
+                fill={backingFill} // Only visible on hover
+                x="0"
+                y="0"
+                stroke={strokeColor}
+                width={svgViewportLength}
+                height={svgViewportLength}
+                className="backing"
+              />
+              <use
+                role="presentation"
+                xlinkHref={cubeSymbol}
+                x={backingBorder}
+                y={backingBorder}
+                width={markerSize}
+                height={markerSize}
+                opacity="1"
+                className="cube"
+              >
+                <animateTransform
+                  attributeType="XML"
+                  attributeName="transform"
+                  type="scale"
+                  values="1 1; 1 .83; 1 .8; 1 .83; 1 1"
+                  dur="0.2s"
+                  repeatCount="1"
+                  ref={animationTarget}
+                />
+              </use>
+            </g>
+          </CubeSvg>
+          <StyledActionsContainer
+            color={colorMap.full}
+            style={{
+              fontSize: `${scaledTypeSize}px`,
+              left: `${svgScreenLength}px`,
+            }}
+          >
+            <StyledDescriptionText
+              backgroundColor={colorMap.resolverBackground}
+              color={colorMap.descriptionText}
+              isDisplaying={isShowingDescriptionText}
+            >
+              {descriptionText}
+            </StyledDescriptionText>
+            <ButtonWrapper
+              className={xScale >= 2 ? 'euiButton' : 'euiButton euiButton--small'}
+              id={labelId}
+              onClick={handleClick}
+              onFocus={handleFocus}
+              tabIndex={-1}
+              backgroundColor={colorMap.resolverBackground}
+            >
+              <EuiButton
+                color={labelButtonFill}
+                fill={isLabelFilled}
+                id={labelId}
+                size="s"
+                style={{
+                  maxHeight: `${Math.min(26 + xScale * 3, 32)}px`,
+                  maxWidth: `${isShowingEventActions ? 400 : 210 * xScale}px`,
+                }}
+                tabIndex={-1}
+                title={eventModel.eventName(event)}
+              >
+                <span className="euiButton__content">
+                  <span className="euiButton__text">{eventModel.eventName(event)}</span>
+                </span>
+              </EuiButton>
+            </ButtonWrapper>
+            {isShowingEventActions && (
+              <DropdownWrapper
+                justifyContent="flexStart"
+                gutterSize="xs"
+                className="nerds"
+                background={colorMap.resolverBackground}
+              >
+                <EuiFlexItem grow={false} className="related-dropdown">
+                  {grandTotal !== null && grandTotal > 0 && (
+                    <NodeSubMenu
+                      count={grandTotal}
+                      buttonBorderColor={labelButtonFill}
+                      buttonFill={colorMap.resolverBackground}
+                      menuAction={handleRelatedEventRequest}
+                      menuTitle={i18n.translate(
+                        'xpack.securitySolution.endpoint.resolver.relatedEvents',
+                        {
+                          defaultMessage: 'Events',
+                        }
+                      )}
+                      optionsWithActions={relatedEventStatusOrOptions}
+                    />
+                  )}
+                </EuiFlexItem>
+              </DropdownWrapper>
+            )}
+          </StyledActionsContainer>
+        </>
+      );
+    }, [
+      animationTarget,
+      backingFill,
+      colorMap.descriptionText,
+      colorMap.full,
+      colorMap.resolverBackground,
+      cubeSymbol,
+      descriptionText,
+      event,
+      grandTotal,
+      handleClick,
+      handleFocus,
+      handleRelatedEventRequest,
+      isLabelFilled,
+      isShowingDescriptionText,
+      isShowingEventActions,
+      labelButtonFill,
+      labelId,
+      relatedEventStatusOrOptions,
+      scaledTypeSize,
+      strokeColor,
+      svgScreenLength,
+      svgViewportLength,
+      xScale,
+    ]);
+
     /* eslint-disable jsx-a11y/click-events-have-key-events */
     /**
      * Key event handling (e.g. 'Enter'/'Space') is provisioned by the `EuiKeyboardAccessible` component
@@ -294,113 +432,7 @@ export const ProcessNode = React.memo(
         id={nodeId}
         tabIndex={-1}
       >
-        <CubeSvg
-          viewBox={`0 0 ${svgViewportLength} ${svgViewportLength}`}
-          style={{
-            width: `${svgScreenLength}px`,
-            height: `${svgScreenLength}px`,
-          }}
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <g>
-            <use
-              xlinkHref={`#${SymbolIds.processCubeActiveBacking}`}
-              fill={backingFill} // Only visible on hover
-              x="0"
-              y="0"
-              stroke={strokeColor}
-              width={svgViewportLength}
-              height={svgViewportLength}
-              className="backing"
-            />
-            <use
-              role="presentation"
-              xlinkHref={cubeSymbol}
-              x={backingBorder}
-              y={backingBorder}
-              width={markerSize}
-              height={markerSize}
-              opacity="1"
-              className="cube"
-            >
-              <animateTransform
-                attributeType="XML"
-                attributeName="transform"
-                type="scale"
-                values="1 1; 1 .83; 1 .8; 1 .83; 1 1"
-                dur="0.2s"
-                repeatCount="1"
-                ref={animationTarget}
-              />
-            </use>
-          </g>
-        </CubeSvg>
-        <StyledActionsContainer
-          color={colorMap.full}
-          style={{
-            fontSize: `${scaledTypeSize}px`,
-            left: `${svgScreenLength}px`,
-          }}
-        >
-          <StyledDescriptionText
-            backgroundColor={colorMap.resolverBackground}
-            color={colorMap.descriptionText}
-            isDisplaying={isShowingDescriptionText}
-          >
-            {descriptionText}
-          </StyledDescriptionText>
-          <ButtonWrapper
-            className={xScale >= 2 ? 'euiButton' : 'euiButton euiButton--small'}
-            id={labelId}
-            onClick={handleClick}
-            onFocus={handleFocus}
-            tabIndex={-1}
-            backgroundColor={colorMap.resolverBackground}
-          >
-            <EuiButton
-              color={labelButtonFill}
-              fill={isLabelFilled}
-              id={labelId}
-              size="s"
-              style={{
-                maxHeight: `${Math.min(26 + xScale * 3, 32)}px`,
-                maxWidth: `${isShowingEventActions ? 400 : 210 * xScale}px`,
-              }}
-              tabIndex={-1}
-              title={eventModel.eventName(event)}
-            >
-              <span className="euiButton__content">
-                <span className="euiButton__text">{eventModel.eventName(event)}</span>
-              </span>
-            </EuiButton>
-          </ButtonWrapper>
-          {isShowingEventActions && (
-            <DropdownWrapper
-              justifyContent="flexStart"
-              gutterSize="xs"
-              className="nerds"
-              background={colorMap.resolverBackground}
-            >
-              <EuiFlexItem grow={false} className="related-dropdown">
-                {grandTotal !== null && grandTotal > 0 && (
-                  <NodeSubMenu
-                    count={grandTotal}
-                    buttonBorderColor={labelButtonFill}
-                    buttonFill={colorMap.resolverBackground}
-                    menuAction={handleRelatedEventRequest}
-                    menuTitle={i18n.translate(
-                      'xpack.securitySolution.endpoint.resolver.relatedEvents',
-                      {
-                        defaultMessage: 'Events',
-                      }
-                    )}
-                    optionsWithActions={relatedEventStatusOrOptions}
-                  />
-                )}
-              </EuiFlexItem>
-            </DropdownWrapper>
-          )}
-        </StyledActionsContainer>
+        {inner}
       </Wrapper>
     );
     /* eslint-enable jsx-a11y/click-events-have-key-events */
