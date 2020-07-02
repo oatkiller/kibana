@@ -16,7 +16,7 @@ interface UserBroughtProcessIntoView {
     /**
      * Used to identify the process node that should be brought into view.
      */
-    readonly process: ResolverEvent;
+    readonly id: string;
     /**
      * The time (since epoch in milliseconds) when the action was dispatched.
      */
@@ -42,12 +42,11 @@ interface AppDisplayedDifferentPanel {
 interface AppDetectedNewIdFromQueryParams {
   readonly type: 'appDetectedNewIdFromQueryParams';
   readonly payload: {
-    /**
-     * Used to identify the process the process that should be synced with state.
-     */
-    readonly process: ResolverEvent;
+    /** the ID from the query params */
+    readonly id: string;
     /**
      * The time (since epoch in milliseconds) when the action was dispatched.
+     * this action triggers animation.
      */
     readonly time: number;
   };
@@ -80,12 +79,8 @@ interface AppDetectedMissingEventData {
  */
 interface UserFocusedOnResolverNode {
   readonly type: 'userFocusedOnResolverNode';
-  readonly payload: {
-    /**
-     * Used to identify the process node that the user focused on (in the DOM)
-     */
-    readonly nodeId: string;
-  };
+  /** the entity id for the node to focus */
+  readonly payload: string;
 }
 
 /**
@@ -96,16 +91,8 @@ interface UserFocusedOnResolverNode {
  */
 interface UserSelectedResolverNode {
   readonly type: 'userSelectedResolverNode';
-  readonly payload: {
-    /**
-     * The HTML ID used to identify the process node's element that the user selected
-     */
-    readonly nodeId: string;
-    /**
-     * The process entity_id for the process the node represents
-     */
-    readonly selectedProcessId: string;
-  };
+  /** the unique PID for the node */
+  readonly payload: string;
 }
 
 /**

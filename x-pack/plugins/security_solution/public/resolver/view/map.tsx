@@ -23,6 +23,7 @@ import { StyledMapContainer, StyledPanel, GraphContainer } from './styles';
 import { entityId } from '../../../common/endpoint/models/event';
 import { SideEffectContext } from './side_effect_context';
 import { ProcessNode } from './process_node';
+import { uniquePidForProcess } from '../models/process_event';
 
 /**
  * The highest level connected Resolver component. Needs a `Provider` in its ancestry to work.
@@ -51,7 +52,6 @@ export const ResolverMap = React.memo(function ({
   const { processNodePositions, connectingEdgeLineSegments } = useSelector(
     selectors.visibleProcessNodePositionsAndEdgeLineSegments
   )(timestamp());
-  const { processToAdjacencyMap } = useSelector(selectors.processAdjacencies);
   const relatedEventsStats = useSelector(selectors.relatedEventsStats);
   const terminatedProcesses = useSelector(selectors.terminatedProcesses);
   const { projectionMatrix, ref, onMouseDown } = useCamera();
@@ -97,12 +97,7 @@ export const ResolverMap = React.memo(function ({
             />
           ))}
           {[...processNodePositions].map(([processEvent, position]) => {
-            const adjacentNodeMap = processToAdjacencyMap.get(processEvent);
-            const processEntityId = entityId(processEvent);
-            if (!adjacentNodeMap) {
-              // This should never happen
-              throw new Error('Issue calculating adjacency node map.');
-            }
+            const processEntityId = uniquePidForProcess(processEvent);
             return (
               <>
                 <ProcessNode
@@ -110,11 +105,11 @@ export const ResolverMap = React.memo(function ({
                   position={position}
                   projectionMatrix={projectionMatrix}
                   event={processEvent}
-                  adjacentNodeMap={adjacentNodeMap}
                   relatedEventsStatsForProcess={
+                    /* TODO */
                     relatedEventsStats ? relatedEventsStats.get(entityId(processEvent)) : undefined
                   }
-                  isProcessTerminated={terminatedProcesses.has(processEntityId)}
+                  isProcessTerminated={/* TODO */ terminatedProcesses.has(processEntityId)}
                   isProcessOrigin={false}
                 />
                 {useDot && (

@@ -15,7 +15,7 @@ import querystring from 'querystring';
 import { useSelector } from 'react-redux';
 import { NodeSubMenu } from './submenu';
 import { applyMatrix3 } from '../../models/vector2';
-import { Vector2, Matrix3, AdjacentProcessMap, BreadcrumbState } from '../../types';
+import { Vector2, Matrix3, BreadcrumbState } from '../../types';
 // TODO
 import { SymbolIds, useResolverTheme, calculateResolverFontSize } from '../assets';
 // TODO
@@ -36,7 +36,6 @@ export const ProcessNode = React.memo(
     position,
     event,
     projectionMatrix,
-    adjacentNodeMap,
     isProcessTerminated,
     isProcessOrigin,
     relatedEventsStatsForProcess,
@@ -53,10 +52,6 @@ export const ProcessNode = React.memo(
      * projectionMatrix which can be used to convert `position` to screen coordinates.
      */
     projectionMatrix: Matrix3;
-    /**
-     * map of what nodes are "adjacent" to this one in "up, down, previous, next" directions
-     */
-    adjacentNodeMap: AdjacentProcessMap;
     /**
      * Whether or not to show the process as terminated.
      */
@@ -80,12 +75,7 @@ export const ProcessNode = React.memo(
     const [xScale] = projectionMatrix;
 
     // Node (html id=) IDs
-    const selfId = adjacentNodeMap.self;
     const activeDescendantId = useSelector(selectors.uiActiveDescendantId);
-    const selectedDescendantId = useSelector(selectors.uiSelectedDescendantId);
-
-    // Entity ID of self
-    const selfEntityId = eventModel.entityId(event);
 
     const isShowingEventActions = xScale > 0.8;
     const isShowingDescriptionText = xScale >= 0.55;
@@ -159,34 +149,23 @@ export const ProcessNode = React.memo(
 
     const descriptionText = descriptionForNode(isProcessTerminated, isProcessOrigin);
 
-    const resolverNodeIdGenerator = useMemo(() => htmlIdGenerator('resolverNode'), []);
+    const uniquePID = uniquePidForProcess(event);
+    const resolverNodeIdGenerator = useMemo(() => htmlIdGenerator(uniquePID), [uniquePID]);
 
-    const nodeId = useMemo(() => resolverNodeIdGenerator(selfId), [
-      resolverNodeIdGenerator,
-      selfId,
-    ]);
-    const labelId = useMemo(() => resolverNodeIdGenerator(), [resolverNodeIdGenerator]);
-    const descriptionId = useMemo(() => resolverNodeIdGenerator(), [resolverNodeIdGenerator]);
+    const nodeId = resolverNodeIdGenerator('node');
+    const labelId = resolverNodeIdGenerator('label');
+    const descriptionId = resolverNodeIdGenerator('description');
     const isActiveDescendant = nodeId === activeDescendantId;
-    const isSelectedDescendant = nodeId === selectedDescendantId;
+    const isSelectedDescendant = useSelector(selectors.selectedProcess) === uniquePID;
 
     const dispatch = useResolverDispatch();
 
     const handleFocus = useCallback(() => {
       dispatch({
         type: 'userFocusedOnResolverNode',
-        payload: {
-          nodeId,
-        },
+        payload: uniquePID,
       });
-    }, [dispatch, nodeId]);
-
-    const handleRelatedEventRequest = useCallback(() => {
-      dispatch({
-        type: 'userRequestedRelatedEventData',
-        payload: selfId,
-      });
-    }, [dispatch, selfId]);
+    }, [dispatch, uniquePID]);
 
     const history = useHistory();
     const urlSearch = history.location.search;
@@ -225,13 +204,10 @@ export const ProcessNode = React.memo(
       }
       dispatch({
         type: 'userSelectedResolverNode',
-        payload: {
-          nodeId,
-          selectedProcessId: selfId,
-        },
+        payload: uniquePID,
       });
-      pushToQueryParams({ breadcrumbId: selfEntityId, breadcrumbEvent: 'all' });
-    }, [animationTarget, dispatch, nodeId, selfEntityId, pushToQueryParams, selfId]);
+      pushToQueryParams({ breadcrumbId: uniquePID, breadcrumbEvent: 'all' });
+    }, [animationTarget, dispatch, uniquePID, pushToQueryParams]);
 
     /**
      * Enumerates the stats for related events to display with the node as options,
@@ -365,13 +341,9 @@ export const ProcessNode = React.memo(
           </EuiButton>
           {isShowingEventActions && grandTotal !== null && grandTotal > 0 && (
             <NodeSubMenu
-              count={grandTotal}
-              buttonBorderColor={labelButtonFill}
-              buttonFill={colorMap.resolverBackground}
-              menuAction={handleRelatedEventRequest}
-              menuTitle={i18n.translate('xpack.securitySolution.endpoint.resolver.relatedEvents', {
-                defaultMessage: 'Events',
-              })}
+              isProcessOrigin={isProcessOrigin}
+              isProcessTerminated={isProcessTerminated}
+              event={event}
               optionsWithActions={relatedEventStatusOrOptions}
             />
           )}
@@ -399,6 +371,9 @@ export const ProcessNode = React.memo(
       xScale,
     ]);
 
+    const nodeLevel = useSelector(selectors.nodeLevel)(event);
+    const nextSiblingUniquePID = useSelector(selectors.nextSiblingUniquePID)(event);
+
     /**
      * Key event handling (e.g. 'Enter'/'Space') is provisioned by the `EuiKeyboardAccessible` component
      */
@@ -406,8 +381,8 @@ export const ProcessNode = React.memo(
       <Wrapper
         className="kbn-resetFocusState"
         role="treeitem"
-        aria-level={adjacentNodeMap.level}
-        aria-flowto={adjacentNodeMap.nextSibling === null ? undefined : adjacentNodeMap.nextSibling}
+        aria-level={nodeLevel}
+        aria-flowto={nextSiblingUniquePID === null ? undefined : nextSiblingUniquePID}
         aria-labelledby={labelId}
         aria-describedby={descriptionId}
         aria-haspopup={'true'}

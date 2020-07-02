@@ -74,7 +74,7 @@ const PanelContent = memo(function PanelContent() {
   // The "selected" node (and its corresponding event) in the tree control.
   // It may need to be synchronized with the ID indicated as selected via the `idFromParams`
   // memo above. When this is the case, it is handled by the layout effect below.
-  const selectedDescendantProcessId = useSelector(selectors.uiSelectedDescendantProcessId);
+  const selectedDescendantProcessId = useSelector(selectors.selectedProcess);
   const uiSelectedEvent = useMemo(() => {
     return graphableProcesses.find((evt) => event.entityId(evt) === selectedDescendantProcessId);
   }, [graphableProcesses, selectedDescendantProcessId]);
@@ -103,13 +103,10 @@ const PanelContent = memo(function PanelContent() {
       setLastUpdatedProcess(paramsSelectedEvent);
       dispatch({
         type: 'appDetectedNewIdFromQueryParams',
-        payload: {
-          time: timestamp(),
-          process: paramsSelectedEvent,
-        },
+        payload: { id: idFromParams, time: timestamp() },
       });
     }
-  }, [dispatch, uiSelectedEvent, paramsSelectedEvent, lastUpdatedProcess, timestamp]);
+  }, [dispatch, uiSelectedEvent, paramsSelectedEvent, timestamp, lastUpdatedProcess, idFromParams]);
 
   /**
    * This updates the breadcrumb nav and the panel view. It's supplied to each

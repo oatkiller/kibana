@@ -30,22 +30,22 @@ export function factory(processes: ResolverEvent[]): IndexedProcessTree {
 
   const roots: ResolverEvent[] = [];
 
-  for (const process of processes) {
-    const uniqueProcessPid = uniquePidForProcess(process);
-    idToValue.set(uniqueProcessPid, process);
+  for (const node of processes) {
+    const uniqueProcessPid = uniquePidForProcess(node);
+    idToValue.set(uniqueProcessPid, node);
 
     const currentProcessAdjacencyMap: AdjacentProcessMap =
       idToAdjacent.get(uniqueProcessPid) || emptyAdjacencyMap(uniqueProcessPid);
     idToAdjacent.set(uniqueProcessPid, currentProcessAdjacencyMap);
 
-    const uniqueParentPid = uniqueParentPidForProcess(process);
+    const uniqueParentPid = uniqueParentPidForProcess(node);
     const currentProcessSiblings = idToChildren.get(uniqueParentPid);
 
     if (currentProcessSiblings) {
       const previousProcessId = uniquePidForProcess(
         currentProcessSiblings[currentProcessSiblings.length - 1]
       );
-      currentProcessSiblings.push(process);
+      currentProcessSiblings.push(node);
       /**
        * Update adjacency maps for current and previous entries
        */
@@ -56,7 +56,7 @@ export function factory(processes: ResolverEvent[]): IndexedProcessTree {
       }
     } else {
       if (uniqueParentPid) {
-        idToChildren.set(uniqueParentPid, [process]);
+        idToChildren.set(uniqueParentPid, [node]);
         /**
          * Get the parent's map, otherwise set an empty one
          */
@@ -70,7 +70,7 @@ export function factory(processes: ResolverEvent[]): IndexedProcessTree {
         currentProcessAdjacencyMap.parent = uniqueParentPid || null;
       } else {
         // In this case (no unique parent id), it must be a root
-        roots.push(process);
+        roots.push(node);
       }
     }
   }
@@ -103,10 +103,17 @@ export function factory(processes: ResolverEvent[]): IndexedProcessTree {
 /**
  * Returns an array with any children `ProcessEvent`s of the passed in `process`
  */
-export function children(tree: IndexedProcessTree, process: ResolverEvent): ResolverEvent[] {
-  const id = uniquePidForProcess(process);
+export function children(tree: IndexedProcessTree, parentProcess: ResolverEvent): ResolverEvent[] {
+  const id = uniquePidForProcess(parentProcess);
   const currentProcessSiblings = tree.idToChildren.get(id);
   return currentProcessSiblings === undefined ? [] : currentProcessSiblings;
+}
+
+/**
+ * Returns the indexed process for an ID
+ */
+export function process(tree: IndexedProcessTree, id: string): ResolverEvent | undefined {
+  return tree.idToProcess.get(id);
 }
 
 /**
@@ -152,5 +159,30 @@ export function* levelOrder(tree: IndexedProcessTree) {
   const rootNode = root(tree);
   if (rootNode !== null) {
     yield* baseLevelOrder(rootNode, children.bind(null, tree));
+  }
+}
+
+/**
+ * The following sibling for a node.
+ * TODO, value is incorrect
+ */
+export function nextSibling(tree: IndexedProcessTree, id: string): string | null {
+  const adjacentProcessMap = tree.idToAdjacent.get(id);
+  if (adjacentProcessMap) {
+    return adjacentProcessMap.nextSibling;
+  } else {
+    return null;
+  }
+}
+/**
+ * The following sibling for a node.
+ * TODO, value is incorrect
+ */
+export function nodeLevel(tree: IndexedProcessTree, id: string): number | null {
+  const adjacentProcessMap = tree.idToAdjacent.get(id);
+  if (adjacentProcessMap) {
+    return adjacentProcessMap.level;
+  } else {
+    return null;
   }
 }

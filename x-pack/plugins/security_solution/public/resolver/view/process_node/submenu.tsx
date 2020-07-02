@@ -7,15 +7,15 @@
 /* eslint-disable react/display-name */
 
 import React, { ReactNode, useState, useMemo, useCallback } from 'react';
-import {
-  EuiI18nNumber,
-  EuiSelectable,
-  EuiButton,
-  EuiPopover,
-  ButtonColor,
-  htmlIdGenerator,
-} from '@elastic/eui';
+import { EuiI18nNumber, EuiSelectable, EuiButton, EuiPopover, htmlIdGenerator } from '@elastic/eui';
 import styled from 'styled-components';
+import { useSelector } from 'react-redux';
+import { i18n } from '@kbn/i18n';
+import * as selectors from '../../store/selectors';
+import { ResolverEvent } from '../../../../common/endpoint/types';
+import { useResolverTheme } from '../assets';
+import { useResolverDispatch } from '../use_resolver_dispatch';
+import { uniquePidForProcess } from '../../models/process_event';
 
 /**
  * i18n-translated titles for submenus and identifiers for display of states:
@@ -111,24 +111,34 @@ const OptionList = React.memo(
  *   1) Provided a collection of `optionsWithActions`: it will call `menuAction` then - if and when menuData becomes available - display each item with an optional prefix and call the supplied action for the options when that option is clicked.
  *   2) Provided `optionsWithActions` is undefined, it will call the supplied `menuAction` when its host button is clicked.
  */
-const NodeSubMenuComponents = React.memo(
+export const NodeSubMenu = React.memo(
   ({
-    count,
-    buttonBorderColor,
-    menuTitle,
-    menuAction,
     optionsWithActions,
-    className,
+    event,
+    isProcessTerminated,
+    isProcessOrigin,
   }: {
-    menuTitle: string;
-    className?: string;
-    menuAction?: () => unknown;
-    buttonBorderColor: ButtonColor;
-    buttonFill: string;
-    count?: number;
-  } & {
+    event: ResolverEvent;
+    isProcessTerminated: boolean;
+    isProcessOrigin: boolean;
     optionsWithActions?: ResolverSubmenuOptionList | string | undefined;
   }) => {
+    const {
+      colorMap: { resolverBackground },
+      cubeAssetsForNode,
+    } = useResolverTheme();
+    const { labelButtonFill } = cubeAssetsForNode(isProcessTerminated, isProcessOrigin);
+
+    const dispatch = useResolverDispatch();
+    const menuAction = useCallback(() => {
+      dispatch({
+        type: 'userRequestedRelatedEventData',
+        payload: uniquePidForProcess(event),
+      });
+    }, [dispatch, event]);
+
+    const count: number | null = useSelector(selectors.relatedEventTotalForProcess)(event);
+
     const [menuIsOpen, setMenuOpen] = useState(false);
     const handleMenuOpenClick = useCallback(
       (clickEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -162,13 +172,10 @@ const NodeSubMenuComponents = React.memo(
        */
       return (
         <div className={className}>
-          <EuiButton
-            onClick={handleMenuActionClick}
-            color={buttonBorderColor}
-            size="s"
-            tabIndex={-1}
-          >
-            {menuTitle}
+          <EuiButton onClick={handleMenuActionClick} color={labelButtonFill} size="s" tabIndex={-1}>
+            {i18n.translate('xpack.securitySolution.endpoint.resolver.relatedEvents', {
+              defaultMessage: 'Events',
+            })}
           </EuiButton>
         </div>
       );
@@ -183,18 +190,25 @@ const NodeSubMenuComponents = React.memo(
         onClick={
           typeof optionsWithActions === 'object' ? handleMenuOpenClick : handleMenuActionClick
         }
-        color={buttonBorderColor}
+        color={labelButtonFill}
         size="s"
         iconType={menuIsOpen ? 'arrowUp' : 'arrowDown'}
         iconSide="right"
         tabIndex={-1}
       >
-        {count ? <EuiI18nNumber value={count} /> : ''} {menuTitle}
+        {count && <EuiI18nNumber value={count} />}{' '}
+        {i18n.translate('xpack.securitySolution.endpoint.resolver.relatedEvents', {
+          defaultMessage: 'Events',
+        })}
       </EuiButton>
     );
 
     return (
-      <div className={className + (menuIsOpen ? ' is-open' : '')}>
+      <Wrapper
+        buttonBorderColor={labelButtonFill}
+        buttonFill={resolverBackground}
+        className={menuIsOpen ? ' is-open' : ''}
+      >
         <EuiPopover
           id={popoverId}
           panelPaddingSize="none"
@@ -207,12 +221,12 @@ const NodeSubMenuComponents = React.memo(
             <OptionList isLoading={isMenuLoading} subMenuOptions={optionsWithActions} />
           )}
         </EuiPopover>
-      </div>
+      </Wrapper>
     );
   }
 );
 
-export const NodeSubMenu = styled(NodeSubMenuComponents)`
+const Wrapper = styled.div<{ buttonFill: string; buttonBorderColor: string }>`
   margin: 2px 0 0 0;
   padding: 0;
   border: none;

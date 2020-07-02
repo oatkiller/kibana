@@ -15,13 +15,14 @@ import {
   IndexedProcessNode,
   AABB,
   VisibleEntites,
+  IndexedProcessTree,
 } from '../../types';
 import {
   isGraphableProcess,
   isTerminatedProcess,
   uniquePidForProcess,
 } from '../../models/process_event';
-import { factory as indexedProcessTreeFactory } from '../../models/indexed_process_tree';
+import * as indexedProcessTreeModel from '../../models/indexed_process_tree';
 import { isEqual } from '../../models/aabb';
 
 import {
@@ -99,7 +100,7 @@ export const indexedProcessTree = createSelector(graphableProcesses, function in
   graphableProcesses
   /* eslint-enable no-shadow */
 ) {
-  return indexedProcessTreeFactory(graphableProcesses);
+  return indexedProcessTreeModel.factory(graphableProcesses);
 });
 
 /**
@@ -130,29 +131,43 @@ export function relatedEventsReady(data: DataState): Map<string, boolean> {
   return data.relatedEventsReady;
 }
 
-export const processAdjacencies = createSelector(
+/**
+ * Return an indexed process event from its ID
+ */
+export const processForEntityID: (
+  state: DataState
+) => (id: string) => ResolverEvent | undefined = createSelector(
   indexedProcessTree,
-  graphableProcesses,
-  function selectProcessAdjacencies(
-    /* eslint-disable no-shadow */
-    indexedProcessTree,
-    graphableProcesses
-    /* eslint-enable no-shadow */
-  ) {
-    const processToAdjacencyMap = new Map<ResolverEvent, AdjacentProcessMap>();
-    const { idToAdjacent } = indexedProcessTree;
+  (tree?: IndexedProcessTree) =>
+    tree ? indexedProcessTreeModel.process.bind(null, tree) : () => undefined
+);
 
-    for (const graphableProcess of graphableProcesses) {
-      const processPid = uniquePidForProcess(graphableProcess);
-      const adjacencyMap = idToAdjacent.get(processPid)!;
-      processToAdjacencyMap.set(graphableProcess, adjacencyMap);
-    }
-    return { processToAdjacencyMap };
-  }
+/**
+ * the 'level' of the tree a node is in. used for aria
+ */
+export const nodeLevel: (
+  state: DataState
+) => (id: string) => number | null = createSelector(
+  indexedProcessTree,
+  (tree?: IndexedProcessTree) =>
+    tree ? (id: string) => indexedProcessTreeModel.nodeLevel(tree, id) : () => null
+);
+
+/**
+ * The following sibling for a node.
+ * TODO, value is incorrect
+ */
+export const nextSibling: (
+  state: DataState
+) => (
+  /** The unique process ID for the node */ id: string
+) => string | null = createSelector(indexedProcessTree, (tree?: IndexedProcessTree) =>
+  tree ? (id: string) => indexedProcessTreeModel.nextSibling(tree, id) : () => null
 );
 
 /**
  * `true` if there were more children than we got in the last request.
+ * TODO, better name
  */
 export function hasMoreChildren(state: DataState): boolean {
   const tree = resolverTree(state);

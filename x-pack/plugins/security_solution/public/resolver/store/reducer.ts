@@ -11,60 +11,14 @@ import { dataReducer } from './data/reducer';
 import { ResolverAction } from './actions';
 import { ResolverState, ResolverUIState } from '../types';
 import { uniquePidForProcess } from '../models/process_event';
+import { uiReducer } from './ui/reducer';
+import { processForEntityID } from './selectors';
 
 /**
  * Despite the name "generator", this function is entirely determinant
  * (i.e. it will return the same html id given the same prefix 'resolverNode'
  * and nodeId)
  */
-const resolverNodeIdGenerator = htmlIdGenerator('resolverNode');
-
-const uiReducer: Reducer<ResolverUIState, ResolverAction> = (
-  uiState = {
-    activeDescendantId: null,
-    selectedDescendantId: null,
-    processEntityIdOfSelectedDescendant: null,
-    panelToDisplay: null,
-  },
-  action
-) => {
-  if (action.type === 'userFocusedOnResolverNode') {
-    return {
-      ...uiState,
-      activeDescendantId: action.payload.nodeId,
-    };
-  } else if (action.type === 'userSelectedResolverNode') {
-    return {
-      ...uiState,
-      selectedDescendantId: action.payload.nodeId,
-      processEntityIdOfSelectedDescendant: action.payload.selectedProcessId,
-    };
-  } else if (action.type === 'appDisplayedDifferentPanel') {
-    return {
-      ...uiState,
-      panelToDisplay: action.payload,
-    };
-  } else if (
-    action.type === 'userBroughtProcessIntoView' ||
-    action.type === 'appDetectedNewIdFromQueryParams'
-  ) {
-    /**
-     * This action has a process payload (instead of a processId), so we use
-     * `uniquePidForProcess` and `resolverNodeIdGenerator` to resolve the determinant
-     * html id of the node being brought into view.
-     */
-    const processEntityId = uniquePidForProcess(action.payload.process);
-    const processNodeId = resolverNodeIdGenerator(processEntityId);
-    return {
-      ...uiState,
-      activeDescendantId: processNodeId,
-      selectedDescendantId: processNodeId,
-      processEntityIdOfSelectedDescendant: processEntityId,
-    };
-  } else {
-    return uiState;
-  }
-};
 
 const concernReducers = combineReducers({
   camera: cameraReducer,
@@ -75,10 +29,15 @@ const concernReducers = combineReducers({
 export const resolverReducer: Reducer<ResolverState, ResolverAction> = (state, action) => {
   const nextState = concernReducers(state, action);
   if (
-    action.type === 'userBroughtProcessIntoView' ||
-    action.type === 'appDetectedNewIdFromQueryParams'
+    action.type === 'appDetectedNewIdFromQueryParams' ||
+    action.type === 'userBroughtProcessIntoView'
   ) {
-    return animateProcessIntoView(nextState, action.payload.time, action.payload.process);
+    const process = processForEntityID(nextState)(action.payload.id);
+    if (process) {
+      return animateProcessIntoView(nextState, action.payload.time, process);
+    } else {
+      return nextState;
+    }
   } else {
     return nextState;
   }

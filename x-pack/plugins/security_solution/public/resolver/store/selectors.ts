@@ -69,10 +69,16 @@ export const databaseDocumentIDToAbort = composeSelectors(
   dataSelectors.databaseDocumentIDToAbort
 );
 
-export const processAdjacencies = composeSelectors(
-  dataStateSelector,
-  dataSelectors.processAdjacencies
-);
+/**
+ * the 'level' of the tree a node is in. used for aria
+ */
+export const nodeLevel = composeSelectors(dataStateSelector, dataSelectors.nodeLevel);
+
+/**
+ * The following sibling for a node.
+ * TODO, value is incorrect
+ */
+export const nextSibling = composeSelectors(dataStateSelector, dataSelectors.nextSibling);
 
 export const terminatedProcesses = composeSelectors(
   dataStateSelector,
@@ -106,26 +112,12 @@ export const relatedEventsReady = composeSelectors(
 /**
  * Returns the id of the "current" tree node (fake-focused)
  */
-export const uiActiveDescendantId = composeSelectors(
-  uiStateSelector,
-  uiSelectors.activeDescendantId
-);
-
-/**
- * Returns the id of the "selected" tree node (the node that is currently "pressed" and possibly controlling other popups / components)
- */
-export const uiSelectedDescendantId = composeSelectors(
-  uiStateSelector,
-  uiSelectors.selectedDescendantId
-);
+export const uiActiveDescendantId = composeSelectors(uiStateSelector, uiSelectors.focusedNode);
 
 /**
  * Returns the entity_id of the "selected" tree node's process
  */
-export const uiSelectedDescendantProcessId = composeSelectors(
-  uiStateSelector,
-  uiSelectors.selectedDescendantProcessId
-);
+export const selectedProcess = composeSelectors(uiStateSelector, uiSelectors.selectedNode);
 
 /**
  * The current panel to display
@@ -212,4 +204,12 @@ export const visibleProcessNodePositionsAndEdgeLineSegments = createSelector(
   ) {
     return (time: number) => indexedProcessNodesAndEdgeLineSegments(boundingBox(time));
   }
+);
+
+/**
+ * Return an indexed process event from its ID
+ */
+export const processForEntityID = composeSelectors(
+  dataStateSelector,
+  dataSelectors.processForEntityID
 );
