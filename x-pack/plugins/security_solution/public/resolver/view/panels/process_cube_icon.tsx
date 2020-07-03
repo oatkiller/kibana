@@ -6,6 +6,7 @@
 
 import React, { memo } from 'react';
 import { useResolverTheme } from '../assets';
+import { descriptionForNode } from '../description_for_node';
 
 /**
  * During user testing, one user indicated they wanted to see stronger visual relationships between
@@ -19,7 +20,9 @@ export const CubeForProcess = memo(function CubeForProcess({
   isProcessOrigin: boolean;
 }) {
   const { cubeAssetsForNode } = useResolverTheme();
-  const { cubeSymbol, descriptionText } = cubeAssetsForNode(isProcessTerminated, isProcessOrigin);
+  const { cubeSymbol } = cubeAssetsForNode(isProcessTerminated, isProcessOrigin);
+
+  const descriptionText = descriptionForNode(isProcessTerminated, isProcessOrigin);
 
   return (
     <>

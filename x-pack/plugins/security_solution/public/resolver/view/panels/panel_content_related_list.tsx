@@ -9,11 +9,12 @@ import { i18n } from '@kbn/i18n';
 import { EuiTitle, EuiSpacer, EuiText, EuiButtonEmpty, EuiHorizontalRule } from '@elastic/eui';
 import { useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
-import { CrumbInfo, formatDate, StyledBreadcrumbs, BoldCode } from './panel_content_utilities';
+import { formatDate, StyledBreadcrumbs, BoldCode } from './panel_content_utilities';
 import * as event from '../../../../common/endpoint/models/event';
 import { ResolverEvent, ResolverNodeStats } from '../../../../common/endpoint/types';
 import * as selectors from '../../store/selectors';
 import { useResolverDispatch } from '../use_resolver_dispatch';
+import { BreadcrumbState } from '../../types';
 
 /**
  * This view presents a list of related events of a given type for a given process.
@@ -91,7 +92,7 @@ export const ProcessEventListNarrowedByType = memo(function ProcessEventListNarr
   pushToQueryParams,
 }: {
   processEvent: ResolverEvent;
-  pushToQueryParams: (arg0: CrumbInfo) => unknown;
+  pushToQueryParams: (arg0: BreadcrumbState) => unknown;
   eventType: string;
   relatedStats: ResolverNodeStats;
 }) {
@@ -136,7 +137,7 @@ export const ProcessEventListNarrowedByType = memo(function ProcessEventListNarr
       {
         text: eventsString,
         onClick: () => {
-          pushToQueryParams({ crumbId: '', crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
         },
       },
     ];
@@ -169,7 +170,7 @@ export const ProcessEventListNarrowedByType = memo(function ProcessEventListNarr
           name: event.descriptiveName(resolverEvent),
           entityId,
           setQueryParams: () => {
-            pushToQueryParams({ crumbId: entityId, crumbEvent: processEntityId });
+            pushToQueryParams({ breadcrumbId: entityId, breadcrumbEvent: processEntityId });
           },
         };
       });
@@ -181,13 +182,13 @@ export const ProcessEventListNarrowedByType = memo(function ProcessEventListNarr
       {
         text: eventsString,
         onClick: () => {
-          pushToQueryParams({ crumbId: '', crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
         },
       },
       {
         text: processName,
         onClick: () => {
-          pushToQueryParams({ crumbId: processEntityId, crumbEvent: '' });
+          pushToQueryParams({ breadcrumbId: processEntityId, breadcrumbEvent: '' });
         },
       },
       {
@@ -201,7 +202,7 @@ export const ProcessEventListNarrowedByType = memo(function ProcessEventListNarr
           </>
         ),
         onClick: () => {
-          pushToQueryParams({ crumbId: processEntityId, crumbEvent: 'all' });
+          pushToQueryParams({ breadcrumbId: processEntityId, breadcrumbEvent: 'all' });
         },
       },
       {
