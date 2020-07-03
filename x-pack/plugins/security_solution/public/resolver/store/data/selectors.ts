@@ -8,7 +8,6 @@ import rbush from 'rbush';
 import { createSelector } from 'reselect';
 import {
   DataState,
-  AdjacentProcessMap,
   Vector2,
   IndexedEntity,
   IndexedEdgeLineSegment,

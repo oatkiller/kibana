@@ -20,7 +20,6 @@ import { useCamera } from './use_camera';
 import { SymbolDefinitions, useResolverTheme } from './assets';
 import { useStateSyncingActions } from './use_state_syncing_actions';
 import { StyledMapContainer, StyledPanel, GraphContainer } from './styles';
-import { entityId } from '../../../common/endpoint/models/event';
 import { SideEffectContext } from './side_effect_context';
 import { ProcessNode } from './process_node';
 import { uniquePidForProcess } from '../models/process_event';
@@ -52,7 +51,6 @@ export const ResolverMap = React.memo(function ({
   const { processNodePositions, connectingEdgeLineSegments } = useSelector(
     selectors.visibleProcessNodePositionsAndEdgeLineSegments
   )(timestamp());
-  const relatedEventsStats = useSelector(selectors.relatedEventsStats);
   const terminatedProcesses = useSelector(selectors.terminatedProcesses);
   const { projectionMatrix, ref, onMouseDown } = useCamera();
   const isLoading = useSelector(selectors.isLoading);
@@ -105,10 +103,6 @@ export const ResolverMap = React.memo(function ({
                   position={position}
                   projectionMatrix={projectionMatrix}
                   event={processEvent}
-                  relatedEventsStatsForProcess={
-                    /* TODO */
-                    relatedEventsStats ? relatedEventsStats.get(entityId(processEvent)) : undefined
-                  }
                   isProcessTerminated={/* TODO */ terminatedProcesses.has(processEntityId)}
                   isProcessOrigin={false}
                 />

@@ -87,6 +87,7 @@ export const terminatedProcesses = composeSelectors(
 
 /**
  * Returns a map of `ResolverEvent` entity_id to their related event and alert statistics
+ * TODO, delete
  */
 export const relatedEventsStats = composeSelectors(
   dataStateSelector,

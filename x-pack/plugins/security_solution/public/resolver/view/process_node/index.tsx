@@ -7,19 +7,15 @@
 /* eslint-disable react/display-name */
 
 import React, { useCallback, useMemo, useRef } from 'react';
-import { i18n } from '@kbn/i18n';
-import { htmlIdGenerator, EuiButton, EuiI18nNumber } from '@elastic/eui';
-import { useHistory } from 'react-router-dom';
-// eslint-disable-next-line import/no-nodejs-modules
-import querystring from 'querystring';
+import { htmlIdGenerator, EuiButton } from '@elastic/eui';
 import { useSelector } from 'react-redux';
 import { NodeSubMenu } from './submenu';
 import { applyMatrix3 } from '../../models/vector2';
-import { Vector2, Matrix3, BreadcrumbState } from '../../types';
+import { Vector2, Matrix3 } from '../../types';
 // TODO
 import { SymbolIds, useResolverTheme, calculateResolverFontSize } from '../assets';
 // TODO
-import { ResolverEvent, ResolverNodeStats } from '../../../../common/endpoint/types';
+import { ResolverEvent } from '../../../../common/endpoint/types';
 import { useResolverDispatch } from '../use_resolver_dispatch';
 // TODO
 import * as eventModel from '../../../../common/endpoint/models/event';
@@ -27,6 +23,7 @@ import * as selectors from '../../store/selectors';
 import { CubeSvg, Wrapper, StyledActionsContainer, StyledDescriptionText } from './styles';
 import { descriptionForNode } from '../description_for_node';
 import { uniquePidForProcess } from '../../models/process_event';
+import { usePushToQueryParams } from '../use_push_to_query_params';
 
 /**
  * An artifact that represents a process node and the things associated with it in the Resolver
@@ -38,7 +35,6 @@ export const ProcessNode = React.memo(
     projectionMatrix,
     isProcessTerminated,
     isProcessOrigin,
-    relatedEventsStatsForProcess,
   }: {
     /**
      * The positon of the process node, in 'world' coordinates.
@@ -60,12 +56,6 @@ export const ProcessNode = React.memo(
      * Whether or not to show the process as the originating event.
      */
     isProcessOrigin: boolean;
-    /**
-     * A collection of events related to the current node and statistics (e.g. counts indexed by event type)
-     * to provide the user some visibility regarding the contents thereof.
-     * Statistics for the number of related events and alerts for this process node
-     */
-    relatedEventsStatsForProcess?: ResolverNodeStats;
   }) => {
     /**
      * Convert the position, which is in 'world' coordinates, to screen coordinates.
@@ -149,53 +139,25 @@ export const ProcessNode = React.memo(
 
     const descriptionText = descriptionForNode(isProcessTerminated, isProcessOrigin);
 
-    const uniquePID = uniquePidForProcess(event);
-    const resolverNodeIdGenerator = useMemo(() => htmlIdGenerator(uniquePID), [uniquePID]);
+    const nodeID = uniquePidForProcess(event);
+    const resolverNodeIdGenerator = useMemo(() => htmlIdGenerator(nodeID), [nodeID]);
 
     const nodeId = resolverNodeIdGenerator('node');
     const labelId = resolverNodeIdGenerator('label');
     const descriptionId = resolverNodeIdGenerator('description');
     const isActiveDescendant = nodeId === activeDescendantId;
-    const isSelectedDescendant = useSelector(selectors.selectedProcess) === uniquePID;
+    const isSelectedDescendant = useSelector(selectors.selectedProcess) === nodeID;
 
     const dispatch = useResolverDispatch();
 
     const handleFocus = useCallback(() => {
       dispatch({
         type: 'userFocusedOnResolverNode',
-        payload: uniquePID,
+        payload: nodeID,
       });
-    }, [dispatch, uniquePID]);
+    }, [dispatch, nodeID]);
 
-    const history = useHistory();
-    const urlSearch = history.location.search;
-
-    /**
-     * This updates the breadcrumb nav, the table view
-     */
-    const pushToQueryParams = useCallback(
-      (newCrumbs: BreadcrumbState) => {
-        // Construct a new set of params from the current set (minus empty params)
-        // by assigning the new set of params provided in `newCrumbs`
-        const crumbsToPass = {
-          ...querystring.parse(urlSearch.slice(1)),
-          ...newCrumbs,
-        };
-
-        // If either was passed in as empty, remove it from the record
-        if (crumbsToPass.breadcrumbId === '') {
-          delete crumbsToPass.breadcrumbId;
-        }
-        if (crumbsToPass.breadcrumbEvent === '') {
-          delete crumbsToPass.breadcrumbEvent;
-        }
-
-        const relativeURL = { search: querystring.stringify(crumbsToPass) };
-
-        return history.replace(relativeURL);
-      },
-      [history, urlSearch]
-    );
+    const pushToQueryParams = usePushToQueryParams();
 
     const handleClick = useCallback(() => {
       if (animationTarget.current !== null) {
@@ -204,56 +166,10 @@ export const ProcessNode = React.memo(
       }
       dispatch({
         type: 'userSelectedResolverNode',
-        payload: uniquePID,
+        payload: nodeID,
       });
-      pushToQueryParams({ breadcrumbId: uniquePID, breadcrumbEvent: 'all' });
-    }, [animationTarget, dispatch, uniquePID, pushToQueryParams]);
-
-    /**
-     * Enumerates the stats for related events to display with the node as options,
-     * generally in the form `number of related events in category` `category title`
-     * e.g. "10 DNS", "230 File"
-     */
-
-    const relatedEventOptions = useMemo(() => {
-      const relatedStatsList = [];
-
-      if (!relatedEventsStatsForProcess) {
-        // Return an empty set of options if there are no stats to report
-        return [];
-      }
-      // If we have entries to show, map them into options to display in the selectable list
-
-      for (const [category, total] of Object.entries(
-        relatedEventsStatsForProcess.events.byCategory
-      )) {
-        relatedStatsList.push({
-          prefix: <EuiI18nNumber value={total || 0} />,
-          optionTitle: category,
-          action: () => {
-            dispatch({
-              type: 'userSelectedRelatedEventCategory',
-              payload: {
-                subject: event,
-                category,
-              },
-            });
-
-            pushToQueryParams({
-              breadcrumbId: uniquePidForProcess(event),
-              breadcrumbEvent: category,
-            });
-          },
-        });
-      }
-      return relatedStatsList;
-    }, [relatedEventsStatsForProcess, dispatch, event, pushToQueryParams]);
-
-    const relatedEventStatusOrOptions = !relatedEventsStatsForProcess
-      ? i18n.translate('xpack.securitySolution.endpoint.resolver.relatedNotRetrieved', {
-          defaultMessage: 'Related Events have not yet been retrieved.',
-        })
-      : relatedEventOptions;
+      pushToQueryParams({ breadcrumbId: nodeID, breadcrumbEvent: 'all' });
+    }, [animationTarget, dispatch, nodeID, pushToQueryParams]);
 
     const grandTotal: number | null = useSelector(selectors.relatedEventTotalForProcess)(event);
 
@@ -344,13 +260,14 @@ export const ProcessNode = React.memo(
               isProcessOrigin={isProcessOrigin}
               isProcessTerminated={isProcessTerminated}
               event={event}
-              optionsWithActions={relatedEventStatusOrOptions}
             />
           )}
         </StyledActionsContainer>
       );
     }, [
       actionsContainerMarginTop,
+      isProcessTerminated,
+      isProcessOrigin,
       actionsContainerMarginLeft,
       colorMap.descriptionText,
       colorMap.full,
@@ -360,19 +277,17 @@ export const ProcessNode = React.memo(
       grandTotal,
       handleClick,
       handleFocus,
-      handleRelatedEventRequest,
       isLabelFilled,
       isShowingDescriptionText,
       isShowingEventActions,
       labelButtonFill,
       labelId,
-      relatedEventStatusOrOptions,
       scaledTypeSize,
       xScale,
     ]);
 
-    const nodeLevel = useSelector(selectors.nodeLevel)(event);
-    const nextSiblingUniquePID = useSelector(selectors.nextSiblingUniquePID)(event);
+    const nodeLevel = useSelector(selectors.nodeLevel)(nodeID);
+    const nextSiblingUniquePID = useSelector(selectors.nextSibling)(nodeID);
 
     /**
      * Key event handling (e.g. 'Enter'/'Space') is provisioned by the `EuiKeyboardAccessible` component
@@ -381,7 +296,7 @@ export const ProcessNode = React.memo(
       <Wrapper
         className="kbn-resetFocusState"
         role="treeitem"
-        aria-level={nodeLevel}
+        aria-level={nodeLevel === null ? undefined : nodeLevel}
         aria-flowto={nextSiblingUniquePID === null ? undefined : nextSiblingUniquePID}
         aria-labelledby={labelId}
         aria-describedby={descriptionId}

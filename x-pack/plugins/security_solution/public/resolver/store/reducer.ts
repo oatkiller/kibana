@@ -4,21 +4,13 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 import { Reducer, combineReducers } from 'redux';
-import { htmlIdGenerator } from '@elastic/eui';
 import { animateProcessIntoView } from './methods';
 import { cameraReducer } from './camera/reducer';
 import { dataReducer } from './data/reducer';
 import { ResolverAction } from './actions';
-import { ResolverState, ResolverUIState } from '../types';
-import { uniquePidForProcess } from '../models/process_event';
+import { ResolverState } from '../types';
 import { uiReducer } from './ui/reducer';
 import { processForEntityID } from './selectors';
-
-/**
- * Despite the name "generator", this function is entirely determinant
- * (i.e. it will return the same html id given the same prefix 'resolverNode'
- * and nodeId)
- */
 
 const concernReducers = combineReducers({
   camera: cameraReducer,

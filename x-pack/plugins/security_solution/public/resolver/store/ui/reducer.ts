@@ -7,7 +7,6 @@
 import { Reducer } from 'redux';
 import { ResolverUIState } from '../../types';
 import { ResolverAction } from '../actions';
-import { uniquePidForProcess } from '../../models/process_event';
 
 export const uiReducer: Reducer<ResolverUIState, ResolverAction> = (
   state = {
