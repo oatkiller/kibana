@@ -3,7 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-import React, { memo, useContext, useCallback, useMemo } from 'react';
+import React, { memo, useContext, useMemo } from 'react';
 import {
   EuiBasicTableColumn,
   EuiBadge,
@@ -15,11 +15,13 @@ import { i18n } from '@kbn/i18n';
 import { useSelector } from 'react-redux';
 import * as event from '../../../../common/endpoint/models/event';
 import * as selectors from '../../store/selectors';
-import { CrumbInfo, formatter, StyledBreadcrumbs } from './panel_content_utilities';
+import { formatter, StyledBreadcrumbs } from './panel_content_utilities';
 import { useResolverDispatch } from '../use_resolver_dispatch';
 import { SideEffectContext } from '../side_effect_context';
-import { CubeForProcess } from './process_cube_icon';
+import { ProcessCubeIcon } from './process_cube_icon';
 import { ResolverEvent } from '../../../../common/endpoint/types';
+import { BreadcrumbState } from '../../types';
+import { uniquePidForProcess } from '../../models/process_event';
 
 /**
  * The "default" view for the panel: A list of all the processes currently in the graph.
@@ -31,7 +33,7 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
   isProcessTerminated,
   isProcessOrigin,
 }: {
-  pushToQueryParams: (queryStringKeyValuePair: CrumbInfo) => unknown;
+  pushToQueryParams: (queryStringKeyValuePair: BreadcrumbState) => unknown;
   isProcessTerminated: boolean;
   isProcessOrigin: boolean;
 }) {
@@ -43,19 +45,6 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
 
   const dispatch = useResolverDispatch();
   const { timestamp } = useContext(SideEffectContext);
-  const handleBringIntoViewClick = useCallback(
-    (processTableViewItem) => {
-      dispatch({
-        type: 'userBroughtProcessIntoView',
-        payload: {
-          time: timestamp(),
-          process: processTableViewItem.event,
-        },
-      });
-      pushToQueryParams({ crumbId: event.entityId(processTableViewItem.event), crumbEvent: '' });
-    },
-    [dispatch, timestamp, pushToQueryParams]
-  );
 
   const columns = useMemo<Array<EuiBasicTableColumn<ProcessTableView>>>(
     () => [
@@ -82,11 +71,18 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
           ) : (
             <EuiButtonEmpty
               onClick={() => {
-                handleBringIntoViewClick(item);
-                pushToQueryParams({ crumbId: event.entityId(item.event), crumbEvent: '' });
+                const nodeID = uniquePidForProcess(item.event);
+                dispatch({
+                  type: 'userBroughtProcessIntoView',
+                  payload: {
+                    time: timestamp(),
+                    id: nodeID,
+                  },
+                });
+                pushToQueryParams({ breadcrumbId: nodeID, breadcrumbEvent: '' });
               }}
             >
-              <CubeForProcess
+              <ProcessCubeIcon
                 isProcessTerminated={isProcessTerminated}
                 isProcessOrigin={isProcessOrigin}
               />
@@ -121,9 +117,10 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
         },
       },
     ],
-    [pushToQueryParams, handleBringIntoViewClick, isProcessOrigin, isProcessTerminated]
+    [pushToQueryParams, dispatch, timestamp, isProcessOrigin, isProcessTerminated]
   );
 
+  // TODO
   const { processNodePositions } = useSelector(selectors.processNodePositionsAndEdgeLineSegments);
   const processTableView: ProcessTableView[] = useMemo(
     () =>

@@ -24,7 +24,7 @@ import {
   md5HashForProcess,
   argsForProcess,
 } from '../../models/process_event';
-import { CubeForProcess } from './process_cube_icon';
+import { ProcessCubeIcon } from './process_cube_icon';
 import { ResolverEvent } from '../../../../common/endpoint/types';
 import { descriptionForNode } from '../description_for_node';
 import { BreadcrumbState } from '../../types';
@@ -179,7 +179,7 @@ export const ProcessDetails = memo(function ProcessDetails({
       <EuiSpacer size="l" />
       <EuiTitle size="xs">
         <h4 aria-describedby={titleId}>
-          <CubeForProcess
+          <ProcessCubeIcon
             isProcessTerminated={isProcessTerminated}
             isProcessOrigin={isProcessOrigin}
           />

@@ -12,7 +12,7 @@ import { descriptionForNode } from '../description_for_node';
  * During user testing, one user indicated they wanted to see stronger visual relationships between
  * Nodes on the graph and what's in the table. Using the same symbol in both places (as below) could help with that.
  */
-export const CubeForProcess = memo(function CubeForProcess({
+export const ProcessCubeIcon = memo(function CubeForProcess({
   isProcessTerminated,
   isProcessOrigin,
 }: {
