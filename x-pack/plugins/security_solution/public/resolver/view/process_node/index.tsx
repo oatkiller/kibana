@@ -9,7 +9,7 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import { htmlIdGenerator, EuiButton } from '@elastic/eui';
 import { useSelector } from 'react-redux';
-import { NodeSubMenu } from './submenu';
+import { Submenu } from './submenu';
 import { applyMatrix3 } from '../../models/vector2';
 import { Vector2, Matrix3 } from '../../types';
 // TODO
@@ -23,7 +23,7 @@ import * as selectors from '../../store/selectors';
 import { CubeSvg, Wrapper, StyledActionsContainer, StyledDescriptionText } from './styles';
 import { descriptionForNode } from '../description_for_node';
 import { uniquePidForProcess } from '../../models/process_event';
-import { usePushToQueryParams } from '../use_push_to_query_params';
+import { usePanelStateSetter } from '../use_panel_state_setter';
 
 /**
  * An artifact that represents a process node and the things associated with it in the Resolver
@@ -65,7 +65,7 @@ export const ProcessNode = React.memo(
     const [xScale] = projectionMatrix;
 
     // Node (html id=) IDs
-    const activeDescendantId = useSelector(selectors.uiActiveDescendantId);
+    const activeDescendantId = useSelector(selectors.focusedNode);
 
     const isShowingEventActions = xScale > 0.8;
     const isShowingDescriptionText = xScale >= 0.55;
@@ -146,7 +146,7 @@ export const ProcessNode = React.memo(
     const labelId = resolverNodeIdGenerator('label');
     const descriptionId = resolverNodeIdGenerator('description');
     const isActiveDescendant = nodeId === activeDescendantId;
-    const isSelectedDescendant = useSelector(selectors.selectedProcess) === nodeID;
+    const isSelectedDescendant = useSelector(selectors.selectedNode) === nodeID;
 
     const dispatch = useResolverDispatch();
 
@@ -157,7 +157,7 @@ export const ProcessNode = React.memo(
       });
     }, [dispatch, nodeID]);
 
-    const pushToQueryParams = usePushToQueryParams();
+    const setPanelState = usePanelStateSetter();
 
     const handleClick = useCallback(() => {
       if (animationTarget.current !== null) {
@@ -168,8 +168,8 @@ export const ProcessNode = React.memo(
         type: 'userSelectedResolverNode',
         payload: nodeID,
       });
-      pushToQueryParams({ breadcrumbId: nodeID, breadcrumbEvent: 'all' });
-    }, [animationTarget, dispatch, nodeID, pushToQueryParams]);
+      setPanelState({ panelView: 'eventCountsForProcess', panelNodeID: nodeID });
+    }, [animationTarget, dispatch, nodeID, setPanelState]);
 
     const grandTotal: number | null = useSelector(selectors.relatedEventTotalForProcess)(event);
 
@@ -256,7 +256,7 @@ export const ProcessNode = React.memo(
             {eventModel.eventName(event)}
           </EuiButton>
           {isShowingEventActions && grandTotal !== null && grandTotal > 0 && (
-            <NodeSubMenu
+            <Submenu
               isProcessOrigin={isProcessOrigin}
               isProcessTerminated={isProcessTerminated}
               event={event}

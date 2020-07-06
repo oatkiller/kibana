@@ -113,17 +113,29 @@ export const relatedEventsReady = composeSelectors(
 /**
  * Returns the id of the "current" tree node (fake-focused)
  */
-export const uiActiveDescendantId = composeSelectors(uiStateSelector, uiSelectors.focusedNode);
+export const focusedNode = composeSelectors(uiStateSelector, uiSelectors.focusedNode);
 
 /**
  * Returns the entity_id of the "selected" tree node's process
  */
-export const selectedProcess = composeSelectors(uiStateSelector, uiSelectors.selectedNode);
+export const selectedNode = composeSelectors(uiStateSelector, uiSelectors.selectedNode);
 
 /**
  * The current panel to display
  */
-export const currentPanelView = composeSelectors(uiStateSelector, uiSelectors.currentPanelView);
+export const panelViewName = composeSelectors(uiStateSelector, uiSelectors.panelViewName);
+
+// TODO comment
+export const panelNodeID = composeSelectors(uiStateSelector, uiSelectors.panelNodeID);
+
+// TODO comment
+export const panelRelatedEventID = composeSelectors(
+  uiStateSelector,
+  uiSelectors.panelRelatedEventID
+);
+
+// TODO comment
+export const panelEventCategory = composeSelectors(uiStateSelector, uiSelectors.panelEventCategory);
 
 /**
  * Returns the camera state from within ResolverState
@@ -158,6 +170,7 @@ export const hasError = composeSelectors(dataStateSelector, dataSelectors.hasErr
 
 /**
  * An array containing all the processes currently in the Resolver than can be graphed
+ * TODO, remove
  */
 export const graphableProcesses = composeSelectors(
   dataStateSelector,

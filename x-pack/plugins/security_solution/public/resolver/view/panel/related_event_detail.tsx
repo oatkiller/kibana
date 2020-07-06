@@ -8,17 +8,15 @@
 
 import React, { memo, useMemo, useEffect, Fragment } from 'react';
 import { i18n } from '@kbn/i18n';
-import { EuiSpacer, EuiText, EuiDescriptionList, EuiTextColor, EuiTitle } from '@elastic/eui';
-import styled from 'styled-components';
+import { EuiSpacer, EuiText, EuiTextColor, EuiTitle } from '@elastic/eui';
 import { useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
-import { formatDate, StyledBreadcrumbs, BoldCode } from './panel_content_utilities';
-import * as event from '../../../../common/endpoint/models/event';
 import { ResolverEvent } from '../../../../common/endpoint/types';
 import * as selectors from '../../store/selectors';
 import { useResolverDispatch } from '../use_resolver_dispatch';
 import { PanelContentError } from './panel_content_error';
-import { BreadcrumbState } from '../../types';
+import { PanelQueryStringState } from '../../types';
+import { StyledTitleRule } from './styles';
 
 /**
  * A helper function to turn objects into EuiDescriptionList entries.
@@ -55,31 +53,6 @@ const objectToDescriptionListEntries = function* (
   }
 };
 
-// Adding some styles to prevent horizontal scrollbars, per request from UX review
-const StyledDescriptionList = memo(styled(EuiDescriptionList)`
-  &.euiDescriptionList.euiDescriptionList--column dt.euiDescriptionList__title.desc-title {
-    max-width: 8em;
-  }
-  &.euiDescriptionList.euiDescriptionList--column dd.euiDescriptionList__description {
-    max-width: calc(100% - 8.5em);
-    overflow-wrap: break-word;
-  }
-`);
-
-// Styling subtitles, per UX review:
-const StyledFlexTitle = memo(styled('h3')`
-  display: flex;
-  flex-flow: row;
-  font-size: 1.2em;
-`);
-const StyledTitleRule = memo(styled('hr')`
-  &.euiHorizontalRule.euiHorizontalRule--full.euiHorizontalRule--marginSmall.override {
-    display: block;
-    flex: 1;
-    margin-left: 0.5em;
-  }
-`);
-
 const TitleHr = memo(() => {
   return (
     <StyledTitleRule className="euiHorizontalRule euiHorizontalRule--full euiHorizontalRule--marginSmall override" />
@@ -90,17 +63,7 @@ const TitleHr = memo(() => {
  * This view presents a detailed view of all the available data for a related event, split and titled by the "section"
  * it appears in the underlying ResolverEvent
  */
-export const RelatedEventDetail = memo(function RelatedEventDetail({
-  relatedEventId,
-  parentEvent,
-  pushToQueryParams,
-  countForParent,
-}: {
-  relatedEventId: string;
-  parentEvent: ResolverEvent;
-  pushToQueryParams: (queryStringKeyValuePair: BreadcrumbState) => unknown;
-  countForParent: number | undefined;
-}) {
+export const RelatedEventDetail = memo(function RelatedEventDetail() {
   const processName = (parentEvent && event.eventName(parentEvent)) || '';
   const processEntityId = parentEvent && event.entityId(parentEvent);
   const totalCount = countForParent || 0;
@@ -143,12 +106,12 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
       return [undefined, 0];
     }
     const specificEvent = relatedEventsForThisProcess.events.find(
-      (evt) => event.eventId(evt) === relatedEventId
+      (event) => uniquePidForProcess(event) === relatedEventId
     );
     // For breadcrumbs:
     const specificCategory = specificEvent && event.primaryEventCategory(specificEvent);
-    const countOfCategory = relatedEventsForThisProcess.events.reduce((sumtotal, evt) => {
-      return event.primaryEventCategory(evt) === specificCategory ? sumtotal + 1 : sumtotal;
+    const countOfCategory = relatedEventsForThisProcess.events.reduce((sumtotal, event) => {
+      return event.primaryEventCategory(event) === specificCategory ? sumtotal + 1 : sumtotal;
     }, 0);
     return [specificEvent, countOfCategory, specificCategory || naString];
   }, [relatedEventsForThisProcess, naString, relatedEventId]);
@@ -191,7 +154,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
       {
         text: eventsString,
         onClick: () => {
-          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
+          pushToQueryParams({ breadcrumbID: '', breadcrumbEvent: '' });
         },
       },
     ];
@@ -205,13 +168,13 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
       {
         text: eventsString,
         onClick: () => {
-          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
+          pushToQueryParams({ breadcrumbID: '', breadcrumbEvent: '' });
         },
       },
       {
         text: processName,
         onClick: () => {
-          pushToQueryParams({ breadcrumbId: processEntityId, breadcrumbEvent: '' });
+          pushToQueryParams({ breadcrumbID: processEntityId, breadcrumbEvent: '' });
         },
       },
       {
@@ -225,7 +188,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
           </>
         ),
         onClick: () => {
-          pushToQueryParams({ breadcrumbId: processEntityId, breadcrumbEvent: 'all' });
+          pushToQueryParams({ breadcrumbID: processEntityId, breadcrumbEvent: 'all' });
         },
       },
       {
@@ -240,7 +203,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
         ),
         onClick: () => {
           pushToQueryParams({
-            breadcrumbId: processEntityId,
+            breadcrumbID: processEntityId,
             breadcrumbEvent: relatedEventCategory !== undefined ? relatedEventCategory : 'all',
           });
         },
@@ -297,14 +260,15 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
    * Could happen if user e.g. loads a URL with a bad crumbEvent
    */
   if (!relatedEventToShowDetailsFor) {
-    const errString = i18n.translate(
-      'xpack.securitySolution.endpoint.resolver.panel.relatedDetail.missing',
-      {
-        defaultMessage: 'Related event not found.',
-      }
-    );
     return (
-      <PanelContentError translatedErrorMessage={errString} pushToQueryParams={pushToQueryParams} />
+      <PanelContentError
+        translatedErrorMessage={i18n.translate(
+          'xpack.securitySolution.endpoint.resolver.panel.relatedDetail.missing',
+          {
+            defaultMessage: 'Related event not found.',
+          }
+        )}
+      />
     );
   }
 
@@ -350,7 +314,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
                 </StyledFlexTitle>
               </EuiTextColor>
             </EuiTitle>
-            <StyledDescriptionList
+            <RelatedEventDetailStyledDescriptionList
               type="column"
               align="left"
               titleProps={{ className: 'desc-title' }}

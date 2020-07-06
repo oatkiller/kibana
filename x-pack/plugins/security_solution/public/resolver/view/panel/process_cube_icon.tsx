@@ -9,8 +9,7 @@ import { useResolverTheme } from '../assets';
 import { descriptionForNode } from '../description_for_node';
 
 /**
- * During user testing, one user indicated they wanted to see stronger visual relationships between
- * Nodes on the graph and what's in the table. Using the same symbol in both places (as below) could help with that.
+ * icon for a process.
  */
 export const ProcessCubeIcon = memo(function CubeForProcess({
   isProcessTerminated,
@@ -25,26 +24,24 @@ export const ProcessCubeIcon = memo(function CubeForProcess({
   const descriptionText = descriptionForNode(isProcessTerminated, isProcessOrigin);
 
   return (
-    <>
-      <svg
-        style={{ position: 'relative', top: '0.4em', marginRight: '.25em' }}
-        className="table-process-icon"
-        width="1.5em"
-        height="1.5em"
-        viewBox="0 0 1 1"
-      >
-        <desc>{descriptionText}</desc>
-        <use
-          role="presentation"
-          xlinkHref={cubeSymbol}
-          x={0}
-          y={0}
-          width={1}
-          height={1}
-          opacity="1"
-          className="cube"
-        />
-      </svg>
-    </>
+    <svg
+      style={{ position: 'relative', top: '0.4em', marginRight: '.25em' }}
+      className="table-process-icon"
+      width="1.5em"
+      height="1.5em"
+      viewBox="0 0 1 1"
+    >
+      <desc>{descriptionText}</desc>
+      <use
+        role="presentation"
+        xlinkHref={cubeSymbol}
+        x={0}
+        y={0}
+        width={1}
+        height={1}
+        opacity="1"
+        className="cube"
+      />
+    </svg>
   );
 });

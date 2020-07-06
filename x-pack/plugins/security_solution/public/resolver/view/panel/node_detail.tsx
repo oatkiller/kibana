@@ -14,8 +14,8 @@ import {
   EuiDescriptionList,
 } from '@elastic/eui';
 import styled from 'styled-components';
+import { StyledBreadcrumbs } from './styles';
 import * as event from '../../../../common/endpoint/models/event';
-import { formatDate, StyledBreadcrumbs } from './panel_content_utilities';
 import {
   processPath,
   processPid,
@@ -27,13 +27,7 @@ import {
 import { ProcessCubeIcon } from './process_cube_icon';
 import { ResolverEvent } from '../../../../common/endpoint/types';
 import { descriptionForNode } from '../description_for_node';
-import { BreadcrumbState } from '../../types';
-
-const StyledDescriptionList = styled(EuiDescriptionList)`
-  &.euiDescriptionList.euiDescriptionList--column dt.euiDescriptionList__title.desc-title {
-    max-width: 8em;
-  }
-`;
+import { PanelQueryStringState } from '../../types';
 
 /**
  * A description list view of all the Metadata that goes with a particular process event, like:
@@ -48,7 +42,7 @@ export const ProcessDetails = memo(function ProcessDetails({
   processEvent: ResolverEvent;
   isProcessTerminated: boolean;
   isProcessOrigin: boolean;
-  pushToQueryParams: (queryStringKeyValuePair: BreadcrumbState) => unknown;
+  pushToQueryParams: (queryStringKeyValuePair: PanelQueryStringState) => unknown;
 }) {
   const processName = event.eventName(processEvent);
   const processInfoEntry = useMemo(() => {
@@ -160,7 +154,7 @@ export const ProcessDetails = memo(function ProcessDetails({
           }
         ),
         onClick: () => {
-          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
+          pushToQueryParams({ breadcrumbID: '', breadcrumbEvent: '' });
         },
       },
       {
@@ -172,7 +166,8 @@ export const ProcessDetails = memo(function ProcessDetails({
     ];
   }, [processName, pushToQueryParams]);
 
-  const titleId = useMemo(() => htmlIdGenerator('resolverTable')(), []);
+  const titleId = htmlIdGenerator('resolver')('panelTitle');
+
   return (
     <>
       <StyledBreadcrumbs breadcrumbs={crumbs} />
@@ -202,4 +197,3 @@ export const ProcessDetails = memo(function ProcessDetails({
     </>
   );
 });
-ProcessDetails.displayName = 'ProcessDetails';

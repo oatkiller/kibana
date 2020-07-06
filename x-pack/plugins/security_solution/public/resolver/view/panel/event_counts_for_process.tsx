@@ -12,7 +12,7 @@ import { StyledBreadcrumbs } from './panel_content_utilities';
 
 import * as event from '../../../../common/endpoint/models/event';
 import { ResolverEvent, ResolverNodeStats } from '../../../../common/endpoint/types';
-import { BreadcrumbState } from '../../types';
+import { PanelQueryStringState } from '../../types';
 import { uniquePidForProcess } from '../../models/process_event';
 
 /**
@@ -32,7 +32,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
   relatedStats,
 }: {
   processEvent: ResolverEvent;
-  pushToQueryParams: (queryStringKeyValuePair: BreadcrumbState) => unknown;
+  pushToQueryParams: (queryStringKeyValuePair: PanelQueryStringState) => unknown;
   relatedStats: ResolverNodeStats;
 }) {
   interface EventCountsTableView {
@@ -68,13 +68,13 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
       {
         text: eventsString,
         onClick: () => {
-          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
+          pushToQueryParams({ breadcrumbID: '', breadcrumbEvent: '' });
         },
       },
       {
         text: processName,
         onClick: () => {
-          pushToQueryParams({ breadcrumbId: processEntityId, breadcrumbEvent: '' });
+          pushToQueryParams({ breadcrumbID: processEntityId, breadcrumbEvent: '' });
         },
       },
       {
@@ -88,7 +88,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
           </>
         ),
         onClick: () => {
-          pushToQueryParams({ breadcrumbId: processEntityId, breadcrumbEvent: '' });
+          pushToQueryParams({ breadcrumbID: processEntityId, breadcrumbEvent: '' });
         },
       },
     ];
@@ -125,7 +125,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
             <EuiButtonEmpty
               onClick={() => {
                 pushToQueryParams({
-                  breadcrumbId: uniquePidForProcess(processEvent),
+                  breadcrumbID: uniquePidForProcess(processEvent),
                   breadcrumbEvent: name,
                 });
               }}

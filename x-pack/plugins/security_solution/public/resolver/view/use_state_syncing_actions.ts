@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+import { useHistory } from 'react-router-dom';
+
 import { useLayoutEffect } from 'react';
 import { useResolverDispatch } from './use_resolver_dispatch';
 
@@ -20,10 +22,13 @@ export function useStateSyncingActions({
   databaseDocumentID?: string;
 }) {
   const dispatch = useResolverDispatch();
+
+  const history = useHistory();
+  const urlSearch = history.location.search;
   useLayoutEffect(() => {
     dispatch({
       type: 'appReceivedNewExternalProperties',
-      payload: { databaseDocumentID },
+      payload: { databaseDocumentID, urlSearch },
     });
-  }, [dispatch, databaseDocumentID]);
+  }, [dispatch, databaseDocumentID, urlSearch]);
 }

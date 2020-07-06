@@ -8,7 +8,6 @@
 
 import React, { useState, useCallback } from 'react';
 import { EuiI18nNumber, EuiButton, EuiPopover } from '@elastic/eui';
-import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { FormattedMessage } from '@kbn/i18n/react';
 import * as selectors from '../../../store/selectors';
@@ -17,13 +16,14 @@ import { useResolverTheme } from '../../assets';
 import { useResolverDispatch } from '../../use_resolver_dispatch';
 import { uniquePidForProcess } from '../../../models/process_event';
 import { OptionList } from './option_list';
+import { Wrapper } from './styles';
 
 /**
  * A Submenu to be displayed in one of two forms:
  *   1) Provided a collection of `optionsWithActions`: it will call `menuAction` then - if and when menuData becomes available - display each item with an optional prefix and call the supplied action for the options when that option is clicked.
  *   2) Provided `optionsWithActions` is undefined, it will call the supplied `menuAction` when its host button is clicked.
  */
-export const NodeSubMenu = React.memo(
+export const Submenu = React.memo(
   ({
     event,
     isProcessTerminated,
@@ -96,35 +96,3 @@ export const NodeSubMenu = React.memo(
   }
 );
 
-const Wrapper = styled.div<{ buttonFill: string; buttonBorderColor: string }>`
-  margin: 2px 0 0 0;
-  padding: 0;
-  border: none;
-  display: flex;
-  flex-flow: column;
-
-  & .euiButton {
-    background-color: ${(props) => props.buttonFill};
-    border-color: ${(props) => props.buttonBorderColor};
-    border-style: solid;
-    border-width: 1px;
-
-    &:hover,
-    &:active,
-    &:focus {
-      background-color: ${(props) => props.buttonFill};
-    }
-  }
-
-  & .euiPopover__anchor {
-    display: flex;
-  }
-
-  &.is-open .euiButton {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-  &.is-open .euiSelectableListItem__prepend {
-    color: white;
-  }
-`;

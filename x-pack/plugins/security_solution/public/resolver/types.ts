@@ -45,6 +45,11 @@ export interface ResolverUIState {
    * Which panel the ui should display
    */
   readonly panelToDisplay: string | null;
+
+  /**
+   * The search string from the URL.
+   */
+  readonly urlSearch?: string;
 }
 
 /**
@@ -456,9 +461,46 @@ export interface IsometricTaxiLayout {
 }
 
 /**
- * The two query parameters we read/write on to control which view the table presents:
+ * The query parameter state used by the panel.
  */
-export interface BreadcrumbState {
-  readonly breadcrumbId: string;
-  readonly breadcrumbEvent: string;
-}
+export type PanelQueryStringState =
+  | {
+      /** The default view */
+      panelView: 'processListWithCounts';
+    }
+  | {
+      /**
+       * Shows the details of a node.
+       */
+      panelView: 'processDetail';
+      /* the _id for the node to show details about */
+      panelNodeID: string;
+    }
+  | {
+      /**
+       * Shows related events for a node.
+       */
+      panelView: 'eventCountsForProcess';
+      /* the _id for the node to show event counts for */
+      panelNodeID: string;
+    }
+  | {
+      /**
+       * Shows details about an event (and a node it has an edge with.)
+       */
+      panelView: 'relatedEventDetail';
+      /* the _id for the node */
+      panelNodeID: string;
+      /* the _id for the related event */
+      panelRelatedEventID: string;
+    }
+  | {
+      /**
+       * Shows related events of a certain type, which relate to a certain node.
+       */
+      panelView: 'processEventListNarrowedByType';
+      /* the _id for the node */
+      panelNodeID: string;
+      /* the event category */
+      panelEventCategory: string;
+    };

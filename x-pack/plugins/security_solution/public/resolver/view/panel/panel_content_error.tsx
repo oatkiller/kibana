@@ -8,9 +8,10 @@
 
 import { i18n } from '@kbn/i18n';
 import { EuiSpacer, EuiText, EuiButtonEmpty } from '@elastic/eui';
-import React, { memo, useMemo } from 'react';
-import { StyledBreadcrumbs } from './panel_content_utilities';
-import { BreadcrumbState } from '../../types';
+import React, { memo, useMemo, ReactNode } from 'react';
+import { PanelQueryStringState } from '../../types';
+import { StyledBreadcrumbs } from './styles';
+import { usePanelStateSetter } from '../use_panel_state_setter';
 
 /**
  * Display an error in the panel when something goes wrong and give the user a way to "retreat" back to a default state.
@@ -20,42 +21,41 @@ import { BreadcrumbState } from '../../types';
  */
 export const PanelContentError = memo(function ({
   translatedErrorMessage,
-  pushToQueryParams,
 }: {
-  translatedErrorMessage: string;
-  pushToQueryParams: (arg0: BreadcrumbState) => unknown;
+  translatedErrorMessage: ReactNode;
 }) {
-  const crumbs = useMemo(() => {
+  const setPanelState = usePanelStateSetter();
+  const breadcrumbs = useMemo(() => {
     return [
       {
-        text: i18n.translate('xpack.securitySolution.endpoint.resolver.panel.error.events', {
+        text: i18n.translate('xpack.securitySolution.resolver.panel.error.events', {
           defaultMessage: 'Events',
         }),
         onClick: () => {
-          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
+          setPanelState({ panelView: 'processListWithCounts' });
         },
       },
       {
-        text: i18n.translate('xpack.securitySolution.endpoint.resolver.panel.error.error', {
+        text: i18n.translate('xpack.securitySolution.resolver.panel.error.error', {
           defaultMessage: 'Error',
         }),
         onClick: () => {},
       },
     ];
-  }, [pushToQueryParams]);
+  }, [setPanelState]);
   return (
     <>
-      <StyledBreadcrumbs breadcrumbs={crumbs} />
+      <StyledBreadcrumbs breadcrumbs={breadcrumbs} />
       <EuiSpacer size="l" />
       <EuiText textAlign="center">{translatedErrorMessage}</EuiText>
       <EuiSpacer size="l" />
       <EuiButtonEmpty
         onClick={() => {
-          pushToQueryParams({ breadcrumbId: '', breadcrumbEvent: '' });
+          setPanelState({ panelView: 'processListWithCounts' });
         }}
       >
-        {i18n.translate('xpack.securitySolution.endpoint.resolver.panel.error.goBack', {
-          defaultMessage: 'Click this link to return to the list of all processes.',
+        {i18n.translate('xpack.securitySolution.resolver.panel.error.processList', {
+          defaultMessage: 'Process list',
         })}
       </EuiButtonEmpty>
     </>

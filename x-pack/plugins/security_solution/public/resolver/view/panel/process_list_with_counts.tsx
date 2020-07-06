@@ -20,7 +20,7 @@ import { useResolverDispatch } from '../use_resolver_dispatch';
 import { SideEffectContext } from '../side_effect_context';
 import { ProcessCubeIcon } from './process_cube_icon';
 import { ResolverEvent } from '../../../../common/endpoint/types';
-import { BreadcrumbState } from '../../types';
+import { PanelQueryStringState } from '../../types';
 import { uniquePidForProcess } from '../../models/process_event';
 
 /**
@@ -33,7 +33,7 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
   isProcessTerminated,
   isProcessOrigin,
 }: {
-  pushToQueryParams: (queryStringKeyValuePair: BreadcrumbState) => unknown;
+  pushToQueryParams: (queryStringKeyValuePair: PanelQueryStringState) => unknown;
   isProcessTerminated: boolean;
   isProcessOrigin: boolean;
 }) {
@@ -79,7 +79,7 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
                     id: nodeID,
                   },
                 });
-                pushToQueryParams({ breadcrumbId: nodeID, breadcrumbEvent: '' });
+                pushToQueryParams({ breadcrumbID: nodeID, breadcrumbEvent: '' });
               }}
             >
               <ProcessCubeIcon

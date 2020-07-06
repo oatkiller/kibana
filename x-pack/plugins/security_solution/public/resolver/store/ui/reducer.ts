@@ -16,23 +16,33 @@ export const uiReducer: Reducer<ResolverUIState, ResolverAction> = (
   },
   action
 ) => {
-  if (action.type === 'userFocusedOnResolverNode') {
+  if (action.type === 'appReceivedNewExternalProperties') {
+    // keep a copy of the url search in order to determine what is selected.
+    return {
+      ...state,
+      urlSearch: action.payload.urlSearch,
+    };
+  } else if (action.type === 'userFocusedOnResolverNode') {
+    // TODO
     return {
       ...state,
       focusedNode: action.payload,
     };
   } else if (action.type === 'userSelectedResolverNode') {
+    // TODO
     return {
       ...state,
       selectedNode: action.payload,
     };
   } else if (action.type === 'appDisplayedDifferentPanel') {
+    // TODO
     return {
       ...state,
       panelToDisplay: action.payload,
     };
   } else if (
     action.type === 'userBroughtProcessIntoView' ||
+    // TODO
     action.type === 'appDetectedNewIdFromQueryParams'
   ) {
     // focus and select the node

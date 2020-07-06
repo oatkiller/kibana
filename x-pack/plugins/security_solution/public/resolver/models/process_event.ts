@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import * as event from '../../../common/endpoint/models/event';
+import * as eventModel from '../../../common/endpoint/models/event';
 import { ResolverEvent } from '../../../common/endpoint/types';
 import { ResolverProcessType } from '../types';
 
@@ -12,8 +12,8 @@ import { ResolverProcessType } from '../types';
  * Returns true if the process's eventType is either 'processCreated' or 'processRan'.
  * Resolver will only render 'graphable' process events.
  */
-export function isGraphableProcess(passedEvent: ResolverEvent) {
-  return eventType(passedEvent) === 'processCreated' || eventType(passedEvent) === 'processRan';
+export function isGraphableProcess(event: ResolverEvent) {
+  return eventType(event) === 'processCreated' || eventType(event) === 'processRan';
 }
 
 function isValue(field: string | string[], value: string) {
@@ -24,18 +24,18 @@ function isValue(field: string | string[], value: string) {
   }
 }
 
-export function isTerminatedProcess(passedEvent: ResolverEvent) {
-  return eventType(passedEvent) === 'processTerminated';
+export function isTerminatedProcess(event: ResolverEvent) {
+  return eventType(event) === 'processTerminated';
 }
 
 /**
  * Returns a custom event type for a process event based on the event's metadata.
  */
-export function eventType(passedEvent: ResolverEvent): ResolverProcessType {
-  if (event.isLegacyEvent(passedEvent)) {
+export function eventType(event: ResolverEvent): ResolverProcessType {
+  if (eventModel.isLegacyEvent(event)) {
     const {
       endgame: { event_type_full: type, event_subtype_full: subType },
-    } = passedEvent;
+    } = event;
 
     if (type === 'process_event') {
       if (subType === 'creation_event' || subType === 'fork_event' || subType === 'exec_event') {
@@ -53,7 +53,7 @@ export function eventType(passedEvent: ResolverEvent): ResolverProcessType {
   } else {
     const {
       event: { type, category, kind },
-    } = passedEvent;
+    } = event;
     if (isValue(category, 'process')) {
       if (isValue(type, 'start') || isValue(type, 'change') || isValue(type, 'creation')) {
         return 'processCreated';
@@ -74,55 +74,55 @@ export function eventType(passedEvent: ResolverEvent): ResolverProcessType {
 /**
  * Returns the process event's pid
  */
-export function uniquePidForProcess(passedEvent: ResolverEvent): string {
-  if (event.isLegacyEvent(passedEvent)) {
-    return String(passedEvent.endgame.unique_pid);
+export function uniquePidForProcess(event: ResolverEvent): string {
+  if (eventModel.isLegacyEvent(event)) {
+    return String(event.endgame.unique_pid);
   } else {
-    return passedEvent.process.entity_id;
+    return event.process.entity_id;
   }
 }
 
 /**
  * Returns the pid for the process on the host
  */
-export function processPid(passedEvent: ResolverEvent): number | undefined {
-  if (event.isLegacyEvent(passedEvent)) {
-    return passedEvent.endgame.pid;
+export function processPid(event: ResolverEvent): number | undefined {
+  if (eventModel.isLegacyEvent(event)) {
+    return event.endgame.pid;
   } else {
-    return passedEvent.process.pid;
+    return event.process.pid;
   }
 }
 
 /**
  * Returns the process event's parent pid
  */
-export function uniqueParentPidForProcess(passedEvent: ResolverEvent): string | undefined {
-  if (event.isLegacyEvent(passedEvent)) {
-    return String(passedEvent.endgame.unique_ppid);
+export function uniqueParentPidForProcess(event: ResolverEvent): string | undefined {
+  if (eventModel.isLegacyEvent(event)) {
+    return String(event.endgame.unique_ppid);
   } else {
-    return passedEvent.process.parent?.entity_id;
+    return event.process.parent?.entity_id;
   }
 }
 
 /**
  * Returns the process event's parent pid
  */
-export function processParentPid(passedEvent: ResolverEvent): number | undefined {
-  if (event.isLegacyEvent(passedEvent)) {
-    return passedEvent.endgame.ppid;
+export function processParentPid(event: ResolverEvent): number | undefined {
+  if (eventModel.isLegacyEvent(event)) {
+    return event.endgame.ppid;
   } else {
-    return passedEvent.process.parent?.pid;
+    return event.process.parent?.pid;
   }
 }
 
 /**
  * Returns the process event's path on its host
  */
-export function processPath(passedEvent: ResolverEvent): string | undefined {
-  if (event.isLegacyEvent(passedEvent)) {
-    return passedEvent.endgame.process_path;
+export function processPath(event: ResolverEvent): string | undefined {
+  if (eventModel.isLegacyEvent(event)) {
+    return event.endgame.process_path;
   } else {
-    return passedEvent.process.executable;
+    return event.process.executable;
   }
 }
 
@@ -130,34 +130,43 @@ export function processPath(passedEvent: ResolverEvent): string | undefined {
  * Returns the username for the account that ran the process
  */
 export function userInfoForProcess(
-  passedEvent: ResolverEvent
+  event: ResolverEvent
 ): { user?: string; domain?: string } | undefined {
-  return passedEvent.user;
+  return event.user;
 }
 
 /**
- * Returns the MD5 hash for the `passedEvent` param, or undefined if it can't be located
- * @param {ResolverEvent} passedEvent The `ResolverEvent` to get the MD5 value for
+ * Returns the MD5 hash for the `event` param, or undefined if it can't be located
+ * @param {ResolverEvent} event The `ResolverEvent` to get the MD5 value for
  * @returns {string | undefined} The MD5 string for the event
  */
-export function md5HashForProcess(passedEvent: ResolverEvent): string | undefined {
-  if (event.isLegacyEvent(passedEvent)) {
+export function md5HashForProcess(event: ResolverEvent): string | undefined {
+  if (eventModel.isLegacyEvent(event)) {
     // There is not currently a key for this on Legacy event types
     return undefined;
   }
-  return passedEvent?.process?.hash?.md5;
+  return event?.process?.hash?.md5;
 }
 
 /**
- * Returns the command line path and arguments used to run the `passedEvent` if any
+ * Returns the command line path and arguments used to run the `event` if any
  *
- * @param {ResolverEvent} passedEvent The `ResolverEvent` to get the arguemnts value for
+ * @param {ResolverEvent} event The `ResolverEvent` to get the arguemnts value for
  * @returns {string | undefined} The arguments (including the path) used to run the process
  */
-export function argsForProcess(passedEvent: ResolverEvent): string | undefined {
-  if (event.isLegacyEvent(passedEvent)) {
+export function argsForProcess(event: ResolverEvent): string | undefined {
+  if (eventModel.isLegacyEvent(event)) {
     // There is not currently a key for this on Legacy event types
     return undefined;
   }
-  return passedEvent?.process?.args;
+  return event?.process?.args;
+}
+
+// TODO cleanup remove coercion
+export function name(event: ResolverEvent): string | undefined {
+  if (eventModel.isLegacyEvent(event)) {
+    return event.endgame.process_name ? event.endgame.process_name : undefined;
+  } else {
+    return event.process.name;
+  }
 }
