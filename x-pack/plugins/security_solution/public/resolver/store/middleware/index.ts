@@ -11,6 +11,7 @@ import { ResolverState } from '../../types';
 import { ResolverRelatedEvents } from '../../../../common/endpoint/types';
 import { ResolverTreeFetcher } from './resolver_tree_fetcher';
 import { ResolverAction } from '../actions';
+import { RelatedEventFetcher } from './related_event_fetcher';
 
 type MiddlewareFactory<S = ResolverState> = (
   context?: KibanaReactContextValue<StartServices>
@@ -33,38 +34,12 @@ export const resolverMiddlewareFactory: MiddlewareFactory = (context) => {
       };
     }
     const resolverTreeFetcher = ResolverTreeFetcher(context, api);
+    const relatedEventFetcher = RelatedEventFetcher(context, api);
     return async (action: ResolverAction) => {
       next(action);
 
       resolverTreeFetcher();
-
-      if (
-        action.type === 'userRequestedRelatedEventData' ||
-        action.type === 'appDetectedMissingEventData'
-      ) {
-        const entityIdToFetchFor = action.payload;
-        let result: ResolverRelatedEvents | undefined;
-        try {
-          result = await context.services.http.get(
-            `/api/endpoint/resolver/${entityIdToFetchFor}/events`,
-            {
-              query: { events: 100 },
-            }
-          );
-        } catch {
-          api.dispatch({
-            type: 'serverFailedToReturnRelatedEventData',
-            payload: action.payload,
-          });
-        }
-
-        if (result) {
-          api.dispatch({
-            type: 'serverReturnedRelatedEventData',
-            payload: result,
-          });
-        }
-      }
+      relatedEventFetcher();
     };
   };
 };

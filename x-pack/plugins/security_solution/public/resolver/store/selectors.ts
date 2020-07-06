@@ -5,10 +5,12 @@
  */
 
 import { createSelector } from 'reselect';
+import { ResolverEvent } from '../../../common/endpoint/types';
 import * as cameraSelectors from './camera/selectors';
 import * as dataSelectors from './data/selectors';
 import * as uiSelectors from './ui/selectors';
 import { ResolverState } from '../types';
+import { eventId } from '../../../common/endpoint/models/event';
 
 /**
  * A matrix that when applied to a Vector2 will convert it from world coordinates to screen coordinates.
@@ -92,22 +94,6 @@ export const terminatedProcesses = composeSelectors(
 export const relatedEventsStats = composeSelectors(
   dataStateSelector,
   dataSelectors.relatedEventsStats
-);
-
-/**
- * Map of related events... by entity id
- */
-export const relatedEventsByEntityId = composeSelectors(
-  dataStateSelector,
-  dataSelectors.relatedEventsByEntityId
-);
-
-/**
- * Entity ids to booleans for waiting status
- */
-export const relatedEventsReady = composeSelectors(
-  dataStateSelector,
-  dataSelectors.relatedEventsReady
 );
 
 /**
@@ -227,3 +213,52 @@ export const processForEntityID = composeSelectors(
   dataStateSelector,
   dataSelectors.processForEntityID
 );
+
+// Returns a random lifecycle event for the panel node ID if we have one in memory.
+export const processEventForPanelNodeID = function (state: ResolverState): ResolverEvent | null {
+  const nodeID = panelNodeID(state);
+  if (nodeID === null) {
+    return null;
+  }
+  // TODO, this associates the idea of 'nodeID' with entityID. we need to fix this
+  return processForEntityID(state)(nodeID) ?? null;
+};
+
+// Returns a related event based on the panelRelatedEventID from memory
+export const eventForPanelRelatedEventID = function (state: ResolverState): ResolverEvent | null {
+  // The data selector can only return related events if you know the unique pid for the event they relate to.
+  const nodeID = panelNodeID(state);
+  if (nodeID === null) {
+    return null;
+  }
+  const relatedEventID = panelRelatedEventID(state);
+  if (relatedEventID === null) {
+    return null;
+  }
+
+  const relatedEvents = dataSelectors.relatedEventsForNodeID(dataStateSelector(state))(nodeID);
+
+  for (const relatedEvent of relatedEvents) {
+    // TODO name. eventID
+    if (eventId(relatedEvent) === relatedEventID) {
+      return relatedEvent;
+    }
+  }
+  return null;
+};
+
+/**
+ * When the events related to an entity ID are needed, this will return the entity ID.
+ */
+export function entityIDToFetchRelatedEventsFor(state: ResolverState): string | null {
+  // this should return something when the panelView is 'relatedEventDetail' or `processEventListNarrowedByType'
+  // because each of those views show related events and we have a single way to fetch related events.
+  if (
+    panelViewName(state) === 'relatedEventDetail' ||
+    panelViewName(state) === 'processEventListNarrowedByType'
+  ) {
+    return panelNodeID(state);
+  } else {
+    return null;
+  }
+}

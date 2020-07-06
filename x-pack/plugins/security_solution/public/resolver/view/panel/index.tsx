@@ -18,11 +18,22 @@ export const Panel = memo(function Event({ className }: { className?: string }) 
   const panelViewName = useSelector(selectors.panelViewName);
   return (
     <EuiPanel className={className}>
-      {panelViewName === 'processDetail' && <ProcessDetails />}
-      {panelViewName === 'eventCountsForProcess' && <EventCountsForProcess />}
-      {panelViewName === 'processEventListNarrowedByType' && <ProcessEventListNarrowedByType />}
-      {panelViewName === 'relatedEventDetail' && <RelatedEventDetail />}
-      {panelViewName === 'processListWithCounts' && <ProcessListWithCounts />}
+      {(() => {
+        if (panelViewName === 'processDetail') {
+          return <ProcessDetails />;
+        } else if (panelViewName === 'eventCountsForProcess') {
+          return <EventCountsForProcess />;
+        } else if (panelViewName === 'processEventListNarrowedByType') {
+          return <ProcessEventListNarrowedByType />;
+        } else if (panelViewName === 'relatedEventDetail') {
+          // this view shows details about a node (process) along with details about a single event that is related to it
+          const parentEvent = useSelector(selectors.processEventForPanelNodeID);
+          const relatedEvent = useSelector(selectors.processEventForPanelRelatedEventID);
+          return <RelatedEventDetail parentEvent={parentEvent} relatedEvent={relatedEvent} />;
+        } else if (panelViewName === 'processListWithCounts') {
+          return <ProcessListWithCounts />;
+        }
+      })()}
     </EuiPanel>
   );
 });

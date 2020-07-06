@@ -172,8 +172,10 @@ export interface VisibleEntites {
  * State for `data` reducer which handles receiving Resolver data from the backend.
  */
 export interface DataState {
+  /**
+   * up to 100 related events for various processes.
+   */
   readonly relatedEvents: Map<string, ResolverRelatedEvents>;
-  readonly relatedEventsReady: Map<string, boolean>;
   /**
    * The `_id` for an ES document. Used to select a process that we'll show the graph for.
    */

@@ -118,16 +118,15 @@ export const relatedEventsStats: (
 /**
  * returns a map of entity_ids to related event data.
  */
-export function relatedEventsByEntityId(data: DataState): Map<string, ResolverRelatedEvents> {
-  return data.relatedEvents;
-}
-
-/**
- * returns a map of entity_ids to booleans indicating if it is waiting on related event
- * A value of `undefined` can be interpreted as `not yet requested`
- */
-export function relatedEventsReady(data: DataState): Map<string, boolean> {
-  return data.relatedEventsReady;
+export function relatedEventsForNodeID(data: DataState): (nodeID: string) => ResolverEvent[] {
+  return function (nodeID: string): ResolverEvent[] {
+    const relatedEvents = data.relatedEvents.get(nodeID);
+    if (relatedEvents) {
+      return relatedEvents.events;
+    } else {
+      return [];
+    }
+  };
 }
 
 /**

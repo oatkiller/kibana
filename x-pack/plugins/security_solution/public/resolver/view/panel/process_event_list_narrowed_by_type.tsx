@@ -114,22 +114,10 @@ export const ProcessEventListNarrowedByType = memo(function ProcessEventListNarr
     }
   );
 
-  const relatedsReadyMap = useSelector(selectors.relatedEventsReady);
-  const relatedsReady = relatedsReadyMap.get(processEntityId);
-
-  const relatedEventsForThisProcess = useSelector(selectors.relatedEventsByEntityId).get(
+  const relatedEventsForThisProcess = useSelector(selectors.relatedEventsForNodeID).get(
     processEntityId
   );
   const dispatch = useResolverDispatch();
-
-  useEffect(() => {
-    if (typeof relatedsReady === 'undefined') {
-      dispatch({
-        type: 'appDetectedMissingEventData',
-        payload: processEntityId,
-      });
-    }
-  }, [relatedsReady, dispatch, processEntityId]);
 
   const waitCrumbs = useMemo(() => {
     return [

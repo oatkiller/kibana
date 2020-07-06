@@ -21,6 +21,7 @@ const concernReducers = combineReducers({
 export const resolverReducer: Reducer<ResolverState, ResolverAction> = (state, action) => {
   const nextState = concernReducers(state, action);
   if (
+    // TODO, what was this supposed to do?
     action.type === 'appDetectedNewIdFromQueryParams' ||
     action.type === 'userBroughtProcessIntoView'
   ) {

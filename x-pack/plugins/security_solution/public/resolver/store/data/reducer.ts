@@ -10,7 +10,6 @@ import { ResolverAction } from '../actions';
 
 const initialState: DataState = {
   relatedEvents: new Map(),
-  relatedEventsReady: new Map(),
 };
 
 export const dataReducer: Reducer<DataState, ResolverAction> = (state = initialState, action) => {
@@ -70,19 +69,13 @@ export const dataReducer: Reducer<DataState, ResolverAction> = (state = initialS
     } else {
       return state;
     }
-  } else if (
-    action.type === 'userRequestedRelatedEventData' ||
-    action.type === 'appDetectedMissingEventData'
-  ) {
-    return {
-      ...state,
-      relatedEventsReady: new Map([...state.relatedEventsReady, [action.payload, false]]),
-    };
   } else if (action.type === 'serverReturnedRelatedEventData') {
     return {
       ...state,
-      relatedEventsReady: new Map([...state.relatedEventsReady, [action.payload.entityID, true]]),
-      relatedEvents: new Map([...state.relatedEvents, [action.payload.entityID, action.payload]]),
+      relatedEvents: new Map([
+        ...state.relatedEvents,
+        [action.payload.entityID, action.payload.response],
+      ]),
     };
   } else {
     return state;

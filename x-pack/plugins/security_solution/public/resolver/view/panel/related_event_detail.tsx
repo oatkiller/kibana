@@ -17,6 +17,7 @@ import { useResolverDispatch } from '../use_resolver_dispatch';
 import { PanelContentError } from './panel_content_error';
 import { PanelQueryStringState } from '../../types';
 import { StyledTitleRule } from './styles';
+import * as processEventModel from '../../models/process_event';
 
 /**
  * A helper function to turn objects into EuiDescriptionList entries.
@@ -64,7 +65,8 @@ const TitleHr = memo(() => {
  * it appears in the underlying ResolverEvent
  */
 export const RelatedEventDetail = memo(function RelatedEventDetail() {
-  const processName = (parentEvent && event.eventName(parentEvent)) || '';
+  const parentEvent = useSelector(selectors.processEventForPanelNodeID);
+  const processName = processEventModel.name(parentEvent);
   const processEntityId = parentEvent && event.entityId(parentEvent);
   const totalCount = countForParent || 0;
   const eventsString = i18n.translate(
@@ -80,24 +82,9 @@ export const RelatedEventDetail = memo(function RelatedEventDetail() {
     }
   );
 
-  const relatedsReadyMap = useSelector(selectors.relatedEventsReady);
-  const relatedsReady = relatedsReadyMap.get(processEntityId!);
   const dispatch = useResolverDispatch();
 
-  /**
-   * If we don't have the related events for the parent yet, use this effect
-   * to request them.
-   */
-  useEffect(() => {
-    if (typeof relatedsReady === 'undefined') {
-      dispatch({
-        type: 'appDetectedMissingEventData',
-        payload: processEntityId,
-      });
-    }
-  }, [relatedsReady, dispatch, processEntityId]);
-
-  const relatedEventsForThisProcess = useSelector(selectors.relatedEventsByEntityId).get(
+  const relatedEventsForThisProcess = useSelector(selectors.relatedEventsForNodeID).get(
     processEntityId!
   );
 

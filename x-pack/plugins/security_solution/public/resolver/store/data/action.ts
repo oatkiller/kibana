@@ -49,6 +49,9 @@ interface AppAbortedResolverDataRequest {
  */
 interface ServerFailedToReturnRelatedEventData {
   readonly type: 'serverFailedToReturnRelatedEventData';
+  /**
+   * entity ID used to make the aborted request
+   */
   readonly payload: string;
 }
 
@@ -57,7 +60,16 @@ interface ServerFailedToReturnRelatedEventData {
  */
 interface ServerReturnedRelatedEventData {
   readonly type: 'serverReturnedRelatedEventData';
-  readonly payload: ResolverRelatedEvents;
+  readonly payload: {
+    /**
+     * response from the server.
+     */
+    response: ResolverRelatedEvents;
+    /**
+     * entity ID used to make the request.
+     */
+    entityID: string;
+  };
 }
 
 export type DataAction =
