@@ -5,6 +5,8 @@
  */
 import { LegacyEndpointEvent, ResolverEvent } from '../types';
 
+// TODO, this whole file. why do we have this as well as the resolver public version? clean it up
+
 export function isLegacyEvent(event: ResolverEvent): event is LegacyEndpointEvent {
   return (event as LegacyEndpointEvent).endgame !== undefined;
 }
@@ -16,7 +18,8 @@ export function isProcessStart(event: ResolverEvent): boolean {
   return event.event.type === 'start';
 }
 
-export function eventTimestamp(event: ResolverEvent): string | undefined | number {
+// TODO, name, cmoment
+export function timestamp(event: ResolverEvent): string | undefined | number {
   if (isLegacyEvent(event)) {
     return event.endgame.timestamp_utc;
   } else {

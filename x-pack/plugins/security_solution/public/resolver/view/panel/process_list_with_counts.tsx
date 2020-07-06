@@ -15,33 +15,28 @@ import { i18n } from '@kbn/i18n';
 import { useSelector } from 'react-redux';
 import * as event from '../../../../common/endpoint/models/event';
 import * as selectors from '../../store/selectors';
-import { formatter, StyledBreadcrumbs } from './panel_content_utilities';
 import { useResolverDispatch } from '../use_resolver_dispatch';
 import { SideEffectContext } from '../side_effect_context';
 import { ProcessCubeIcon } from './process_cube_icon';
 import { ResolverEvent } from '../../../../common/endpoint/types';
 import { PanelQueryStringState } from '../../types';
-import { uniquePidForProcess } from '../../models/process_event';
+import * as processEventModel from '../../models/process_event';
+import { StyledBreadcrumbs } from './styles';
+import { formatDate } from './format_date';
+import { usePanelStateSetter } from '../use_panel_state_setter';
 
 /**
  * The "default" view for the panel: A list of all the processes currently in the graph.
- *
- * @param {function} pushToQueryparams A function to update the hash value in the URL to control panel state
  */
-export const ProcessListWithCounts = memo(function ProcessListWithCounts({
-  pushToQueryParams,
-  isProcessTerminated,
-  isProcessOrigin,
-}: {
-  pushToQueryParams: (queryStringKeyValuePair: PanelQueryStringState) => unknown;
-  isProcessTerminated: boolean;
-  isProcessOrigin: boolean;
-}) {
+export const ProcessListWithCounts = memo(function ProcessListWithCounts() {
   interface ProcessTableView {
-    name: string;
+    name?: string;
     timestamp?: Date;
     event: ResolverEvent;
   }
+  const isProcessTerminated = useSelector(selectors.isProcessTerminated);
+
+  const setPanelState = usePanelStateSetter();
 
   const dispatch = useResolverDispatch();
   const { timestamp } = useContext(SideEffectContext);
@@ -59,6 +54,7 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
         sortable: true,
         truncateText: true,
         render(name: string, item: ProcessTableView) {
+          const nodeID = processEventModel.uniquePidForProcess(item.event);
           return name === '' ? (
             <EuiBadge color="warning">
               {i18n.translate(
@@ -71,7 +67,6 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
           ) : (
             <EuiButtonEmpty
               onClick={() => {
-                const nodeID = uniquePidForProcess(item.event);
                 dispatch({
                   type: 'userBroughtProcessIntoView',
                   payload: {
@@ -79,13 +74,10 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
                     id: nodeID,
                   },
                 });
-                pushToQueryParams({ breadcrumbID: nodeID, breadcrumbEvent: '' });
+                setPanelState({ panelView: 'processDetail', panelNodeID: nodeID });
               }}
             >
-              <ProcessCubeIcon
-                isProcessTerminated={isProcessTerminated}
-                isProcessOrigin={isProcessOrigin}
-              />
+              <ProcessCubeIcon isProcessTerminated={isProcessTerminated(nodeID)} />
               {name}
             </EuiButtonEmpty>
           );
@@ -103,7 +95,7 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
         sortable: true,
         render(eventDate?: Date) {
           return eventDate ? (
-            formatter.format(eventDate)
+            formatDate(eventDate)
           ) : (
             <EuiBadge color="warning">
               {i18n.translate(
@@ -125,25 +117,18 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
   const processTableView: ProcessTableView[] = useMemo(
     () =>
       [...processNodePositions.keys()].map((processEvent) => {
-        let dateTime;
-        const eventTime = event.eventTimestamp(processEvent);
-        const name = event.eventName(processEvent);
-        if (eventTime) {
-          const date = new Date(eventTime);
-          if (isFinite(date.getTime())) {
-            dateTime = date;
-          }
-        }
+        const name = processEventModel.name(processEvent);
+
         return {
           name,
-          timestamp: dateTime,
+          timestamp: processEventModel.timestampAsDate(processEvent),
           event: processEvent,
         };
       }),
     [processNodePositions]
   );
 
-  const crumbs = useMemo(() => {
+  const breadcrumbs = useMemo(() => {
     return [
       {
         text: i18n.translate(
@@ -159,7 +144,7 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts({
 
   return (
     <>
-      <StyledBreadcrumbs breadcrumbs={crumbs} />
+      <StyledBreadcrumbs breadcrumbs={breadcrumbs} />
       <EuiSpacer size="l" />
       <EuiInMemoryTable<ProcessTableView> items={processTableView} columns={columns} sorting />
     </>

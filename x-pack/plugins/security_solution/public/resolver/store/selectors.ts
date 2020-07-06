@@ -82,9 +82,9 @@ export const nodeLevel = composeSelectors(dataStateSelector, dataSelectors.nodeL
  */
 export const nextSibling = composeSelectors(dataStateSelector, dataSelectors.nextSibling);
 
-export const terminatedProcesses = composeSelectors(
+export const isProcessTerminated = composeSelectors(
   dataStateSelector,
-  dataSelectors.terminatedProcesses
+  dataSelectors.isProcessTerminated
 );
 
 /**

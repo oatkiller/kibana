@@ -14,7 +14,7 @@ import * as selectors from '../../../store/selectors';
 import { ResolverEvent } from '../../../../../common/endpoint/types';
 import { useResolverTheme } from '../../assets';
 import { useResolverDispatch } from '../../use_resolver_dispatch';
-import { uniquePidForProcess } from '../../../models/process_event';
+import * as processEventModel from '../../../models/process_event';
 import { OptionList } from './option_list';
 import { Wrapper } from './styles';
 
@@ -23,76 +23,68 @@ import { Wrapper } from './styles';
  *   1) Provided a collection of `optionsWithActions`: it will call `menuAction` then - if and when menuData becomes available - display each item with an optional prefix and call the supplied action for the options when that option is clicked.
  *   2) Provided `optionsWithActions` is undefined, it will call the supplied `menuAction` when its host button is clicked.
  */
-export const Submenu = React.memo(
-  ({
-    event,
-    isProcessTerminated,
-    isProcessOrigin,
-  }: {
-    event: ResolverEvent;
-    isProcessTerminated: boolean;
-    isProcessOrigin: boolean;
-  }) => {
-    const dispatch = useResolverDispatch();
+export const Submenu = React.memo(({ event }: { event: ResolverEvent }) => {
+  const dispatch = useResolverDispatch();
 
-    // TODO
+  // TODO
+  const nodeID = processEventModel.uniquePidForProcess(event);
+  const isProcessTerminated = useSelector(selectors.isProcessTerminated)(nodeID);
 
-    const {
-      colorMap: { resolverBackground },
-      cubeAssetsForNode,
-    } = useResolverTheme();
-    const { labelButtonFill } = cubeAssetsForNode(isProcessTerminated, isProcessOrigin);
+  const {
+    colorMap: { resolverBackground },
+    cubeAssetsForNode,
+  } = useResolverTheme();
+  const { labelButtonFill } = cubeAssetsForNode(isProcessTerminated, false);
 
-    const count: number | null = useSelector(selectors.relatedEventTotalForProcess)(event);
+  const count: number | null = useSelector(selectors.relatedEventTotalForProcess)(event);
 
-    const [menuIsOpen, setMenuOpen] = useState(false);
-    const onClick = useCallback(() => {
-      if (!menuIsOpen) {
-        // if the user is opening the menu, fire this
-        // TODO
-        dispatch({
-          type: 'userRequestedRelatedEventData',
-          payload: uniquePidForProcess(event),
-        });
-      }
+  const [menuIsOpen, setMenuOpen] = useState(false);
+  // TODO, when this happens, put it in a set. have the fetcher fetch for anything in the set.
+  // when the dropdown is closed, delete the data in the set
+  const onClick = useCallback(() => {
+    if (!menuIsOpen) {
+      // if the user is opening the menu, fire this
+      dispatch({
+        type: 'userRequestedRelatedEventData',
+        payload: processEventModel.uniquePidForProcess(event),
+      });
+    }
 
-      setMenuOpen(!menuIsOpen);
-    }, [menuIsOpen, dispatch, event]);
+    setMenuOpen(!menuIsOpen);
+  }, [menuIsOpen, dispatch, event]);
 
-    const closePopover = useCallback(() => setMenuOpen(false), []);
+  const closePopover = useCallback(() => setMenuOpen(false), []);
 
-    return (
-      <Wrapper
-        buttonBorderColor={labelButtonFill}
-        buttonFill={resolverBackground}
-        className={menuIsOpen ? ' is-open' : ''}
+  return (
+    <Wrapper
+      buttonBorderColor={labelButtonFill}
+      buttonFill={resolverBackground}
+      className={menuIsOpen ? ' is-open' : ''}
+    >
+      <EuiPopover
+        panelPaddingSize="none"
+        button={
+          <EuiButton
+            onClick={onClick}
+            color={labelButtonFill}
+            size="s"
+            iconType={menuIsOpen ? 'arrowUp' : 'arrowDown'}
+            iconSide="right"
+            tabIndex={-1}
+          >
+            <FormattedMessage
+              id="xpack.securitySolution.endpoint.resolver.relatedEvents"
+              defaultMessage="{ count } Events"
+              values={{ count: count === null ? '' : <EuiI18nNumber value={count} /> }}
+            />
+          </EuiButton>
+        }
+        isOpen={menuIsOpen}
+        closePopover={closePopover}
+        repositionOnScroll
       >
-        <EuiPopover
-          panelPaddingSize="none"
-          button={
-            <EuiButton
-              onClick={onClick}
-              color={labelButtonFill}
-              size="s"
-              iconType={menuIsOpen ? 'arrowUp' : 'arrowDown'}
-              iconSide="right"
-              tabIndex={-1}
-            >
-              <FormattedMessage
-                id="xpack.securitySolution.endpoint.resolver.relatedEvents"
-                defaultMessage="{ count } Events"
-                values={{ count: count === null ? '' : <EuiI18nNumber value={count} /> }}
-              />
-            </EuiButton>
-          }
-          isOpen={menuIsOpen}
-          closePopover={closePopover}
-          repositionOnScroll
-        >
-          {menuIsOpen && <OptionList event={event} />}
-        </EuiPopover>
-      </Wrapper>
-    );
-  }
-);
-
+        {menuIsOpen && <OptionList event={event} />}
+      </EuiPopover>
+    </Wrapper>
+  );
+});

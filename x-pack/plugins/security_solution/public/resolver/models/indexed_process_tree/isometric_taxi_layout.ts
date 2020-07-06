@@ -174,8 +174,8 @@ function processEdgeLineSegments(
       throw new Error();
     }
 
-    const parentTime = event.eventTimestamp(parent);
-    const processTime = event.eventTimestamp(process);
+    const parentTime = event.timestamp(parent);
+    const processTime = event.timestamp(process);
     if (parentTime && processTime) {
       edgeLineMetadata.elapsedTime = elapsedTime(parentTime, processTime) ?? undefined;
     }

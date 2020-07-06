@@ -66,11 +66,17 @@ const resolverTree = (state: DataState): ResolverTree | undefined => {
 /**
  * Process events that will be displayed as terminated.
  */
-export const terminatedProcesses = createSelector(resolverTree, function (tree?: ResolverTree) {
+export const isProcessTerminated: (
+  state: DataState
+) => (
+  /** entityID **/ id: string
+) => /** true if the process was terminated. **/ boolean = createSelector(resolverTree, function (
+  tree?: ResolverTree
+) {
   if (!tree) {
-    return new Set();
+    return () => false;
   }
-  return new Set(
+  const terminatedProcesses = new Set(
     resolverTreeModel
       .lifecycleEvents(tree)
       .filter(isTerminatedProcess)
@@ -78,6 +84,7 @@ export const terminatedProcesses = createSelector(resolverTree, function (tree?:
         return uniquePidForProcess(terminatedEvent);
       })
   );
+  return (/** entityID **/ id: string) => terminatedProcesses.has(id);
 });
 
 /**

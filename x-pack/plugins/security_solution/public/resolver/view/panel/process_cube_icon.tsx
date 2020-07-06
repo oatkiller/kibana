@@ -12,11 +12,11 @@ import { descriptionForNode } from '../description_for_node';
  * icon for a process.
  */
 export const ProcessCubeIcon = memo(function CubeForProcess({
-  isProcessTerminated,
-  isProcessOrigin,
+  isProcessTerminated = false,
+  isProcessOrigin = false,
 }: {
-  isProcessTerminated: boolean;
-  isProcessOrigin: boolean;
+  isProcessTerminated?: boolean;
+  isProcessOrigin?: boolean;
 }) {
   const { cubeAssetsForNode } = useResolverTheme();
   const { cubeSymbol } = cubeAssetsForNode(isProcessTerminated, isProcessOrigin);

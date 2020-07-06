@@ -46,7 +46,7 @@ export const ProcessDetails = memo(function ProcessDetails({
 }) {
   const processName = event.eventName(processEvent);
   const processInfoEntry = useMemo(() => {
-    const eventTime = event.eventTimestamp(processEvent);
+    const eventTime = event.timestamp(processEvent);
     const dateTime = eventTime ? formatDate(eventTime) : '';
 
     const createdEntry = {

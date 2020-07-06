@@ -32,10 +32,6 @@ export const ProcessEventDot = React.memo(
      * projectionMatrix which can be used to convert `position` to screen coordinates.
      */
     projectionMatrix: Matrix3;
-    /**
-     * Whether or not to show the process as terminated.
-     */
-    isProcessTerminated: boolean;
   }) => {
     /**
      * Convert the position, which is in 'world' coordinates, to screen coordinates.

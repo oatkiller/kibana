@@ -146,7 +146,7 @@ export const ProcessEventListNarrowedByType = memo(function ProcessEventListNarr
         return a;
       }, [])
       .map((resolverEvent) => {
-        const eventTime = event.eventTimestamp(resolverEvent);
+        const eventTime = event.timestamp(resolverEvent);
         const formattedDate = typeof eventTime === 'undefined' ? '' : formatDate(eventTime);
         const entityId = event.eventId(resolverEvent);
 

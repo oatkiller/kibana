@@ -21,7 +21,7 @@ import { ResolverAction } from '../actions';
 import { isAbortError } from './is_abort_error';
 
 /**
- * Fetch related events as needed.
+ * Fetch related events as needed based on the panel query string state.
  */
 export function RelatedEventFetcher(
   context: KibanaReactContextValue<StartServices>,

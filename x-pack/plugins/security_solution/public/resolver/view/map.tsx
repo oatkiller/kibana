@@ -51,7 +51,6 @@ export const ResolverMap = React.memo(function ({
   const { processNodePositions, connectingEdgeLineSegments } = useSelector(
     selectors.visibleProcessNodePositionsAndEdgeLineSegments
   )(timestamp());
-  const terminatedProcesses = useSelector(selectors.terminatedProcesses);
   const { projectionMatrix, ref, onMouseDown } = useCamera();
   const isLoading = useSelector(selectors.isLoading);
   const hasError = useSelector(selectors.hasError);
@@ -102,8 +101,6 @@ export const ResolverMap = React.memo(function ({
                 position={position}
                 projectionMatrix={projectionMatrix}
                 event={processEvent}
-                isProcessTerminated={/* TODO */ terminatedProcesses.has(processEntityId)}
-                isProcessOrigin={false}
               />
             );
           })}
@@ -116,7 +113,6 @@ export const ResolverMap = React.memo(function ({
                   position={position}
                   projectionMatrix={projectionMatrix}
                   event={processEvent}
-                  isProcessTerminated={terminatedProcesses.has(processEntityId)}
                 />
               );
             })}

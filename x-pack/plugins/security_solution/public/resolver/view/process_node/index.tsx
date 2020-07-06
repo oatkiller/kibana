@@ -16,6 +16,7 @@ import { Vector2, Matrix3 } from '../../types';
 import { SymbolIds, useResolverTheme, calculateResolverFontSize } from '../assets';
 // TODO
 import { ResolverEvent } from '../../../../common/endpoint/types';
+import * as processEventModel from '../../models/process_event';
 import { useResolverDispatch } from '../use_resolver_dispatch';
 // TODO
 import * as eventModel from '../../../../common/endpoint/models/event';
@@ -33,8 +34,6 @@ export const ProcessNode = React.memo(
     position,
     event,
     projectionMatrix,
-    isProcessTerminated,
-    isProcessOrigin,
   }: {
     /**
      * The positon of the process node, in 'world' coordinates.
@@ -48,15 +47,10 @@ export const ProcessNode = React.memo(
      * projectionMatrix which can be used to convert `position` to screen coordinates.
      */
     projectionMatrix: Matrix3;
-    /**
-     * Whether or not to show the process as terminated.
-     */
-    isProcessTerminated: boolean;
-    /**
-     * Whether or not to show the process as the originating event.
-     */
-    isProcessOrigin: boolean;
   }) => {
+    const isProcessTerminated = useSelector(selectors.isProcessTerminated);
+    const nodeID = uniquePidForProcess(event);
+
     /**
      * Convert the position, which is in 'world' coordinates, to screen coordinates.
      */
@@ -135,11 +129,10 @@ export const ProcessNode = React.memo(
       isLabelFilled,
       labelButtonFill,
       strokeColor,
-    } = cubeAssetsForNode(isProcessTerminated, isProcessOrigin);
+    } = cubeAssetsForNode(isProcessTerminated(nodeID), false);
 
     const descriptionText = descriptionForNode(isProcessTerminated, isProcessOrigin);
 
-    const nodeID = uniquePidForProcess(event);
     const resolverNodeIdGenerator = useMemo(() => htmlIdGenerator(nodeID), [nodeID]);
 
     const nodeId = resolverNodeIdGenerator('node');
@@ -251,16 +244,12 @@ export const ProcessNode = React.memo(
               maxHeight: `${Math.min(26 + xScale * 3, 32)}px`,
               maxWidth: `${isShowingEventActions ? 400 : 210 * xScale}px`,
             }}
-            title={eventModel.eventName(event)}
+            title={processEventModel.name(event)}
           >
-            {eventModel.eventName(event)}
+            {processEventModel.name(event)}
           </EuiButton>
           {isShowingEventActions && grandTotal !== null && grandTotal > 0 && (
-            <Submenu
-              isProcessOrigin={isProcessOrigin}
-              isProcessTerminated={isProcessTerminated}
-              event={event}
-            />
+            <Submenu event={event} />
           )}
         </StyledActionsContainer>
       );

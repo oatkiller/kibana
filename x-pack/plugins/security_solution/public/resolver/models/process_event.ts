@@ -170,3 +170,16 @@ export function name(event: ResolverEvent): string | undefined {
     return event.process.name;
   }
 }
+
+export function timestampAsDate(event: ResolverEvent): Date | undefined {
+  const timestamp = eventModel.timestamp(event);
+  if (!timestamp) {
+    return undefined;
+  }
+  const date = new Date(timestamp);
+  // TODO, test
+  if (!isFinite(date.getTime())) {
+    return undefined;
+  }
+  return date;
+}
