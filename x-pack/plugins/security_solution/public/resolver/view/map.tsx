@@ -97,27 +97,29 @@ export const ResolverMap = React.memo(function ({
           {[...processNodePositions].map(([processEvent, position]) => {
             const processEntityId = uniquePidForProcess(processEvent);
             return (
-              <>
-                <ProcessNode
-                  key={processEntityId}
+              <ProcessNode
+                key={processEntityId}
+                position={position}
+                projectionMatrix={projectionMatrix}
+                event={processEvent}
+                isProcessTerminated={/* TODO */ terminatedProcesses.has(processEntityId)}
+                isProcessOrigin={false}
+              />
+            );
+          })}
+          {useDot &&
+            [...processNodePositions].map(([processEvent, position]) => {
+              const processEntityId = uniquePidForProcess(processEvent);
+              return (
+                <ProcessEventDot
+                  key={`${processEntityId}:debugging`}
                   position={position}
                   projectionMatrix={projectionMatrix}
                   event={processEvent}
-                  isProcessTerminated={/* TODO */ terminatedProcesses.has(processEntityId)}
-                  isProcessOrigin={false}
+                  isProcessTerminated={terminatedProcesses.has(processEntityId)}
                 />
-                {useDot && (
-                  <ProcessEventDot
-                    key={`${processEntityId}:debugging`}
-                    position={position}
-                    projectionMatrix={projectionMatrix}
-                    event={processEvent}
-                    isProcessTerminated={terminatedProcesses.has(processEntityId)}
-                  />
-                )}
-              </>
-            );
-          })}
+              );
+            })}
         </GraphContainer>
       )}
       <StyledPanel />
