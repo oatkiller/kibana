@@ -10,14 +10,15 @@ import { EuiTitle, EuiSpacer, EuiText, EuiButtonEmpty, EuiHorizontalRule } from 
 import { useSelector } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import * as event from '../../../../common/endpoint/models/event';
+import * as processEventModel from '../../models/process_event';
 import { ResolverEvent, ResolverNodeStats } from '../../../../common/endpoint/types';
 import * as selectors from '../../store/selectors';
 import { useResolverDispatch } from '../use_resolver_dispatch';
 import { PanelQueryStringState } from '../../types';
-import { StyledBreadcrumbs } from './styles';
+import { StyledBreadcrumbs, BoldCode } from './styles';
 
 /**
- * This view presents a list of related events of a given type for a given process.
+ * List events related to a node, filtered by a category
  * It will appear like:
  *
  * |                                                        |
@@ -85,23 +86,18 @@ const DisplayList = memo(function DisplayList({
   );
 });
 
-export const ProcessEventListNarrowedByType = memo(function ProcessEventListNarrowedByType({
+export const NodeEvents = memo(function ({
   processEvent,
   eventType,
-  relatedStats,
-  pushToQueryParams,
 }: {
   processEvent: ResolverEvent;
-  pushToQueryParams: (arg0: PanelQueryStringState) => unknown;
   eventType: string;
-  relatedStats: ResolverNodeStats;
 }) {
-  const processName = processEvent && event.eventName(processEvent);
-  const processEntityId = event.entityId(processEvent);
-  const totalCount = Object.values(relatedStats.events.byCategory).reduce(
-    (sum, val) => sum + val,
-    0
-  );
+  const processName = processEventModel.name(processEvent);
+  const nodeID: string = processEventModel.uniquePidForProcess(processEvent);
+  const totalCount: number | null = useSelector(selectors.relatedEventTotalForNode)(nodeID);
+  const relatedEventsForThisProcess = useSelector(selectors.relatedEventsForNode)(nodeID);
+
   const eventsString = i18n.translate(
     'xpack.securitySolution.endpoint.resolver.panel.processEventListByType.events',
     {
@@ -114,11 +110,6 @@ export const ProcessEventListNarrowedByType = memo(function ProcessEventListNarr
       defaultMessage: 'Waiting For Events...',
     }
   );
-
-  const relatedEventsForThisProcess = useSelector(selectors.relatedEventsForNodeID).get(
-    processEntityId
-  );
-  const dispatch = useResolverDispatch();
 
   const waitCrumbs = useMemo(() => {
     return [

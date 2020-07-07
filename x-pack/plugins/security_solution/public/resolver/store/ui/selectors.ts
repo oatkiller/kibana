@@ -29,7 +29,7 @@ const panelViewNames: ReadonlySet<PanelQueryStringState['panelView']> = new Set(
   'processDetail',
   'eventCountsForProcess',
   'relatedEventDetail',
-  'processEventListNarrowedByType',
+  'nodeEvents',
 ]);
 
 function isPanelViewName(name: string): name is PanelQueryStringState['panelView'] {

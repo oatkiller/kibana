@@ -124,7 +124,7 @@ export const nodeStats: (
 /**
  * returns a map of entity_ids to related event data.
  */
-export function relatedEventsForNodeID(data: DataState): (nodeID: string) => ResolverEvent[] {
+export function relatedEventsForNode(data: DataState): (nodeID: string) => ResolverEvent[] {
   return function (nodeID: string): ResolverEvent[] {
     const relatedEvents = data.relatedEvents.get(nodeID);
     if (relatedEvents) {
@@ -324,11 +324,11 @@ export function databaseDocumentIDToAbort(state: DataState): string | null {
 /**
  * The sum of all related event categories for a process.
  */
-export const relatedEventTotalForProcess: (
+export const relatedEventTotalForNode: (
   state: DataState
-) => (event: ResolverEvent) => number | null = createSelector(nodeStats, (nodeStatsGetter) => {
-  return (event: ResolverEvent) => {
-    const stats = nodeStatsGetter(uniquePidForProcess(event));
+) => (/** nodeID */ id: string) => number | null = createSelector(nodeStats, (nodeStatsGetter) => {
+  return (id: string) => {
+    const stats = nodeStatsGetter(id);
     if (!stats) {
       return null;
     }

@@ -4,19 +4,13 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { i18n } from '@kbn/i18n';
+/* eslint-disable no-duplicate-imports */
+
 import { EuiBreadcrumbs, Breadcrumb, EuiCode } from '@elastic/eui';
 import styled from 'styled-components';
 import React, { memo } from 'react';
-import {
-  htmlIdGenerator,
-  EuiSpacer,
-  EuiTitle,
-  EuiText,
-  EuiTextColor,
-  EuiDescriptionList,
-} from '@elastic/eui';
-import { useResolverTheme } from '../assets';
+import { EuiDescriptionList } from '@elastic/eui';
+import { useColors } from '../use_colors';
 
 const ThemedBreadcrumbs = styled(EuiBreadcrumbs)<{ background: string; text: string }>`
   &.euiBreadcrumbs.euiBreadcrumbs--responsive {
@@ -36,9 +30,7 @@ export const StyledBreadcrumbs = memo(function StyledBreadcrumbs({
   breadcrumbs: Breadcrumb[];
   truncate?: boolean;
 }) {
-  const {
-    colorMap: { resolverEdge, resolverEdgeText },
-  } = useResolverTheme();
+  const { resolverEdge, resolverEdgeText } = useColors();
   return (
     <ThemedBreadcrumbs
       background={resolverEdge}

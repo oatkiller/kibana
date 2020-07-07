@@ -12,11 +12,12 @@ import { useSelector } from 'react-redux';
 import { FormattedMessage } from '@kbn/i18n/react';
 import * as selectors from '../../../store/selectors';
 import { ResolverEvent } from '../../../../../common/endpoint/types';
-import { useResolverTheme } from '../../assets';
 import { useResolverDispatch } from '../../use_resolver_dispatch';
 import * as processEventModel from '../../../models/process_event';
 import { OptionList } from './option_list';
 import { Wrapper } from './styles';
+import { useColors } from '../../use_colors';
+import { useCubeAssets } from '../../use_cube_assets';
 
 /**
  * A Submenu to be displayed in one of two forms:
@@ -30,13 +31,11 @@ export const Submenu = React.memo(({ event }: { event: ResolverEvent }) => {
   const nodeID = processEventModel.uniquePidForProcess(event);
   const isProcessTerminated = useSelector(selectors.isProcessTerminated)(nodeID);
 
-  const {
-    colorMap: { resolverBackground },
-    cubeAssetsForNode,
-  } = useResolverTheme();
-  const { labelButtonFill } = cubeAssetsForNode(isProcessTerminated, false);
+  const { resolverBackground } = useColors();
 
-  const count: number | null = useSelector(selectors.relatedEventTotalForProcess)(event);
+  const { labelButtonFill } = useCubeAssets(isProcessTerminated);
+
+  const count: number | null = useSelector(selectors.relatedEventTotalForNode)(nodeID);
 
   const [menuIsOpen, setMenuOpen] = useState(false);
   // TODO, when this happens, put it in a set. have the fetcher fetch for anything in the set.

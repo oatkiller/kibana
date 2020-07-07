@@ -19,6 +19,7 @@ import { sideEffectSimulator } from './side_effect_simulator';
 import { mockProcessEvent } from '../models/process_event_test_helpers';
 import { mock as mockResolverTree } from '../models/resolver_tree';
 import { ResolverAction } from '../store/actions';
+import { uniquePidForProcess } from '../models/process_event';
 
 describe('useCamera on an unpainted element', () => {
   let element: HTMLElement;
@@ -202,7 +203,7 @@ describe('useCamera on an unpainted element', () => {
           type: 'userBroughtProcessIntoView',
           payload: {
             time: simulator.controls.time,
-            process,
+            id: uniquePidForProcess(process),
           },
         };
         act(() => {

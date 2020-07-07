@@ -14,13 +14,12 @@ import React, { useMemo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { EuiSelectableOption } from '@elastic/eui';
 import { usePanelStateSetter } from '../../use_panel_state_setter';
-import { ResolverEvent, ResolverNodeStats } from '../../../../../common/endpoint/types';
+import { ResolverEvent } from '../../../../../common/endpoint/types';
 import * as selectors from '../../../store/selectors';
 import { uniquePidForProcess } from '../../../models/process_event';
 import { OptionListItem } from './styles';
 import { PanelQueryStringState } from '../../../types';
 
-// TODO, this component probably should not have `checked` state, that should come from the query string
 /**
  * Enumerates the stats for related events to display with the node as options,
  * generally in the form `number of related events in category` `category title`
@@ -85,7 +84,7 @@ export const OptionList = React.memo(({ event }: { event: ResolverEvent }) => {
               panelNodeID: nodeID,
             }
           : {
-              panelView: 'processEventListNarrowedByType',
+              panelView: 'nodeEvents',
               panelNodeID: nodeID,
               panelEventCategory: selectedCategory,
             };

@@ -7,61 +7,37 @@
 /* eslint-disable react/display-name */
 
 import React, { memo } from 'react';
-import euiThemeAmsterdamDark from '@elastic/eui/dist/eui_theme_amsterdam_dark.json';
-import euiThemeAmsterdamLight from '@elastic/eui/dist/eui_theme_amsterdam_light.json';
-import { htmlIdGenerator, ButtonColor } from '@elastic/eui';
+import { htmlIdGenerator } from '@elastic/eui';
 import styled from 'styled-components';
 import { useUiSetting } from '../../common/lib/kibana';
-import { DEFAULT_DARK_MODE } from '../../../common/constants';
-import { ResolverProcessType } from '../types';
-
-type ResolverColorNames =
-  | 'descriptionText'
-  | 'full'
-  | 'graphControls'
-  | 'graphControlsBackground'
-  | 'resolverBackground'
-  | 'resolverEdge'
-  | 'resolverEdgeText';
-
-type ColorMap = Record<ResolverColorNames, string>;
-interface NodeStyleConfig {
-  backingFill: string;
-  cubeSymbol: string;
-  descriptionFill: string;
-  isLabelFilled: boolean;
-  labelButtonFill: ButtonColor;
-  strokeColor: string;
-}
-
-interface NodeStyleMap {
-  runningProcessCube: NodeStyleConfig;
-  runningTriggerCube: NodeStyleConfig;
-  terminatedProcessCube: NodeStyleConfig;
-}
-
-const idGenerator = htmlIdGenerator();
+import { DEFAULT_DARK_MODE as defaultDarkMode } from '../../../common/constants';
+import { Immutable } from '../../../common/endpoint/types';
 
 /**
- * Ids of paint servers to be referenced by fill and stroke attributes
+ * TODO, needs module level comment explaining how this was supposed to work and why it is deprecated.
  */
 // TODO
-export const PaintServerIds = {
-  runningProcessCube: idGenerator('psRunningProcessCube'),
-  runningTriggerCube: idGenerator('psRunningTriggerCube'),
-  terminatedProcessCube: idGenerator('psTerminatedProcessCube'),
-  terminatedTriggerCube: idGenerator('psTerminatedTriggerCube'),
+const idGenerator = htmlIdGenerator('resolverSVGSymbols');
+
+/**
+ * ID of SVG elements which define fills used by other SVG elements.
+ * @deprecated
+ */
+const svgFillElementIDs: Immutable<Record<string, string>> = {
+  runningProcessCubeFill: idGenerator('runningProcessCubeFill'),
+  runningTriggerCubeFill: idGenerator('runningTriggerCubeFill'),
+  terminatedProcessCubeFill: idGenerator('terminatedProcessCubeFill'),
+  terminatedTriggerCubeFill: idGenerator('terminatedTriggerCubeFill'),
 };
 
 /**
- * PaintServers: Where color palettes, grandients, patterns and other similar concerns
- * are exposed to the component
+ * Defines SVG fills w/ special HTML IDs.
+ * @deprecated
  */
-
-const PaintServers = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
+const SVGFills = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
   <>
     <linearGradient
-      id={PaintServerIds.runningProcessCube}
+      id={svgFillElementIDs.runningProcessCubeFill}
       x1="-381.23556"
       y1="264.73802"
       x2="-380.48514"
@@ -73,7 +49,7 @@ const PaintServers = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
       <stop offset="1" stopColor="#54b399" />
     </linearGradient>
     <linearGradient
-      id={PaintServerIds.runningTriggerCube}
+      id={svgFillElementIDs.runningTriggerCubeFill}
       x1="-381.18643"
       y1="264.68195"
       x2="-380.48514"
@@ -87,7 +63,7 @@ const PaintServers = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
     {isDarkMode ? (
       <>
         <linearGradient
-          id={PaintServerIds.terminatedProcessCube}
+          id={svgFillElementIDs.terminatedProcessCubeFill}
           x1="-381.23752"
           y1="264.24026"
           x2="-380.48514"
@@ -99,7 +75,7 @@ const PaintServers = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
           <stop offset="1" stopColor="#8bd1c7" />
         </linearGradient>
         <linearGradient
-          id={PaintServerIds.terminatedTriggerCube}
+          id={svgFillElementIDs.terminatedTriggerCubeFill}
           x1="-381.18658"
           y1="264.68187"
           x2="-380.48546"
@@ -114,7 +90,7 @@ const PaintServers = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
     ) : (
       <>
         <linearGradient
-          id={PaintServerIds.terminatedProcessCube}
+          id={svgFillElementIDs.terminatedProcessCubeFill}
           x1="10.5206"
           y1="9.49068"
           x2="46.8141"
@@ -125,7 +101,7 @@ const PaintServers = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
           <stop offset="1" stopColor="#00B4AC" />
         </linearGradient>
         <linearGradient
-          id={PaintServerIds.terminatedTriggerCube}
+          id={svgFillElementIDs.terminatedTriggerCubeFill}
           x1="15.4848"
           y1="12.0468"
           x2="43.1049"
@@ -141,10 +117,10 @@ const PaintServers = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
 ));
 
 /**
- * Ids of symbols to be linked by <use> elements
+ * IDs of symbols to be linked by <use> elements
+ * @deprecated
  */
-// TODO
-export const SymbolIds = {
+export const svgSymbolIDs: Immutable<Record<string, string>> = {
   processNodeLabel: idGenerator('nodeSymbol'),
   runningProcessCube: idGenerator('runningCube'),
   runningTriggerCube: idGenerator('runningTriggerCube'),
@@ -159,7 +135,7 @@ export const SymbolIds = {
 const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
   <>
     <symbol
-      id={SymbolIds.processNodeLabel}
+      id={svgSymbolIDs.processNodeLabel}
       viewBox="0 0 144 25"
       preserveAspectRatio="xMidYMid meet"
     >
@@ -173,12 +149,12 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
         paintOrder="normal"
       />
     </symbol>
-    <symbol id={SymbolIds.runningProcessCube} viewBox="0 0 88 100">
+    <symbol id={svgSymbolIDs.runningProcessCube} viewBox="0 0 88 100">
       {/* Running Process*/}
       <path
         d="M87.52127,25.129a3.79536,3.79536,0,0,0-1.43184-1.47165L45.91025.57471a3.83652,3.83652,0,0,0-3.8205,0L1.91039,23.65739A3.86308,3.86308,0,0,0,0,26.95V73.11541a3.79835,3.79835,0,0,0,1.9104,3.2925L42.08975,99.49067a3.83691,3.83691,0,0,0,3.8205,0L86.08943,76.40791A3.79852,3.79852,0,0,0,88,73.11541V26.95A3.77641,3.77641,0,0,0,87.52127,25.129Z"
         transform="translate(0.00001 0)"
-        fill={`url(#${PaintServerIds.runningProcessCube})`}
+        fill={`url(#${svgFillElementIDs.runningProcessCubeFill})`}
       />
       <g opacity="0.5">
         <path
@@ -233,12 +209,12 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
         style={{ isolation: 'isolate' }}
       />
     </symbol>
-    <symbol id={SymbolIds.runningTriggerCube} viewBox="0 0 88 100">
+    <symbol id={svgSymbolIDs.runningTriggerCube} viewBox="0 0 88 100">
       {/* resolver_dark process running*/}
       <path
         d="M87.52127,25.129a3.79536,3.79536,0,0,0-1.43184-1.47165L45.91025.57471a3.83652,3.83652,0,0,0-3.8205,0L1.91039,23.65739A3.86308,3.86308,0,0,0,0,26.95V73.11541a3.79835,3.79835,0,0,0,1.9104,3.2925L42.08975,99.49067a3.83691,3.83691,0,0,0,3.8205,0L86.08943,76.40791A3.79852,3.79852,0,0,0,88,73.11541V26.95A3.77641,3.77641,0,0,0,87.52127,25.129Z"
         transform="translate(0.00001 0)"
-        fill={`url(#${PaintServerIds.runningTriggerCube})`}
+        fill={`url(#${svgFillElementIDs.runningTriggerCubeFill})`}
       />
       <g opacity="0.5">
         <path
@@ -293,7 +269,7 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
         style={{ isolation: 'isolate' }}
       />
     </symbol>
-    <symbol viewBox="0 0 88 100" id={SymbolIds.terminatedProcessCube}>
+    <symbol viewBox="0 0 88 100" id={svgSymbolIDs.terminatedProcessCube}>
       {/* Terminated Process*/}
       <path
         d="M87.52113,24.73352a3.7956,3.7956,0,0,0-1.43182-1.47166L45.91012.17918a3.8365,3.8365,0,0,0-3.82049,0L1.91029,23.26186A3.86312,3.86312,0,0,0-.00009,26.55445V72.7199a3.79834,3.79834,0,0,0,1.91041,3.29249L42.08963,99.09514a3.83689,3.83689,0,0,0,3.82049,0L86.08931,76.01239a3.79852,3.79852,0,0,0,1.91056-3.29249V26.55445A3.77643,3.77643,0,0,0,87.52113,24.73352Z"
@@ -305,7 +281,7 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
           opacity={isDarkMode ? 1 : 0.6}
           d="M87.52113,24.73352a3.7956,3.7956,0,0,0-1.43182-1.47166L45.91012.17918a3.8365,3.8365,0,0,0-3.82049,0L1.91029,23.26186A3.86312,3.86312,0,0,0-.00009,26.55445V72.7199a3.79834,3.79834,0,0,0,1.91041,3.29249L42.08963,99.09514a3.83689,3.83689,0,0,0,3.82049,0L86.08931,76.01239a3.79852,3.79852,0,0,0,1.91056-3.29249V26.55445A3.77643,3.77643,0,0,0,87.52113,24.73352Z"
           transform="translate(0.00013 0.39551)"
-          fill={`url(#${PaintServerIds.terminatedProcessCube})`}
+          fill={`url(#${svgFillElementIDs.terminatedProcessCubeFill})`}
         />
         <path
           opacity={isDarkMode ? 0.3 : 0.4}
@@ -323,7 +299,7 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
         />
       </g>
     </symbol>
-    <symbol id={SymbolIds.terminatedTriggerCube} viewBox="0 0 88 100">
+    <symbol id={svgSymbolIDs.terminatedTriggerCube} viewBox="0 0 88 100">
       {/* Terminated Trigger Process*/}
       {isDarkMode && (
         <path
@@ -346,7 +322,7 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
           opacity={isDarkMode ? 1 : 0.604}
           d="M87.48893,25.129a3.79468,3.79468,0,0,0-1.4313-1.47165L45.89329.57472a3.83381,3.83381,0,0,0-3.81908,0L1.90969,23.65739A3.86331,3.86331,0,0,0,0,26.95V73.11541a3.79859,3.79859,0,0,0,1.90969,3.2925L42.07421,99.49067a3.83425,3.83425,0,0,0,3.81908,0L86.05763,76.40791a3.79876,3.79876,0,0,0,1.90985-3.2925V26.95A3.77746,3.77746,0,0,0,87.48893,25.129Z"
           transform="translate(0)"
-          fill={`url(#${PaintServerIds.terminatedTriggerCube})`}
+          fill={`url(#${svgFillElementIDs.terminatedTriggerCubeFill})`}
         />
         <path
           d="M.57124,24.91834A3.79833,3.79833,0,0,1,1.919,23.59209L42.08335.50939a3.83441,3.83441,0,0,1,3.8194,0L86.06711,23.59206a3.7972,3.7972,0,0,1,1.43128,1.47169L43.99289,49.96733Z"
@@ -364,7 +340,7 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
         />
       </g>
     </symbol>
-    <symbol viewBox="0 -3 88 106" id={SymbolIds.processCubeActiveBacking}>
+    <symbol viewBox="0 -3 88 106" id={svgSymbolIDs.processCubeActiveBacking}>
       {/* resolver active backing*/}
       <path
         d="m87.521 25.064a3.795 3.795 0 0 0-1.4313-1.4717l-40.164-23.083a3.8338 3.8338 0 0 0-3.8191 0l-40.165 23.083a3.8634 3.8634 0 0 0-1.9097 3.2926v46.165a3.7986 3.7986 0 0 0 1.9097 3.2925l40.164 23.083a3.8342 3.8342 0 0 0 3.8191 0l40.164-23.083a3.7988 3.7988 0 0 0 1.9099-3.2925v-46.165a3.7775 3.7775 0 0 0-0.47857-1.8209z"
@@ -382,11 +358,11 @@ const SymbolsAndShapes = memo(({ isDarkMode }: { isDarkMode: boolean }) => (
  *  3. `<use>` elements can be handled by compositor (faster)
  */
 const SymbolDefinitionsComponent = memo(({ className }: { className?: string }) => {
-  const isDarkMode = useUiSetting<boolean>(DEFAULT_DARK_MODE);
+  const isDarkMode = useUiSetting<boolean>(defaultDarkMode);
   return (
     <svg className={className}>
       <defs>
-        <PaintServers isDarkMode={isDarkMode} />
+        <SVGFills isDarkMode={isDarkMode} />
         <SymbolsAndShapes isDarkMode={isDarkMode} />
       </defs>
     </svg>
@@ -400,90 +376,3 @@ export const SymbolDefinitions = styled(SymbolDefinitionsComponent)`
   width: 0;
   height: 0;
 `;
-
-const processTypeToCube: Record<ResolverProcessType, keyof NodeStyleMap> = {
-  processCreated: 'runningProcessCube',
-  processRan: 'runningProcessCube',
-  processTerminated: 'terminatedProcessCube',
-  unknownProcessEvent: 'runningProcessCube',
-  processCausedAlert: 'runningTriggerCube',
-  unknownEvent: 'runningProcessCube',
-};
-
-/**
- * A hook to bring Resolver theming information into components.
- */
-// TODO own file
-export const useResolverTheme = (): {
-  colorMap: ColorMap;
-  nodeAssets: NodeStyleMap;
-  cubeAssetsForNode: (isProcessTerminated: boolean, isProcessOrigin: boolean) => NodeStyleConfig;
-} => {
-  const isDarkMode = useUiSetting<boolean>(DEFAULT_DARK_MODE);
-  const theme = isDarkMode ? euiThemeAmsterdamDark : euiThemeAmsterdamLight;
-
-  const getThemedOption = (lightOption: string, darkOption: string): string => {
-    return isDarkMode ? darkOption : lightOption;
-  };
-
-  const colorMap = {
-    descriptionText: theme.euiColorDarkestShade,
-    full: theme.euiColorFullShade,
-    graphControls: theme.euiColorDarkestShade,
-    graphControlsBackground: theme.euiColorEmptyShade,
-    processBackingFill: `${theme.euiColorPrimary}${getThemedOption('0F', '1F')}`, // Add opacity 0F = 6% , 1F = 12%
-    resolverBackground: theme.euiColorEmptyShade,
-    resolverEdge: getThemedOption(theme.euiColorLightestShade, theme.euiColorLightShade),
-    resolverEdgeText: getThemedOption(theme.euiColorDarkShade, theme.euiColorFullShade),
-    triggerBackingFill: `${theme.euiColorDanger}${getThemedOption('0F', '1F')}`,
-  };
-
-  const nodeAssets: NodeStyleMap = {
-    runningProcessCube: {
-      backingFill: colorMap.processBackingFill,
-      cubeSymbol: `#${SymbolIds.runningProcessCube}`,
-      descriptionFill: colorMap.descriptionText,
-      isLabelFilled: true,
-      labelButtonFill: 'primary',
-      strokeColor: theme.euiColorPrimary,
-    },
-    runningTriggerCube: {
-      backingFill: colorMap.triggerBackingFill,
-      cubeSymbol: `#${SymbolIds.runningTriggerCube}`,
-      descriptionFill: colorMap.descriptionText,
-      isLabelFilled: true,
-      labelButtonFill: 'danger',
-      strokeColor: theme.euiColorDanger,
-    },
-    terminatedProcessCube: {
-      backingFill: colorMap.processBackingFill,
-      cubeSymbol: `#${SymbolIds.terminatedProcessCube}`,
-      descriptionFill: colorMap.descriptionText,
-      isLabelFilled: false,
-      labelButtonFill: 'primary',
-      strokeColor: `${theme.euiColorPrimary}33`, // 33 = 20% opacity
-    },
-  };
-
-  function cubeAssetsForNode(isProcessTerminated: boolean, isProcessOrigin: boolean) {
-    if (isProcessTerminated) {
-      return nodeAssets[processTypeToCube.processTerminated];
-    } else if (isProcessOrigin) {
-      return nodeAssets[processTypeToCube.processCausedAlert];
-    } else {
-      return nodeAssets[processTypeToCube.processRan];
-    }
-  }
-
-  return { colorMap, nodeAssets, cubeAssetsForNode };
-};
-
-// TODO delete
-export const calculateResolverFontSize = (
-  magFactorX: number,
-  minFontSize: number,
-  slopeOfFontScale: number
-): number => {
-  const fontSizeAdjustmentForScale = magFactorX > 1 ? slopeOfFontScale * (magFactorX - 1) : 0;
-  return minFontSize + fontSizeAdjustmentForScale;
-};

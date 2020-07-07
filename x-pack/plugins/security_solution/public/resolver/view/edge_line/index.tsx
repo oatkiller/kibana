@@ -10,7 +10,7 @@ import { i18n } from '@kbn/i18n';
 import React, { useMemo } from 'react';
 import { applyMatrix3, distance, angle } from '../../models/vector2';
 import { Vector2, Matrix3, EdgeLineMetadata } from '../../types';
-import { useResolverTheme, calculateResolverFontSize } from '../assets';
+import { useResolverTheme, fontSize } from '../assets';
 import { StyledEdgeLine, StyledElapsedTime } from './styles';
 
 /**
@@ -60,7 +60,7 @@ export const EdgeLine = React.memo(
      * should be the same as the distance between the start and end points.
      */
     const length = distance(screenStart, screenEnd);
-    const scaledTypeSize = calculateResolverFontSize(xScale, 10, 7.5);
+    const scaledTypeSize = fontSize(xScale, 10, 7.5);
 
     const fontStyle = useMemo(
       () => ({
@@ -71,7 +71,7 @@ export const EdgeLine = React.memo(
     const edgeAngle = angle(screenStart, screenEnd);
     const edgeLeft = screenStart[0];
     const edgeTop = screenStart[1];
-    const edgeHeight = calculateResolverFontSize(xScale, 12, 8.5);
+    const edgeHeight = fontSize(xScale, 12, 8.5);
 
     const style = useMemo(
       () => ({

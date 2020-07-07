@@ -7,6 +7,7 @@
 import { i18n } from '@kbn/i18n';
 export function descriptionForNode(isProcessTerminated: boolean, isProcessOrigin: boolean): string {
   if (isProcessTerminated) {
+    // TODO, fix all endpoint i18n ids
     return i18n.translate('xpack.securitySolution.endpoint.resolver.terminatedProcess', {
       defaultMessage: 'Terminated Process',
     });

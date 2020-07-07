@@ -72,7 +72,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
   parentEvent: ResolverEvent;
 }) {
   const processName = processEventModel.name(parentEvent);
-  const nodeID = uniquePidForProcess(parentEvent);
+  const nodeID = processEventModel.uniquePidForProcess(parentEvent);
   const totalCount = countForParent || 0;
   const eventsString = i18n.translate(
     'xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.events',

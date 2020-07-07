@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+/* eslint-disable no-duplicate-imports */
+
 /* eslint-disable react/display-name */
 
 import React, { useCallback, useMemo, useRef } from 'react';
@@ -12,19 +14,18 @@ import { useSelector } from 'react-redux';
 import { Submenu } from './submenu';
 import { applyMatrix3 } from '../../models/vector2';
 import { Vector2, Matrix3 } from '../../types';
-// TODO
-import { SymbolIds, useResolverTheme, calculateResolverFontSize } from '../assets';
-// TODO
 import { ResolverEvent } from '../../../../common/endpoint/types';
 import * as processEventModel from '../../models/process_event';
 import { useResolverDispatch } from '../use_resolver_dispatch';
-// TODO
-import * as eventModel from '../../../../common/endpoint/models/event';
 import * as selectors from '../../store/selectors';
 import { CubeSvg, Wrapper, StyledActionsContainer, StyledDescriptionText } from './styles';
 import { descriptionForNode } from '../description_for_node';
 import { uniquePidForProcess } from '../../models/process_event';
 import { usePanelStateSetter } from '../use_panel_state_setter';
+import { fontSize } from '../font_size';
+import { useCubeAssets } from '../use_cube_assets';
+import { svgSymbolIDs } from '../svg_singletons';
+import { useColors } from '../use_colors';
 
 /**
  * An artifact that represents a process node and the things associated with it in the Resolver
@@ -48,8 +49,8 @@ export const ProcessNode = React.memo(
      */
     projectionMatrix: Matrix3;
   }) => {
-    const isProcessTerminated = useSelector(selectors.isProcessTerminated);
     const nodeID = uniquePidForProcess(event);
+    const isProcessTerminated = useSelector(selectors.isProcessTerminated)(nodeID);
 
     /**
      * Convert the position, which is in 'world' coordinates, to screen coordinates.
@@ -109,7 +110,7 @@ export const ProcessNode = React.memo(
      *  18.75 : The smallest readable font size at which labels/descriptions can be read. Font size will not scale below this.
      *  12.5 : A 'slope' at which the font size will scale w.r.t. to zoom level otherwise
      */
-    const scaledTypeSize = calculateResolverFontSize(xScale, 18.75, 12.5);
+    const scaledTypeSize = fontSize(xScale, 18.75, 12.5);
     /**
      * An element that should be animated when the node is clicked.
      */
@@ -122,16 +123,13 @@ export const ProcessNode = React.memo(
         beginElement: () => void;
       }
     >(null);
-    const { colorMap, cubeAssetsForNode } = useResolverTheme();
-    const {
-      backingFill,
-      cubeSymbol,
-      isLabelFilled,
-      labelButtonFill,
-      strokeColor,
-    } = cubeAssetsForNode(isProcessTerminated(nodeID), false);
 
-    const descriptionText = descriptionForNode(isProcessTerminated, isProcessOrigin);
+    const colors = useColors();
+    const { backingFill, cubeSymbol, isLabelFilled, labelButtonFill, strokeColor } = useCubeAssets(
+      isProcessTerminated
+    );
+
+    const descriptionText = descriptionForNode(isProcessTerminated, false);
 
     const resolverNodeIdGenerator = useMemo(() => htmlIdGenerator(nodeID), [nodeID]);
 
@@ -164,7 +162,7 @@ export const ProcessNode = React.memo(
       setPanelState({ panelView: 'eventCountsForProcess', panelNodeID: nodeID });
     }, [animationTarget, dispatch, nodeID, setPanelState]);
 
-    const grandTotal: number | null = useSelector(selectors.relatedEventTotalForProcess)(event);
+    const grandTotal: number | null = useSelector(selectors.relatedEventTotalForNode)(nodeID);
 
     const cubeSvg = useMemo(() => {
       return (
@@ -178,7 +176,7 @@ export const ProcessNode = React.memo(
         >
           <g>
             <use
-              xlinkHref={`#${SymbolIds.processCubeActiveBacking}`}
+              xlinkHref={`#${svgSymbolIDs.processCubeActiveBacking}`}
               fill={backingFill} // Only visible on hover
               x="0"
               y="0"
@@ -215,8 +213,8 @@ export const ProcessNode = React.memo(
     const styledActionsContainer = useMemo(() => {
       return (
         <StyledActionsContainer
-          color={colorMap.full}
-          backgroundColor={colorMap.resolverBackground}
+          color={colors.full}
+          backgroundColor={colors.resolverBackground}
           style={{
             fontSize: `${scaledTypeSize}px`,
             marginLeft: `${actionsContainerMarginLeft}px`,
@@ -224,8 +222,8 @@ export const ProcessNode = React.memo(
           }}
         >
           <StyledDescriptionText
-            backgroundColor={colorMap.resolverBackground}
-            color={colorMap.descriptionText}
+            backgroundColor={colors.resolverBackground}
+            color={colors.descriptionText}
             style={{
               display: isShowingDescriptionText ? 'block' : 'none',
             }}
@@ -255,12 +253,10 @@ export const ProcessNode = React.memo(
       );
     }, [
       actionsContainerMarginTop,
-      isProcessTerminated,
-      isProcessOrigin,
       actionsContainerMarginLeft,
-      colorMap.descriptionText,
-      colorMap.full,
-      colorMap.resolverBackground,
+      colors.descriptionText,
+      colors.full,
+      colors.resolverBackground,
       descriptionText,
       event,
       grandTotal,

@@ -500,7 +500,7 @@ export type PanelQueryStringState =
       /**
        * Shows related events of a certain type, which relate to a certain node.
        */
-      panelView: 'processEventListNarrowedByType';
+      panelView: 'nodeEvents';
       /* the _id for the node */
       panelNodeID: string;
       /* the event category */

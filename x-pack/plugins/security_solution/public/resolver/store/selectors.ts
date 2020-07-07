@@ -177,11 +177,11 @@ const indexedProcessNodesAndEdgeLineSegments = composeSelectors(
 );
 
 /**
- * Total count of related events for a process.
+ * Total count of related events for a node.
  */
-export const relatedEventTotalForProcess = composeSelectors(
+export const relatedEventTotalForNode = composeSelectors(
   dataStateSelector,
-  dataSelectors.relatedEventTotalForProcess
+  dataSelectors.relatedEventTotalForNode
 );
 
 /**
@@ -210,6 +210,11 @@ export const processForEntityID = composeSelectors(
   dataSelectors.processForEntityID
 );
 
+export const relatedEventsForNode = composeSelectors(
+  dataStateSelector,
+  dataSelectors.relatedEventsForNode
+);
+
 // Returns a random lifecycle event for the panel node ID if we have one in memory.
 export const processEventForPanelNodeID = function (state: ResolverState): ResolverEvent | null {
   const nodeID = panelNodeID(state);
@@ -232,7 +237,7 @@ export const eventForPanelRelatedEventID = function (state: ResolverState): Reso
     return null;
   }
 
-  const relatedEvents = dataSelectors.relatedEventsForNodeID(dataStateSelector(state))(nodeID);
+  const relatedEvents = relatedEventsForNode(state)(nodeID);
 
   for (const relatedEvent of relatedEvents) {
     // TODO name. eventID
@@ -247,12 +252,9 @@ export const eventForPanelRelatedEventID = function (state: ResolverState): Reso
  * When the events related to an entity ID are needed, this will return the entity ID.
  */
 export function entityIDToFetchRelatedEventsFor(state: ResolverState): string | null {
-  // this should return something when the panelView is 'relatedEventDetail' or `processEventListNarrowedByType'
+  // this should return something when the panelView is 'relatedEventDetail' or `nodeEvents'
   // because each of those views show related events and we have a single way to fetch related events.
-  if (
-    panelViewName(state) === 'relatedEventDetail' ||
-    panelViewName(state) === 'processEventListNarrowedByType'
-  ) {
+  if (panelViewName(state) === 'relatedEventDetail' || panelViewName(state) === 'nodeEvents') {
     return panelNodeID(state);
   } else {
     return null;
