@@ -89,12 +89,8 @@ export const isProcessTerminated = composeSelectors(
 
 /**
  * Returns a map of `ResolverEvent` entity_id to their related event and alert statistics
- * TODO, delete
  */
-export const relatedEventsStats = composeSelectors(
-  dataStateSelector,
-  dataSelectors.relatedEventsStats
-);
+export const nodeStats = composeSelectors(dataStateSelector, dataSelectors.nodeStats);
 
 /**
  * Returns the id of the "current" tree node (fake-focused)

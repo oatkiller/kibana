@@ -8,12 +8,12 @@ import React, { memo, useMemo } from 'react';
 import { i18n } from '@kbn/i18n';
 import { EuiBasicTableColumn, EuiButtonEmpty, EuiSpacer, EuiInMemoryTable } from '@elastic/eui';
 import { FormattedMessage } from 'react-intl';
-import { StyledBreadcrumbs } from './panel_content_utilities';
 
 import * as event from '../../../../common/endpoint/models/event';
 import { ResolverEvent, ResolverNodeStats } from '../../../../common/endpoint/types';
 import { PanelQueryStringState } from '../../types';
-import { uniquePidForProcess } from '../../models/process_event';
+import * as processEventModel from '../../models/process_event';
+import { StyledBreadcrumbs } from './styles';
 
 /**
  * This view gives counts for all the related events of a process grouped by related event type.
@@ -28,11 +28,9 @@ import { uniquePidForProcess } from '../../models/process_event';
  */
 export const EventCountsForProcess = memo(function EventCountsForProcess({
   processEvent,
-  pushToQueryParams,
   relatedStats,
 }: {
   processEvent: ResolverEvent;
-  pushToQueryParams: (queryStringKeyValuePair: PanelQueryStringState) => unknown;
   relatedStats: ResolverNodeStats;
 }) {
   interface EventCountsTableView {
@@ -41,7 +39,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
   }
 
   const relatedEventsState = { stats: relatedStats.events.byCategory };
-  const processName = processEvent && event.eventName(processEvent);
+  const processName = processEventModel.name(processEvent);
   const processEntityId = event.entityId(processEvent);
   /**
    * totalCount: This will reflect the aggregated total by category for all related events
@@ -125,7 +123,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
             <EuiButtonEmpty
               onClick={() => {
                 pushToQueryParams({
-                  breadcrumbID: uniquePidForProcess(processEvent),
+                  breadcrumbID: processEventModel.uniquePidForProcess(processEvent),
                   breadcrumbEvent: name,
                 });
               }}
@@ -146,4 +144,3 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
     </>
   );
 });
-EventCountsForProcess.displayName = 'EventCountsForProcess';

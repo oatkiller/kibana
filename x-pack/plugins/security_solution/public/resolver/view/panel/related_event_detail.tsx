@@ -64,10 +64,15 @@ const TitleHr = memo(() => {
  * This view presents a detailed view of all the available data for a related event, split and titled by the "section"
  * it appears in the underlying ResolverEvent
  */
-export const RelatedEventDetail = memo(function RelatedEventDetail() {
-  const parentEvent = useSelector(selectors.processEventForPanelNodeID);
+export const RelatedEventDetail = memo(function RelatedEventDetail({
+  parentEvent,
+  relatedEvent,
+}: {
+  relatedEvent: ResolverEvent;
+  parentEvent: ResolverEvent;
+}) {
   const processName = processEventModel.name(parentEvent);
-  const processEntityId = parentEvent && event.entityId(parentEvent);
+  const nodeID = uniquePidForProcess(parentEvent);
   const totalCount = countForParent || 0;
   const eventsString = i18n.translate(
     'xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.events',
@@ -82,11 +87,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail() {
     }
   );
 
-  const dispatch = useResolverDispatch();
-
-  const relatedEventsForThisProcess = useSelector(selectors.relatedEventsForNodeID).get(
-    processEntityId!
-  );
+  const relatedEventsForThisProcess = useSelector(selectors.relatedEventsForNodeID).get(nodeID!);
 
   const [relatedEventToShowDetailsFor, countBySameCategory, relatedEventCategory] = useMemo(() => {
     if (!relatedEventsForThisProcess) {
@@ -161,7 +162,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail() {
       {
         text: processName,
         onClick: () => {
-          pushToQueryParams({ breadcrumbID: processEntityId, breadcrumbEvent: '' });
+          pushToQueryParams({ breadcrumbID: nodeID, breadcrumbEvent: '' });
         },
       },
       {
@@ -175,7 +176,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail() {
           </>
         ),
         onClick: () => {
-          pushToQueryParams({ breadcrumbID: processEntityId, breadcrumbEvent: 'all' });
+          pushToQueryParams({ breadcrumbID: nodeID, breadcrumbEvent: 'all' });
         },
       },
       {
@@ -190,7 +191,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail() {
         ),
         onClick: () => {
           pushToQueryParams({
-            breadcrumbID: processEntityId,
+            breadcrumbID: nodeID,
             breadcrumbEvent: relatedEventCategory !== undefined ? relatedEventCategory : 'all',
           });
         },
@@ -210,7 +211,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail() {
     ];
   }, [
     processName,
-    processEntityId,
+    nodeID,
     eventsString,
     pushToQueryParams,
     totalCount,

@@ -30,13 +30,9 @@ export const OptionList = React.memo(({ event }: { event: ResolverEvent }) => {
   const setPanelState = usePanelStateSetter();
   const nodeID = uniquePidForProcess(event);
 
-  /* TODO */
-  const relatedEventsStats = useSelector(selectors.relatedEventsStats);
-  // TODO
-  const relatedEventsStatsForProcess: ResolverNodeStats | undefined = relatedEventsStats?.get(
-    nodeID
-  );
+  const relatedEventsStatsForProcess = useSelector(selectors.nodeStats)(nodeID);
 
+  // TODO
   const isLoading: boolean = !relatedEventsStatsForProcess;
 
   // the event category selected by the panel

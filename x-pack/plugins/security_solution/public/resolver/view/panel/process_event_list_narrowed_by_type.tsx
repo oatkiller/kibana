@@ -14,6 +14,7 @@ import { ResolverEvent, ResolverNodeStats } from '../../../../common/endpoint/ty
 import * as selectors from '../../store/selectors';
 import { useResolverDispatch } from '../use_resolver_dispatch';
 import { PanelQueryStringState } from '../../types';
+import { StyledBreadcrumbs } from './styles';
 
 /**
  * This view presents a list of related events of a given type for a given process.

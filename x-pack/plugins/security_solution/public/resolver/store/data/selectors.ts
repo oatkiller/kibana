@@ -24,12 +24,7 @@ import {
 import * as indexedProcessTreeModel from '../../models/indexed_process_tree';
 import { isEqual } from '../../models/aabb';
 
-import {
-  ResolverEvent,
-  ResolverTree,
-  ResolverNodeStats,
-  ResolverRelatedEvents,
-} from '../../../../common/endpoint/types';
+import { ResolverEvent, ResolverTree, ResolverNodeStats } from '../../../../common/endpoint/types';
 import * as resolverTreeModel from '../../models/resolver_tree';
 import { isometricTaxiLayout } from '../../models/indexed_process_tree/isometric_taxi_layout';
 
@@ -112,15 +107,19 @@ export const indexedProcessTree = createSelector(graphableProcesses, function in
 /**
  * This returns a map of entity_ids to stats about the related events and alerts.
  */
-export const relatedEventsStats: (
+export const nodeStats: (
   state: DataState
-) => Map<string, ResolverNodeStats> | null = createSelector(resolverTree, (tree?: ResolverTree) => {
-  if (tree) {
-    return resolverTreeModel.relatedEventsStats(tree);
-  } else {
-    return null;
+) => (/** nodeID to get stats for. */ id: string) => ResolverNodeStats | undefined = createSelector(
+  resolverTree,
+  (tree?: ResolverTree) => {
+    if (tree) {
+      const map = resolverTreeModel.relatedEventsStats(tree);
+      return (/** 'entity_id' to get related event stats for . */ id: string) => map.get(id);
+    } else {
+      return () => undefined;
+    }
   }
-});
+);
 
 /**
  * returns a map of entity_ids to related event data.
@@ -323,44 +322,20 @@ export function databaseDocumentIDToAbort(state: DataState): string | null {
 }
 
 /**
- * `ResolverNodeStats` for a process (`ResolverEvent`)
- */
-const relatedEventStatsForProcess: (
-  state: DataState
-) => (event: ResolverEvent) => ResolverNodeStats | null = createSelector(
-  relatedEventsStats,
-  (statsMap) => {
-    if (!statsMap) {
-      return () => null;
-    }
-    return (event: ResolverEvent) => {
-      const nodeStats = statsMap.get(uniquePidForProcess(event));
-      if (!nodeStats) {
-        return null;
-      }
-      return nodeStats;
-    };
-  }
-);
-
-/**
  * The sum of all related event categories for a process.
  */
 export const relatedEventTotalForProcess: (
   state: DataState
-) => (event: ResolverEvent) => number | null = createSelector(
-  relatedEventStatsForProcess,
-  (statsForProcess) => {
-    return (event: ResolverEvent) => {
-      const stats = statsForProcess(event);
-      if (!stats) {
-        return null;
-      }
-      let total = 0;
-      for (const value of Object.values(stats.events.byCategory)) {
-        total += value;
-      }
-      return total;
-    };
-  }
-);
+) => (event: ResolverEvent) => number | null = createSelector(nodeStats, (nodeStatsGetter) => {
+  return (event: ResolverEvent) => {
+    const stats = nodeStatsGetter(uniquePidForProcess(event));
+    if (!stats) {
+      return null;
+    }
+    let total = 0;
+    for (const value of Object.values(stats.events.byCategory)) {
+      total += value;
+    }
+    return total;
+  };
+});

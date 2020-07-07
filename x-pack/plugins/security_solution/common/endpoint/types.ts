@@ -55,6 +55,7 @@ export interface EventStats {
    *    file: 2
    *  }
    */
+  // TODO, map
   byCategory: Record<string, number>;
 }
 

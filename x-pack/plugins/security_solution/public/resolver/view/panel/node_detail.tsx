@@ -5,29 +5,15 @@
  */
 import React, { memo, useMemo } from 'react';
 import { i18n } from '@kbn/i18n';
-import {
-  htmlIdGenerator,
-  EuiSpacer,
-  EuiTitle,
-  EuiText,
-  EuiTextColor,
-  EuiDescriptionList,
-} from '@elastic/eui';
-import styled from 'styled-components';
+import { htmlIdGenerator, EuiSpacer, EuiTitle, EuiText, EuiTextColor } from '@elastic/eui';
 import { StyledBreadcrumbs } from './styles';
 import * as event from '../../../../common/endpoint/models/event';
-import {
-  processPath,
-  processPid,
-  userInfoForProcess,
-  processParentPid,
-  md5HashForProcess,
-  argsForProcess,
-} from '../../models/process_event';
+import * as processEventModel from '../../models/process_event';
 import { ProcessCubeIcon } from './process_cube_icon';
 import { ResolverEvent } from '../../../../common/endpoint/types';
 import { descriptionForNode } from '../description_for_node';
 import { PanelQueryStringState } from '../../types';
+import { formatDate } from './format_date';
 
 /**
  * A description list view of all the Metadata that goes with a particular process event, like:
@@ -44,7 +30,7 @@ export const ProcessDetails = memo(function ProcessDetails({
   isProcessOrigin: boolean;
   pushToQueryParams: (queryStringKeyValuePair: PanelQueryStringState) => unknown;
 }) {
-  const processName = event.eventName(processEvent);
+  const processName = processEventModel.name(processEvent);
   const processInfoEntry = useMemo(() => {
     const eventTime = event.timestamp(processEvent);
     const dateTime = eventTime ? formatDate(eventTime) : '';
@@ -63,21 +49,21 @@ export const ProcessDetails = memo(function ProcessDetails({
       title: i18n.translate('xpack.securitySolution.endpoint.resolver.panel.processDescList.path', {
         defaultMessage: 'Path',
       }),
-      description: processPath(processEvent),
+      description: processEventModel.processPath(processEvent),
     };
 
     const pidEntry = {
       title: i18n.translate('xpack.securitySolution.endpoint.resolver.panel.processDescList.pid', {
         defaultMessage: 'PID',
       }),
-      description: processPid(processEvent),
+      description: processEventModel.processPid(processEvent),
     };
 
     const userEntry = {
       title: i18n.translate('xpack.securitySolution.endpoint.resolver.panel.processDescList.user', {
         defaultMessage: 'User',
       }),
-      description: userInfoForProcess(processEvent)?.user,
+      description: processEventModel.userInfoForProcess(processEvent)?.user,
     };
 
     const domainEntry = {
@@ -87,7 +73,7 @@ export const ProcessDetails = memo(function ProcessDetails({
           defaultMessage: 'Domain',
         }
       ),
-      description: userInfoForProcess(processEvent)?.domain,
+      description: processEventModel.userInfoForProcess(processEvent)?.domain,
     };
 
     const parentPidEntry = {
@@ -97,7 +83,7 @@ export const ProcessDetails = memo(function ProcessDetails({
           defaultMessage: 'Parent PID',
         }
       ),
-      description: processParentPid(processEvent),
+      description: processEventModel.processParentPid(processEvent),
     };
 
     const md5Entry = {
@@ -107,7 +93,7 @@ export const ProcessDetails = memo(function ProcessDetails({
           defaultMessage: 'MD5',
         }
       ),
-      description: md5HashForProcess(processEvent),
+      description: processEventModel.md5HashForProcess(processEvent),
     };
 
     const commandLineEntry = {
@@ -117,7 +103,7 @@ export const ProcessDetails = memo(function ProcessDetails({
           defaultMessage: 'Command Line',
         }
       ),
-      description: argsForProcess(processEvent),
+      description: processEventModel.argsForProcess(processEvent),
     };
 
     // This is the data in {title, description} form for the EUIDescriptionList to display
