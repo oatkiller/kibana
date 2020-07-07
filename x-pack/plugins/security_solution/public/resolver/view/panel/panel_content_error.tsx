@@ -9,7 +9,6 @@
 import { i18n } from '@kbn/i18n';
 import { EuiSpacer, EuiText, EuiButtonEmpty } from '@elastic/eui';
 import React, { memo, useMemo, ReactNode } from 'react';
-import { PanelQueryStringState } from '../../types';
 import { StyledBreadcrumbs } from './styles';
 import { usePanelStateSetter } from '../use_panel_state_setter';
 
@@ -32,7 +31,7 @@ export const PanelContentError = memo(function ({
           defaultMessage: 'Events',
         }),
         onClick: () => {
-          setPanelState({ panelView: 'processListWithCounts' });
+          setPanelState({ panelView: 'node' });
         },
       },
       {
@@ -51,7 +50,7 @@ export const PanelContentError = memo(function ({
       <EuiSpacer size="l" />
       <EuiButtonEmpty
         onClick={() => {
-          setPanelState({ panelView: 'processListWithCounts' });
+          setPanelState({ panelView: 'node' });
         }}
       >
         {i18n.translate('xpack.securitySolution.resolver.panel.error.processList', {

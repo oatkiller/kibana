@@ -41,10 +41,6 @@ export interface ResolverUIState {
    * The entity_id of selected node
    */
   readonly selectedNode: string | null;
-  /**
-   * Which panel the ui should display
-   */
-  readonly panelToDisplay: string | null;
 
   /**
    * The search string from the URL.
@@ -464,45 +460,43 @@ export interface IsometricTaxiLayout {
 
 /**
  * The query parameter state used by the panel.
+ * TODO, in selector, make sure to validate/coerce the query string
  */
 export type PanelQueryStringState =
   | {
-      /** The default view */
-      panelView: 'processListWithCounts';
-    }
-  | {
+      /** The default view. A list of nodes (processes) */
+      panelView: 'node';
       /**
-       * Shows the details of a node.
-       */
-      panelView: 'processDetail';
-      /* the _id for the node to show details about */
-      panelNodeID: string;
+       * the _id for the node to show details about.
+       * if present, the details of a specific node are shown.
+       **/
+      panelNodeID?: string;
     }
-  | {
+  | ({
       /**
        * Shows related events for a node.
        */
-      panelView: 'eventCountsForProcess';
-      /* the _id for the node to show event counts for */
-      panelNodeID: string;
-    }
-  | {
-      /**
-       * Shows details about an event (and a node it has an edge with.)
-       */
-      panelView: 'relatedEventDetail';
-      /* the _id for the node */
-      panelNodeID: string;
-      /* the _id for the related event */
-      panelRelatedEventID: string;
-    }
-  | {
-      /**
-       * Shows related events of a certain type, which relate to a certain node.
-       */
       panelView: 'nodeEvents';
-      /* the _id for the node */
+      /* the id for the node to show event counts for */
       panelNodeID: string;
-      /* the event category */
-      panelEventCategory: string;
-    };
+    } & (
+      | {
+          /**
+           * Without either `panelRelatedEventID` or `panelEventCategory` this shows a summary of all related events for a node.
+           */
+        }
+      | {
+          /**
+           * The _id for a related event
+           * If present, the details of a specific event (and its related node) are shown.
+           **/
+          panelRelatedEventID: string;
+        }
+      | {
+          /**
+           * An event category.
+           * If present a list of related events of this category will be shown.
+           */
+          panelEventCategory: string;
+        }
+    ));

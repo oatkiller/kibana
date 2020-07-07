@@ -159,7 +159,7 @@ export const ProcessNode = React.memo(
         type: 'userSelectedResolverNode',
         payload: nodeID,
       });
-      setPanelState({ panelView: 'eventCountsForProcess', panelNodeID: nodeID });
+      setPanelState({ panelView: 'nodeEvents', panelNodeID: nodeID });
     }, [animationTarget, dispatch, nodeID, setPanelState]);
 
     const grandTotal: number | null = useSelector(selectors.relatedEventTotalForNode)(nodeID);

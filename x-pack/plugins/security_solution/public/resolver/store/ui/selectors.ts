@@ -25,10 +25,7 @@ function urlSearchParams(state: ResolverUIState): URLSearchParams {
 }
 
 const panelViewNames: ReadonlySet<PanelQueryStringState['panelView']> = new Set([
-  'processListWithCounts',
-  'processDetail',
-  'eventCountsForProcess',
-  'relatedEventDetail',
+  'node',
   'nodeEvents',
 ]);
 
@@ -41,7 +38,7 @@ function isPanelViewName(name: string): name is PanelQueryStringState['panelView
  */
 export function panelViewName(state: ResolverUIState): PanelQueryStringState['panelView'] | null {
   const value = urlSearchParams(state).get('panelView');
-  const defaultPanelViewName = 'processListWithCounts';
+  const defaultPanelViewName = 'node';
 
   // if the value isn't specified, return the default
   if (value === null) {

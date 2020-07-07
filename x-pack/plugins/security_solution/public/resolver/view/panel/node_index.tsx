@@ -13,13 +13,11 @@ import {
 } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { useSelector } from 'react-redux';
-import * as event from '../../../../common/endpoint/models/event';
 import * as selectors from '../../store/selectors';
 import { useResolverDispatch } from '../use_resolver_dispatch';
 import { SideEffectContext } from '../side_effect_context';
 import { ProcessCubeIcon } from './process_cube_icon';
 import { ResolverEvent } from '../../../../common/endpoint/types';
-import { PanelQueryStringState } from '../../types';
 import * as processEventModel from '../../models/process_event';
 import { StyledBreadcrumbs } from './styles';
 import { formatDate } from './format_date';
@@ -28,7 +26,7 @@ import { usePanelStateSetter } from '../use_panel_state_setter';
 /**
  * The "default" view for the panel: A list of all the processes currently in the graph.
  */
-export const ProcessListWithCounts = memo(function ProcessListWithCounts() {
+export const NodeIndex = memo(function ProcessListWithCounts() {
   interface ProcessTableView {
     name?: string;
     timestamp?: Date;
@@ -74,7 +72,7 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts() {
                     id: nodeID,
                   },
                 });
-                setPanelState({ panelView: 'processDetail', panelNodeID: nodeID });
+                setPanelState({ panelView: 'node', panelNodeID: nodeID });
               }}
             >
               <ProcessCubeIcon isProcessTerminated={isProcessTerminated(nodeID)} />
@@ -109,7 +107,7 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts() {
         },
       },
     ],
-    [pushToQueryParams, dispatch, timestamp, isProcessOrigin, isProcessTerminated]
+    [setPanelState, dispatch, timestamp, isProcessTerminated]
   );
 
   // TODO
@@ -150,4 +148,3 @@ export const ProcessListWithCounts = memo(function ProcessListWithCounts() {
     </>
   );
 });
-ProcessListWithCounts.displayName = 'ProcessListWithCounts';

@@ -14,42 +14,134 @@ import { ProcessDetails } from './node_detail';
 import { EventCountsForProcess } from './event_counts_for_process';
 import { NodeEvents } from './node_events';
 import { RelatedEventDetail } from './related_event_detail';
-import { ProcessListWithCounts } from './process_list_with_counts';
+import { NodeIndex } from './node_index';
+import { PanelQueryStringState } from '../../types';
 
 export const Panel = memo(function ({ className }: { className?: string }) {
-  const panelViewName = useSelector(selectors.panelViewName);
-  const panelEvent = useSelector(selectors.processEventForPanelNodeID);
-  const panelRelatedEvent = useSelector(selectors.processEventForPanelRelatedEventID);
-  // TODO, do all error and loading states here.
+  // true if the overall graph is loading
+  declare const nodesAreLoading: boolean;
+
+  // true if the overall graph failed to load
+  declare const nodesFailedToLoad: boolean;
+
+  // true if the tree loaded, there is a panelNodeID, and events for that nodeID were in the tree response
+  declare const panelNodeInResponse: boolean;
+
+  // true if the middleware is waiting for a response containing related events for panelNodeID
+  declare const relatedEventsForPanelNodeAreLoading: boolean;
+
+  // if the middleware's request for events related to panelNodeID failed
+  declare const relatedEventsForPanelNodeFailedToLoad: boolean;
+
+  // true if there is a panelNodeID and a panelRelatedEventID and if there are related events in memory for panelNodeID and if those events contain data for panelRelatedEventID
+  declare const panelRelatedEventInResponse: boolean;
+
+  // a failure dialog when the overall tree fails to load
+  declare const NodesFailedToLoad: React.FC;
+
+  // a loading dialog for the overall tree
+  declare const NodesLoading: React.FC;
+
+  // A failure dialog for when the panelNodeID's event wasn't in the tree response
+  declare const NodeDetailNotFound: React.FC;
+
+  // a component that shows the details of a specific node (process)
+  declare const NodeDetail: React.FC<{ /** the nodeID to show details about. */ nodeID: string }>;
+
+  // A messages to be shown in place of any related events panel if the the middleware is waiting for a response containing related events for panelNodeID
+  declare const NodeEventsLoading: React.FC;
+
+  // a failure message for when the response w/ related events for the panelNodeID failed.
+  declare const NodeEventsFailedToLoad: React.FC;
+
+  // a 404-type message for when the panel query string parameters were invalid.
+  declare const PanelNotFound: React.FC;
+
+  // when showing details about an event, if we counldn't find the node itself in memory, show this error message.
+  declare const NodeEventsNodeNotFound: React.FC;
+
+  // if we wanted to show the details of an event but that event was not found in the related events for the related node, show this error message.
+  declare const NodeEventsEventNotFound: React.FC;
+
+  // shows the details of an event, along with its related node
+  declare const NodeEventsDetail: React.FC<{ nodeID: string; eventID: string }>;
+
+  // shows a list of events (filtered by a single category) that are related to a node
+  declare const NodeEventsByCategory: React.FC<{ nodeID: string; category: string }>;
+
+  // shows summary of all related events for a node
+  declare const NodeEventsIndex: React.FC<{ nodeID: string }>;
+
+  declare const panelQueryString: PanelQueryStringState;
+
   return (
     <EuiPanel className={className}>
       {(() => {
-        if (panelViewName === 'processDetail') {
-          // if the data is loading, show loading TODO
-          // if the data isn't found, show 404 experience TODO
-          // TODO, pass data to component
-          return <ProcessDetails />;
-        } else if (panelViewName === 'eventCountsForProcess') {
-          // if the data is loading, show loading TODO
-          // if the data isn't found, show 404 experience TODO
-          // TODO, pass data to component
-          return <EventCountsForProcess />;
-        } else if (panelViewName === 'nodeEvents') {
-          // if the data is loading, show loading TODO
-          // if the data isn't found, show 404 experience TODO
-          // TODO, pass data to component
-          return <NodeEvents />;
-        } else if (panelViewName === 'relatedEventDetail') {
-          // if the data is loading, show loading TODO
-          // if the data isn't found, show 404 experience TODO
-          // TODO, pass data to component
-          // this view shows details about a node (process) along with details about a single event that is related to it
-          return <RelatedEventDetail parentEvent={panelEvent} relatedEvent={panelRelatedEvent} />;
-        } else if (panelViewName === 'processListWithCounts') {
-          // if the data is loading, show loading TODO
-          // if the data isn't found, show 404 experience TODO
-          // TODO, pass data to component
-          return <ProcessListWithCounts />;
+        if (panelQueryString.panelView === 'node' || panelQueryString.panelView === 'nodeEvents') {
+          // if the graph is loading show a loading interaction
+          // we use these events (in memory) for the panel in all cases.
+          if (nodesAreLoading) {
+            return <NodesLoading />;
+          } else if (nodesFailedToLoad) {
+            // if the graph failed to load, show an error
+            return <NodesFailedToLoad />;
+          }
+
+          if (panelQueryString.panelView === 'node') {
+            if (panelQueryString.panelNodeID) {
+              if (panelNodeInResponse === false) {
+                // the node wasn't in the tree, show an error
+                return <NodeDetailNotFound />;
+              } else {
+                // show the detail veiw of a node
+                return <NodeDetail nodeID={panelQueryString.panelNodeID} />;
+              }
+            } else {
+              // show the list of nodes
+              return <NodeIndex />;
+            }
+          } else if (panelQueryString.panelView === 'nodeEvents') {
+            // this branch shows events related to a node.
+
+            if (panelNodeInResponse === false) {
+              // we couldn't find the node to begin with.
+              // TODO, different component name?
+              return <NodeEventsNodeNotFound />;
+            } else if (relatedEventsForPanelNodeAreLoading) {
+              // the middleware only hits one resource for these types of panels. it gets the oldest 100 related events (of any type) for the node.
+              return <NodeEventsLoading />;
+            } else if (relatedEventsForPanelNodeFailedToLoad) {
+              return <NodeEventsFailedToLoad />;
+            }
+
+            if ('panelRelatedEventID' in panelQueryString) {
+              // if `panelRelatedEventID` is found, show the details of a specific event
+              if (panelRelatedEventInResponse === false) {
+                // either we didn't get the node or we didn't get the related event
+                return <NodeEventsEventNotFound />;
+              } else {
+                return (
+                  <NodeEventsDetail
+                    nodeID={panelQueryString.panelNodeID}
+                    eventID={panelQueryString.panelRelatedEventID}
+                  />
+                );
+              }
+            } else if ('panelEventCategory' in panelQueryString) {
+              // show events of a specific category that are related to a node
+              return (
+                <NodeEventsByCategory
+                  nodeID={panelQueryString.panelNodeID}
+                  category={panelQueryString.panelEventCategory}
+                />
+              );
+            } else {
+              return <NodeEventsIndex nodeID={panelQueryString.panelNodeID} />;
+              // showing the summary of related events for a node
+            }
+          }
+        } else {
+          return <PanelNotFound />;
         }
       })()}
     </EuiPanel>

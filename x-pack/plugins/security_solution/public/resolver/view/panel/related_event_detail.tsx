@@ -18,6 +18,7 @@ import { PanelContentError } from './panel_content_error';
 import { PanelQueryStringState } from '../../types';
 import { StyledTitleRule } from './styles';
 import * as processEventModel from '../../models/process_event';
+import { usePanelStateSetter } from '../use_panel_state_setter';
 
 /**
  * A helper function to turn objects into EuiDescriptionList entries.
@@ -71,6 +72,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
   relatedEvent: ResolverEvent;
   parentEvent: ResolverEvent;
 }) {
+  const setPanelState = usePanelStateSetter();
   const processName = processEventModel.name(parentEvent);
   const nodeID = processEventModel.uniquePidForProcess(parentEvent);
   const totalCount = countForParent || 0;
@@ -142,11 +144,11 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
       {
         text: eventsString,
         onClick: () => {
-          pushToQueryParams({ breadcrumbID: '', breadcrumbEvent: '' });
+          setPanelState({ panelView: 'node' });
         },
       },
     ];
-  }, [pushToQueryParams, eventsString]);
+  }, [setPanelState, eventsString]);
 
   const { subject = '', descriptor = '' } = relatedEventToShowDetailsFor
     ? event.descriptiveName(relatedEventToShowDetailsFor)
@@ -156,13 +158,13 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
       {
         text: eventsString,
         onClick: () => {
-          pushToQueryParams({ breadcrumbID: '', breadcrumbEvent: '' });
+          setPanelState({ panelView: 'node' });
         },
       },
       {
         text: processName,
         onClick: () => {
-          pushToQueryParams({ breadcrumbID: nodeID, breadcrumbEvent: '' });
+          setPanelState({ panelView: 'node', panelNodeID: nodeID });
         },
       },
       {
@@ -176,7 +178,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
           </>
         ),
         onClick: () => {
-          pushToQueryParams({ breadcrumbID: nodeID, breadcrumbEvent: 'all' });
+          setPanelState({ panelView: 'nodeEvents', panelNodeID: nodeID });
         },
       },
       {
@@ -190,9 +192,11 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
           </>
         ),
         onClick: () => {
-          pushToQueryParams({
-            breadcrumbID: nodeID,
-            breadcrumbEvent: relatedEventCategory !== undefined ? relatedEventCategory : 'all',
+          setPanelState({
+            panelView: 'nodeEvents',
+            panelNodeID: nodeID,
+            // this might be undefined
+            panelEventCategory: relatedEventCategory,
           });
         },
       },
