@@ -17,12 +17,13 @@ import { EdgeLine } from './edge_line';
 import { GraphControls } from './graph_controls';
 import { ProcessEventDot } from './process_event_dot';
 import { useCamera } from './use_camera';
-import { SymbolDefinitions, useResolverTheme } from './assets';
 import { useStateSyncingActions } from './use_state_syncing_actions';
 import { StyledMapContainer, StyledPanel, GraphContainer } from './styles';
 import { SideEffectContext } from './side_effect_context';
 import { ProcessNode } from './process_node';
 import { uniquePidForProcess } from '../models/process_event';
+import { useColors } from './use_colors';
+import { SymbolDefinitions } from './svg_singletons';
 
 /**
  * The highest level connected Resolver component. Needs a `Provider` in its ancestry to work.
@@ -55,12 +56,12 @@ export const ResolverMap = React.memo(function ({
   const isLoading = useSelector(selectors.isLoading);
   const hasError = useSelector(selectors.hasError);
   const activeDescendantId = useSelector(selectors.focusedNode);
-  const { colorMap } = useResolverTheme();
+  const { resolverBackground } = useColors();
 
   const useDot = false;
 
   return (
-    <StyledMapContainer className={className} backgroundColor={colorMap.resolverBackground}>
+    <StyledMapContainer className={className} backgroundColor={resolverBackground}>
       {isLoading ? (
         <div className="loading-container">
           <EuiLoadingSpinner size="xl" />

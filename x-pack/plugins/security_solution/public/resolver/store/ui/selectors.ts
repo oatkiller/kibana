@@ -33,16 +33,16 @@ export const panelQueryStringState: (
   (state: ResolverUIState) => state.urlSearch,
   (urlSearch: string | undefined): PanelQueryStringState | null => {
     const params = new URLSearchParams(urlSearch);
-    const panelView = params.get('panelView');
-    const panelNodeID = params.get('panelNodeID');
-    const panelRelatedEventID = params.get('panelRelatedEventID');
-    const panelEventCategory = params.get('panelEventCategory');
+    const panelViewValue = params.get('panelView');
+    const panelNodeIDValue = params.get('panelNodeID');
+    const panelRelatedEventIDValue = params.get('panelRelatedEventID');
+    const panelEventCategoryValue = params.get('panelEventCategory');
 
     if (
-      panelView === null &&
-      panelNodeID === null &&
-      panelRelatedEventID === null &&
-      panelEventCategory === null
+      panelViewValue === null &&
+      panelNodeIDValue === null &&
+      panelRelatedEventIDValue === null &&
+      panelEventCategoryValue === null
     ) {
       // if there is no data, return the default
       return {
@@ -50,36 +50,36 @@ export const panelQueryStringState: (
       };
     }
 
-    if (panelView === 'node') {
+    if (panelViewValue === 'node') {
       return {
-        panelView,
+        panelView: panelViewValue,
         // URLSearchParams returns null if the value isn't present. The type excepts it to be optional. Therefore we use it if its a string and replace it w/ undefined otherwise.
-        panelNodeID: panelNodeID === null ? undefined : panelNodeID,
+        panelNodeID: panelNodeIDValue === null ? undefined : panelNodeIDValue,
       };
-    } else if (panelView === 'nodeEvents') {
-      if (panelNodeID === null) {
+    } else if (panelViewValue === 'nodeEvents') {
+      if (panelNodeIDValue === null) {
         // invalid
         return null;
       }
       // nodeEvents can take a panelRelatedEventID, a panelEventCategory, or neither. it cannot take both at the same time.
-      if (panelRelatedEventID !== null && panelEventCategory !== null) {
+      if (panelRelatedEventIDValue !== null && panelEventCategoryValue !== null) {
         return null;
-      } else if (panelEventCategory !== null) {
+      } else if (panelEventCategoryValue !== null) {
         return {
-          panelView,
-          panelNodeID,
-          panelEventCategory,
+          panelView: panelViewValue,
+          panelNodeID: panelNodeIDValue,
+          panelEventCategory: panelEventCategoryValue,
         };
-      } else if (panelRelatedEventID !== null) {
+      } else if (panelRelatedEventIDValue !== null) {
         return {
-          panelView,
-          panelNodeID,
-          panelRelatedEventID,
+          panelView: panelViewValue,
+          panelNodeID: panelNodeIDValue,
+          panelRelatedEventID: panelRelatedEventIDValue,
         };
       } else {
         return {
-          panelView,
-          panelNodeID,
+          panelView: panelViewValue,
+          panelNodeID: panelNodeIDValue,
         };
       }
     } else {
@@ -88,3 +88,27 @@ export const panelQueryStringState: (
     }
   }
 );
+
+export const panelNodeID = createSelector(panelQueryStringState, function (
+  panelState
+): string | undefined {
+  return panelState?.panelNodeID;
+});
+
+export const panelRelatedEventID = createSelector(panelQueryStringState, function (
+  panelState
+): string | undefined {
+  return panelState && 'panelRelatedEventID' in panelState
+    ? panelState.panelRelatedEventID
+    : undefined;
+});
+
+export function panelEventCategory(state: ResolverUIState): string | undefined {
+  const queryStringState = panelQueryStringState(state);
+  if (queryStringState === null) {
+    return undefined;
+  }
+  if ('panelEventCategory' in queryStringState) {
+    return queryStringState.panelEventCategory;
+  }
+}

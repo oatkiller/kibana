@@ -35,7 +35,7 @@ export const OptionList = React.memo(({ event }: { event: ResolverEvent }) => {
   const isLoading: boolean = !relatedEventsStatsForProcess;
 
   // the event category selected by the panel
-  const panelEventCategory: string | null = useSelector(selectors.panelEventCategory);
+  const panelEventCategory: string | undefined = useSelector(selectors.panelEventCategory);
 
   // Recalculate the options when the user selection changes or when the related stats changes.
   const options: EuiSelectableOption[] = useMemo(() => {
@@ -80,7 +80,7 @@ export const OptionList = React.memo(({ event }: { event: ResolverEvent }) => {
       const panelState: PanelQueryStringState =
         selectedCategory === null
           ? {
-              panelView: 'processDetail',
+              panelView: 'node',
               panelNodeID: nodeID,
             }
           : {

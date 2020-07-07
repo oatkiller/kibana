@@ -6,8 +6,9 @@
 
 import { useHistory } from 'react-router-dom';
 
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useContext } from 'react';
 import { useResolverDispatch } from './use_resolver_dispatch';
+import { SideEffectContext } from './side_effect_context';
 
 /**
  * This is a hook that is meant to be used once at the top level of Resolver.
@@ -25,10 +26,11 @@ export function useStateSyncingActions({
 
   const history = useHistory();
   const urlSearch = history.location.search;
+  const { timestamp } = useContext(SideEffectContext);
   useLayoutEffect(() => {
     dispatch({
       type: 'appReceivedNewExternalProperties',
-      payload: { databaseDocumentID, urlSearch },
+      payload: { databaseDocumentID, urlSearch, time: timestamp() },
     });
-  }, [dispatch, databaseDocumentID, urlSearch]);
+  }, [timestamp, dispatch, databaseDocumentID, urlSearch]);
 }

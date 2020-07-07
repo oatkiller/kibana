@@ -67,6 +67,10 @@ interface AppReceivedNewExternalProperties {
      * The search params from the URL
      */
     urlSearch: string;
+    /**
+     * Record the time so that the app can respond to changes with animation.
+     */
+    time: number;
   };
 }
 

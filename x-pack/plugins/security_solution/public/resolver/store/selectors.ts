@@ -102,22 +102,19 @@ export const focusedNode = composeSelectors(uiStateSelector, uiSelectors.focused
  */
 export const selectedNode = composeSelectors(uiStateSelector, uiSelectors.selectedNode);
 
-/**
- * The current panel to display
- */
-export const panelViewName = composeSelectors(uiStateSelector, uiSelectors.panelViewName);
-
 // TODO comment
 export const panelNodeID = composeSelectors(uiStateSelector, uiSelectors.panelNodeID);
+
+/**
+ * used to power the dropdown that changes it.
+ */
+export const panelEventCategory = composeSelectors(uiStateSelector, uiSelectors.panelEventCategory);
 
 // TODO comment
 export const panelRelatedEventID = composeSelectors(
   uiStateSelector,
   uiSelectors.panelRelatedEventID
 );
-
-// TODO comment
-export const panelEventCategory = composeSelectors(uiStateSelector, uiSelectors.panelEventCategory);
 
 /**
  * Returns the camera state from within ResolverState
@@ -143,11 +140,13 @@ function uiStateSelector(state: ResolverState) {
 /**
  * Whether or not the resolver is pending fetching data
  */
+// TODO, renname
 export const isLoading = composeSelectors(dataStateSelector, dataSelectors.isLoading);
 
 /**
  * Whether or not the resolver encountered an error while fetching data
  */
+// TODO, renname
 export const hasError = composeSelectors(dataStateSelector, dataSelectors.hasError);
 
 /**
@@ -218,7 +217,7 @@ export const relatedEventsForNode = composeSelectors(
 // Returns a random lifecycle event for the panel node ID if we have one in memory.
 export const processEventForPanelNodeID = function (state: ResolverState): ResolverEvent | null {
   const nodeID = panelNodeID(state);
-  if (nodeID === null) {
+  if (nodeID === undefined) {
     return null;
   }
   // TODO, this associates the idea of 'nodeID' with entityID. we need to fix this
@@ -229,7 +228,7 @@ export const processEventForPanelNodeID = function (state: ResolverState): Resol
 export const eventForPanelRelatedEventID = function (state: ResolverState): ResolverEvent | null {
   // The data selector can only return related events if you know the unique pid for the event they relate to.
   const nodeID = panelNodeID(state);
-  if (nodeID === null) {
+  if (nodeID === undefined) {
     return null;
   }
   const relatedEventID = panelRelatedEventID(state);
@@ -247,16 +246,3 @@ export const eventForPanelRelatedEventID = function (state: ResolverState): Reso
   }
   return null;
 };
-
-/**
- * When the events related to an entity ID are needed, this will return the entity ID.
- */
-export function entityIDToFetchRelatedEventsFor(state: ResolverState): string | null {
-  // this should return something when the panelView is 'relatedEventDetail' or `nodeEvents'
-  // because each of those views show related events and we have a single way to fetch related events.
-  if (panelViewName(state) === 'relatedEventDetail' || panelViewName(state) === 'nodeEvents') {
-    return panelNodeID(state);
-  } else {
-    return null;
-  }
-}

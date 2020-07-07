@@ -7,11 +7,7 @@
 /* eslint-disable no-duplicate-imports */
 
 import { Dispatch, MiddlewareAPI } from 'redux';
-import {
-  ResolverTree,
-  ResolverEntityIndex,
-  ResolverRelatedEvents,
-} from '../../../../common/endpoint/types';
+import { ResolverRelatedEvents } from '../../../../common/endpoint/types';
 
 import { KibanaReactContextValue } from '../../../../../../../src/plugins/kibana_react/public';
 import { ResolverState } from '../../types';
@@ -31,9 +27,7 @@ export function RelatedEventFetcher(
   // Call this after each state change.
   return async () => {
     const state = api.getState();
-    const entityIDToFetchRelatedEventsFor:
-      | string
-      | null = selectors.entityIDToFetchRelatedEventsFor(state);
+    const entityIDToFetchRelatedEventsFor: string | undefined = selectors.panelNodeID(state);
 
     // if there is a request in progress for an entity ID other than the current one, abort it.
     if (lastRequestMetadata && lastRequestMetadata.entityID !== entityIDToFetchRelatedEventsFor) {
@@ -44,7 +38,7 @@ export function RelatedEventFetcher(
 
     // there is an entity ID to fetch events for and
     // the last request was aborted or there never was a request
-    if (entityIDToFetchRelatedEventsFor !== null && !lastRequestMetadata) {
+    if (entityIDToFetchRelatedEventsFor !== undefined && !lastRequestMetadata) {
       lastRequestMetadata = {
         abortController: new AbortController(),
         entityID: entityIDToFetchRelatedEventsFor,

@@ -11,9 +11,6 @@ import { useSelector } from 'react-redux';
 import { EuiPanel } from '@elastic/eui';
 import * as selectors from '../../store/selectors';
 import { NodeDetail } from './node_detail';
-import { EventCountsForProcess } from './event_counts_for_process';
-import { NodeEvents } from './node_events';
-import { RelatedEventDetail } from './related_event_detail';
 import { NodeIndex } from './node_index';
 import { PanelQueryStringState } from '../../types';
 
@@ -44,9 +41,6 @@ export const Panel = memo(function ({ className }: { className?: string }) {
 
   // A failure dialog for when the panelNodeID's event wasn't in the tree response
   declare const NodeDetailNotFound: React.FC;
-
-  // a component that shows the details of a specific node (process)
-  declare const NodeDetail: React.FC<{ /** the nodeID to show details about. */ nodeID: string }>;
 
   // A messages to be shown in place of any related events panel if the the middleware is waiting for a response containing related events for panelNodeID
   declare const NodeEventsLoading: React.FC;
@@ -94,7 +88,7 @@ export const Panel = memo(function ({ className }: { className?: string }) {
 
           if (panelQueryStringState.panelView === 'node') {
             if (panelQueryStringState.panelNodeID) {
-              if (panelNodeInResponse === false) {
+              if (processEventForPanelNodeID === null) {
                 // the node wasn't in the tree, show an error
                 return <NodeDetailNotFound />;
               } else {

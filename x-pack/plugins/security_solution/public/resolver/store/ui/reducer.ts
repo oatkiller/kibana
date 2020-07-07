@@ -12,7 +12,6 @@ export const uiReducer: Reducer<ResolverUIState, ResolverAction> = (
   state = {
     focusedNode: null,
     selectedNode: null,
-    panelToDisplay: null,
   },
   action
 ) => {
@@ -34,17 +33,7 @@ export const uiReducer: Reducer<ResolverUIState, ResolverAction> = (
       ...state,
       selectedNode: action.payload,
     };
-  } else if (action.type === 'appDisplayedDifferentPanel') {
-    // TODO
-    return {
-      ...state,
-      panelToDisplay: action.payload,
-    };
-  } else if (
-    action.type === 'userBroughtProcessIntoView' ||
-    // TODO
-    action.type === 'appDetectedNewIdFromQueryParams'
-  ) {
+  } else if (action.type === 'userBroughtProcessIntoView') {
     // focus and select the node
     return {
       ...state,

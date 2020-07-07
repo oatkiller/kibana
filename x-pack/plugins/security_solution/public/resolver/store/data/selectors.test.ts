@@ -7,10 +7,15 @@
 import * as selectors from './selectors';
 import { DataState } from '../../types';
 import { dataReducer } from './reducer';
-import { DataAction } from './action';
 import { createStore } from 'redux';
+import { ResolverAction } from '../actions';
 describe('data state', () => {
-  let actions: DataAction[] = [];
+  // `urlSearch` and `time` are not relevant to this test, but required in the action we fire.
+  // TODO, weird
+  const urlSearch = '?';
+  const time = 0;
+
+  let actions: ResolverAction[] = [];
 
   /**
    * Get state, given an ordered collection of actions.
@@ -57,7 +62,7 @@ describe('data state', () => {
       actions = [
         {
           type: 'appReceivedNewExternalProperties',
-          payload: { databaseDocumentID },
+          payload: { databaseDocumentID, urlSearch, time },
         },
       ];
     });
@@ -108,7 +113,7 @@ describe('data state', () => {
       actions = [
         {
           type: 'appReceivedNewExternalProperties',
-          payload: { databaseDocumentID },
+          payload: { databaseDocumentID, urlSearch, time },
         },
         {
           type: 'appRequestedResolverData',
@@ -165,7 +170,7 @@ describe('data state', () => {
         // receive the document ID, this would cause the middleware to starts the request
         {
           type: 'appReceivedNewExternalProperties',
-          payload: { databaseDocumentID: firstDatabaseDocumentID },
+          payload: { databaseDocumentID: firstDatabaseDocumentID, urlSearch, time },
         },
         // this happens when the middleware starts the request
         {
@@ -175,7 +180,7 @@ describe('data state', () => {
         // receive a different databaseDocumentID. this should cause the middleware to abort the existing request and start a new one
         {
           type: 'appReceivedNewExternalProperties',
-          payload: { databaseDocumentID: secondDatabaseDocumentID },
+          payload: { databaseDocumentID: secondDatabaseDocumentID, urlSearch, time },
         },
       ];
     });
