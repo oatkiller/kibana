@@ -173,6 +173,13 @@ export interface DataState {
    */
   readonly relatedEvents: Map<string, ResolverRelatedEvents>;
   /**
+   * The request status for related events. The key is the entity_id used in the request.
+   * If they map has a key, related events were requested for that id.
+   * If the value if 'true', the events were successfully returned.
+   * if the value is 'false', the events failed to be returned.
+   */
+  readonly relatedEventsReady: Map<string, boolean>;
+  /**
    * The `_id` for an ES document. Used to select a process that we'll show the graph for.
    */
   readonly databaseDocumentID?: string;

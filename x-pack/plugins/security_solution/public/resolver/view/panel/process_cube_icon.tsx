@@ -5,23 +5,20 @@
  */
 
 import React, { memo } from 'react';
-import { useResolverTheme } from '../assets';
 import { descriptionForNode } from '../description_for_node';
+import { useCubeAssets } from '../use_cube_assets';
 
 /**
  * icon for a process.
  */
 export const ProcessCubeIcon = memo(function CubeForProcess({
   isProcessTerminated = false,
-  isProcessOrigin = false,
 }: {
   isProcessTerminated?: boolean;
-  isProcessOrigin?: boolean;
 }) {
-  const { cubeAssetsForNode } = useResolverTheme();
-  const { cubeSymbol } = cubeAssetsForNode(isProcessTerminated, isProcessOrigin);
+  const { cubeSymbol } = useCubeAssets(isProcessTerminated);
 
-  const descriptionText = descriptionForNode(isProcessTerminated, isProcessOrigin);
+  const descriptionText = descriptionForNode(isProcessTerminated);
 
   return (
     <svg

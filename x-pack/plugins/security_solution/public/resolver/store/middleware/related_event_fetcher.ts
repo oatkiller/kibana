@@ -44,6 +44,10 @@ export function RelatedEventFetcher(
         entityID: entityIDToFetchRelatedEventsFor,
       };
       let result: ResolverRelatedEvents | undefined;
+      api.dispatch({
+        type: 'appRequestedRelatedEventData',
+        payload: entityIDToFetchRelatedEventsFor,
+      });
       try {
         result = await context.services.http.get(
           `/api/endpoint/resolver/${entityIDToFetchRelatedEventsFor}/events`,

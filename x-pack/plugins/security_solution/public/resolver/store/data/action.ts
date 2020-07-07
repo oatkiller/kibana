@@ -44,6 +44,14 @@ interface AppAbortedResolverDataRequest {
   readonly payload: string;
 }
 
+interface AppRequestedRelatedEventData {
+  type: 'appRequestedRelatedEventData';
+  /**
+   * entity ID used to make the aborted request
+   */
+  payload: string;
+}
+
 /**
  * Will occur when a request for related event data is unsuccessful.
  */
@@ -78,4 +86,5 @@ export type DataAction =
   | ServerFailedToReturnRelatedEventData
   | ServerReturnedRelatedEventData
   | AppRequestedResolverData
+  | AppRequestedRelatedEventData
   | AppAbortedResolverDataRequest;

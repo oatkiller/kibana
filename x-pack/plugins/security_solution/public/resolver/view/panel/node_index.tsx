@@ -113,7 +113,6 @@ export const NodeIndex = memo(function () {
     [setPanelState, dispatch, timestamp, isProcessTerminated]
   );
 
-  // TODO
   const { processNodePositions } = useSelector(selectors.processNodePositionsAndEdgeLineSegments);
   const processTableView: ProcessTableView[] = useMemo(
     () =>

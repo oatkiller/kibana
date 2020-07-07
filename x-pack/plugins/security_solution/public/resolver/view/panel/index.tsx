@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux';
 import { EuiPanel } from '@elastic/eui';
 import * as selectors from '../../store/selectors';
 import { NodeDetail } from './node_detail';
+import { NodeEventsByCategory } from './node_events_by_category';
 import { NodeIndex } from './node_index';
 import { PanelQueryStringState } from '../../types';
 
@@ -60,9 +61,6 @@ export const Panel = memo(function ({ className }: { className?: string }) {
   // shows the details of an event, along with its related node
   declare const NodeEventsDetail: React.FC<{ nodeID: string; eventID: string }>;
 
-  // shows a list of events (filtered by a single category) that are related to a node
-  declare const NodeEventsByCategory: React.FC<{ nodeID: string; category: string }>;
-
   // shows summary of all related events for a node
   declare const NodeEventsIndex: React.FC<{ nodeID: string }>;
 
@@ -85,6 +83,8 @@ export const Panel = memo(function ({ className }: { className?: string }) {
             // if the graph failed to load, show an error
             return <NodesFailedToLoad />;
           }
+
+          // only the `NodeIndex` view doesn't need a node process event.
 
           if (panelQueryStringState.panelView === 'node') {
             if (panelQueryStringState.panelNodeID) {
@@ -131,7 +131,7 @@ export const Panel = memo(function ({ className }: { className?: string }) {
               // show events of a specific category that are related to a node
               return (
                 <NodeEventsByCategory
-                  nodeID={panelQueryStringState.panelNodeID}
+                  processEvent={processEventForPanelNodeID}
                   category={panelQueryStringState.panelEventCategory}
                 />
               );

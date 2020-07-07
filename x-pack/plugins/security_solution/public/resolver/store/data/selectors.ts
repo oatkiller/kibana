@@ -339,3 +339,10 @@ export const relatedEventTotalForNode: (
     return total;
   };
 });
+
+export const relatedEventsForPanelNodeAreLoading: (
+  state: DataState
+) => (id: string) => boolean = createSelector(
+  ({ relatedEventsReady }) => relatedEventsReady,
+  (map) => (id: string) => map.get(id) === false
+);

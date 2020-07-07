@@ -37,56 +37,55 @@ interface MatchingEventEntry {
 }
 
 const DisplayList = memo(function DisplayList({
-  crumbs,
+  breadcrumbs,
   matchingEventEntries,
 }: {
-  crumbs: Array<{ text: string | JSX.Element; onClick: () => void }>;
+  breadcrumbs: Array<{ text: string | JSX.Element; onClick: () => void }>;
   matchingEventEntries: MatchingEventEntry[];
 }) {
   return (
     <>
-      <StyledBreadcrumbs breadcrumbs={crumbs} />
+      <StyledBreadcrumbs breadcrumbs={breadcrumbs} />
       <EuiSpacer size="l" />
-      <>
-        {matchingEventEntries.map((eventView, index) => {
-          const { subject, descriptor = '' } = eventView.name;
-          return (
-            <Fragment key={index}>
-              <EuiText>
-                <BoldCode>
-                  <FormattedMessage
-                    id="xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.categoryAndType"
-                    values={{
-                      category: eventView.eventCategory,
-                      eventType: eventView.eventType,
-                    }}
-                    defaultMessage="{category} {eventType}"
-                  />
-                </BoldCode>
+      {matchingEventEntries.map((eventView, index) => {
+        const { subject, descriptor } = eventView.name;
+        return (
+          <Fragment key={index}>
+            <EuiText>
+              <BoldCode>
                 <FormattedMessage
-                  id="xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.atTime"
-                  values={{ date: eventView.formattedDate }}
-                  defaultMessage="@ {date}"
+                  id="xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.categoryAndType"
+                  values={{
+                    category: eventView.eventCategory,
+                    eventType: eventView.eventType,
+                  }}
+                  defaultMessage="{category} {eventType}"
                 />
-              </EuiText>
-              <EuiSpacer size="xs" />
-              <EuiButtonEmpty onClick={eventView.setQueryParams}>
-                <FormattedMessage
-                  id="xpack.securitySolution.endpoint.resolver.panel.processEventListByType.eventDescriptiveName"
-                  values={{ subject, descriptor }}
-                  defaultMessage="{descriptor} {subject}"
-                />
-              </EuiButtonEmpty>
-              {index === matchingEventEntries.length - 1 ? null : <EuiHorizontalRule margin="m" />}
-            </Fragment>
-          );
-        })}
-      </>
+              </BoldCode>
+              <FormattedMessage
+                id="xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.atTime"
+                values={{ date: eventView.formattedDate }}
+                defaultMessage="@ {date}"
+              />
+            </EuiText>
+            <EuiSpacer size="xs" />
+            <EuiButtonEmpty onClick={eventView.setQueryParams}>
+              <FormattedMessage
+                id="xpack.securitySolution.endpoint.resolver.panel.processEventListByType.eventDescriptiveName"
+                values={{ subject, descriptor }}
+                defaultMessage="{descriptor} {subject}"
+              />
+            </EuiButtonEmpty>
+            {index === matchingEventEntries.length - 1 ? null : <EuiHorizontalRule margin="m" />}
+          </Fragment>
+        );
+      })}
     </>
   );
 });
 
-export const NodeEvents = memo(function ({
+// TODO, whats the diff between eventType and category?
+export const NodeEventsByCategory = memo(function ({
   processEvent,
   eventType,
 }: {
@@ -222,5 +221,5 @@ export const NodeEvents = memo(function ({
     );
   }
 
-  return <DisplayList crumbs={crumbs} matchingEventEntries={matchingEventEntries} />;
+  return <DisplayList breadcrumbs={crumbs} matchingEventEntries={matchingEventEntries} />;
 });

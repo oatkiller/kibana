@@ -209,9 +209,16 @@ export const processForEntityID = composeSelectors(
   dataSelectors.processForEntityID
 );
 
-export const relatedEventsForNode = composeSelectors(
+export const relatedEventsForNode: (
+  state: ResolverState
+) => (nodeID: string) => ResolverEvent[] = composeSelectors(
   dataStateSelector,
   dataSelectors.relatedEventsForNode
+);
+
+export const relatedEventsForPanelNodeAreLoading = composeSelectors(
+  dataStateSelector,
+  dataSelectors.relatedEventsForPanelNodeAreLoading
 );
 
 // Returns a random lifecycle event for the panel node ID if we have one in memory.
