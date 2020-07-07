@@ -10,7 +10,7 @@ import React, { memo } from 'react';
 import { useSelector } from 'react-redux';
 import { EuiPanel } from '@elastic/eui';
 import * as selectors from '../../store/selectors';
-import { ProcessDetails } from './node_detail';
+import { NodeDetail } from './node_detail';
 import { EventCountsForProcess } from './event_counts_for_process';
 import { NodeEvents } from './node_events';
 import { RelatedEventDetail } from './related_event_detail';
@@ -72,12 +72,17 @@ export const Panel = memo(function ({ className }: { className?: string }) {
   // shows summary of all related events for a node
   declare const NodeEventsIndex: React.FC<{ nodeID: string }>;
 
-  declare const panelQueryString: PanelQueryStringState;
+  declare const panelQueryStringState: PanelQueryStringState;
+
+  const processEventForPanelNodeID = useSelector(selectors.processEventForPanelNodeID);
 
   return (
     <EuiPanel className={className}>
       {(() => {
-        if (panelQueryString.panelView === 'node' || panelQueryString.panelView === 'nodeEvents') {
+        if (
+          panelQueryStringState.panelView === 'node' ||
+          panelQueryStringState.panelView === 'nodeEvents'
+        ) {
           // if the graph is loading show a loading interaction
           // we use these events (in memory) for the panel in all cases.
           if (nodesAreLoading) {
@@ -87,20 +92,21 @@ export const Panel = memo(function ({ className }: { className?: string }) {
             return <NodesFailedToLoad />;
           }
 
-          if (panelQueryString.panelView === 'node') {
-            if (panelQueryString.panelNodeID) {
+          if (panelQueryStringState.panelView === 'node') {
+            if (panelQueryStringState.panelNodeID) {
               if (panelNodeInResponse === false) {
                 // the node wasn't in the tree, show an error
                 return <NodeDetailNotFound />;
               } else {
                 // show the detail veiw of a node
-                return <NodeDetail nodeID={panelQueryString.panelNodeID} />;
+                // TODO, you cant use a single process for this.
+                return <NodeDetail processEvent={processEventForPanelNodeID} />;
               }
             } else {
               // show the list of nodes
               return <NodeIndex />;
             }
-          } else if (panelQueryString.panelView === 'nodeEvents') {
+          } else if (panelQueryStringState.panelView === 'nodeEvents') {
             // this branch shows events related to a node.
 
             if (panelNodeInResponse === false) {
@@ -114,7 +120,7 @@ export const Panel = memo(function ({ className }: { className?: string }) {
               return <NodeEventsFailedToLoad />;
             }
 
-            if ('panelRelatedEventID' in panelQueryString) {
+            if ('panelRelatedEventID' in panelQueryStringState) {
               // if `panelRelatedEventID` is found, show the details of a specific event
               if (panelRelatedEventInResponse === false) {
                 // either we didn't get the node or we didn't get the related event
@@ -122,21 +128,21 @@ export const Panel = memo(function ({ className }: { className?: string }) {
               } else {
                 return (
                   <NodeEventsDetail
-                    nodeID={panelQueryString.panelNodeID}
-                    eventID={panelQueryString.panelRelatedEventID}
+                    nodeID={panelQueryStringState.panelNodeID}
+                    eventID={panelQueryStringState.panelRelatedEventID}
                   />
                 );
               }
-            } else if ('panelEventCategory' in panelQueryString) {
+            } else if ('panelEventCategory' in panelQueryStringState) {
               // show events of a specific category that are related to a node
               return (
                 <NodeEventsByCategory
-                  nodeID={panelQueryString.panelNodeID}
-                  category={panelQueryString.panelEventCategory}
+                  nodeID={panelQueryStringState.panelNodeID}
+                  category={panelQueryStringState.panelEventCategory}
                 />
               );
             } else {
-              return <NodeEventsIndex nodeID={panelQueryString.panelNodeID} />;
+              return <NodeEventsIndex nodeID={panelQueryStringState.panelNodeID} />;
               // showing the summary of related events for a node
             }
           }

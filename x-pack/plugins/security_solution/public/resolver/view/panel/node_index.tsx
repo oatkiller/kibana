@@ -3,6 +3,9 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
+
+/* eslint-disable react/display-name */
+
 import React, { memo, useContext, useMemo } from 'react';
 import {
   EuiBasicTableColumn,
@@ -26,7 +29,7 @@ import { usePanelStateSetter } from '../use_panel_state_setter';
 /**
  * The "default" view for the panel: A list of all the processes currently in the graph.
  */
-export const NodeIndex = memo(function ProcessListWithCounts() {
+export const NodeIndex = memo(function () {
   interface ProcessTableView {
     name?: string;
     timestamp?: Date;

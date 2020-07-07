@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+import { createSelector } from 'reselect';
 import { ResolverUIState, PanelQueryStringState } from '../../types';
 
 /**
@@ -20,45 +21,70 @@ export function focusedNode(state: ResolverUIState): string | null {
 export const selectedNode: (state: ResolverUIState) => string | null = (state) =>
   state.selectedNode;
 
-function urlSearchParams(state: ResolverUIState): URLSearchParams {
-  return new URLSearchParams(state.urlSearch);
-}
-
-const panelViewNames: ReadonlySet<PanelQueryStringState['panelView']> = new Set([
-  'node',
-  'nodeEvents',
-]);
-
-function isPanelViewName(name: string): name is PanelQueryStringState['panelView'] {
-  return (panelViewNames as ReadonlySet<string>).has(name);
-}
-
 /**
- * The 'view' shown by the panel. If nothing is found in the query string, default to 'processListWithCounts'.
+ * Parse the query string and return a valid PanelQueryStringState object.
+ * if there is no data in the query string, return a default.
+ * if the data in the query string cannot be validated as a PanelQueryStringState,
+ * return null. In this case, consider using a 404-type experience.
  */
-export function panelViewName(state: ResolverUIState): PanelQueryStringState['panelView'] | null {
-  const value = urlSearchParams(state).get('panelView');
-  const defaultPanelViewName = 'node';
+export const panelQueryStringState: (
+  state: ResolverUIState
+) => PanelQueryStringState | null = createSelector(
+  (state: ResolverUIState) => state.urlSearch,
+  (urlSearch: string | undefined): PanelQueryStringState | null => {
+    const params = new URLSearchParams(urlSearch);
+    const panelView = params.get('panelView');
+    const panelNodeID = params.get('panelNodeID');
+    const panelRelatedEventID = params.get('panelRelatedEventID');
+    const panelEventCategory = params.get('panelEventCategory');
 
-  // if the value isn't specified, return the default
-  if (value === null) {
-    return defaultPanelViewName;
-  } else if (isPanelViewName(value)) {
-    return value;
-  } else {
-    // if the value is specified, but not valid, return null
-    return null;
+    if (
+      panelView === null &&
+      panelNodeID === null &&
+      panelRelatedEventID === null &&
+      panelEventCategory === null
+    ) {
+      // if there is no data, return the default
+      return {
+        panelView: 'node',
+      };
+    }
+
+    if (panelView === 'node') {
+      return {
+        panelView,
+        // URLSearchParams returns null if the value isn't present. The type excepts it to be optional. Therefore we use it if its a string and replace it w/ undefined otherwise.
+        panelNodeID: panelNodeID === null ? undefined : panelNodeID,
+      };
+    } else if (panelView === 'nodeEvents') {
+      if (panelNodeID === null) {
+        // invalid
+        return null;
+      }
+      // nodeEvents can take a panelRelatedEventID, a panelEventCategory, or neither. it cannot take both at the same time.
+      if (panelRelatedEventID !== null && panelEventCategory !== null) {
+        return null;
+      } else if (panelEventCategory !== null) {
+        return {
+          panelView,
+          panelNodeID,
+          panelEventCategory,
+        };
+      } else if (panelRelatedEventID !== null) {
+        return {
+          panelView,
+          panelNodeID,
+          panelRelatedEventID,
+        };
+      } else {
+        return {
+          panelView,
+          panelNodeID,
+        };
+      }
+    } else {
+      // invalid panel view, show 404
+      return null;
+    }
   }
-}
-
-export function panelNodeID(state: ResolverUIState): string | null {
-  return urlSearchParams(state).get('panelNodeID');
-}
-
-export function panelRelatedEventID(state: ResolverUIState): string | null {
-  return urlSearchParams(state).get('panelRelatedEventID');
-}
-
-export function panelEventCategory(state: ResolverUIState): string | null {
-  return urlSearchParams(state).get('panelEventCategory');
-}
+);

@@ -5,18 +5,14 @@
  */
 
 import { i18n } from '@kbn/i18n';
-export function descriptionForNode(isProcessTerminated: boolean, isProcessOrigin: boolean): string {
+// TODO, comment
+export function descriptionForNode(isProcessTerminated: boolean): string {
   if (isProcessTerminated) {
-    // TODO, fix all endpoint i18n ids
-    return i18n.translate('xpack.securitySolution.endpoint.resolver.terminatedProcess', {
+    return i18n.translate('xpack.securitySolution.resolver.terminatedProcess', {
       defaultMessage: 'Terminated Process',
     });
-  } else if (isProcessOrigin) {
-    return i18n.translate('xpack.securitySolution.endpoint.resolver.runningTrigger', {
-      defaultMessage: 'Running Trigger',
-    });
   } else {
-    return i18n.translate('xpack.securitySolution.endpoint.resolver.runningProcess', {
+    return i18n.translate('xpack.securitySolution.resolver.runningProcess', {
       defaultMessage: 'Running Process',
     });
   }

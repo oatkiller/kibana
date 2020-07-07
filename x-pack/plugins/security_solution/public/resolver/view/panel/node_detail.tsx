@@ -3,37 +3,43 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-import React, { memo, useMemo } from 'react';
+
+/* eslint-disable react/display-name */
+
+import React, { memo, useMemo, ReactNode } from 'react';
 import { i18n } from '@kbn/i18n';
 import { htmlIdGenerator, EuiSpacer, EuiTitle, EuiText, EuiTextColor } from '@elastic/eui';
-import { StyledBreadcrumbs } from './styles';
+import { useSelector } from 'react-redux';
+import { StyledBreadcrumbs, StyledDescriptionList } from './styles';
 import * as event from '../../../../common/endpoint/models/event';
 import * as processEventModel from '../../models/process_event';
 import { ProcessCubeIcon } from './process_cube_icon';
-import { ResolverEvent } from '../../../../common/endpoint/types';
 import { descriptionForNode } from '../description_for_node';
-import { PanelQueryStringState } from '../../types';
 import { formatDate } from './format_date';
+import * as selectors from '../../store/selectors';
+import { ResolverEvent } from '../../../../common/endpoint/types';
+import { usePanelStateSetter } from '../use_panel_state_setter';
 
 /**
  * A description list view of all the Metadata that goes with a particular process event, like:
  * Created, Pid, User/Domain, etc.
  */
-export const ProcessDetails = memo(function ProcessDetails({
-  processEvent,
-  isProcessTerminated,
-  isProcessOrigin,
-  pushToQueryParams,
-}: {
-  processEvent: ResolverEvent;
-  isProcessTerminated: boolean;
-  isProcessOrigin: boolean;
-  pushToQueryParams: (queryStringKeyValuePair: PanelQueryStringState) => unknown;
-}) {
+export const NodeDetail = memo(function ({ processEvent }: { processEvent: ResolverEvent }) {
+  const setPanelState = usePanelStateSetter();
   const processName = processEventModel.name(processEvent);
-  const processInfoEntry = useMemo(() => {
+  const nodeID = processEventModel.uniquePidForProcess(processEvent);
+
+  const isProcessTerminated = useSelector(selectors.isProcessTerminated)(nodeID);
+  interface ListItem {
+    title: NonNullable<ReactNode>;
+    description: NonNullable<ReactNode>;
+  }
+
+  const listItems: ListItem[] = useMemo(() => {
     const eventTime = event.timestamp(processEvent);
-    const dateTime = eventTime ? formatDate(eventTime) : '';
+    const dateTime = eventTime !== undefined ? formatDate(eventTime) : undefined;
+
+    // TODO, a node isn't a single process event. fix
 
     const createdEntry = {
       title: i18n.translate(
@@ -56,7 +62,7 @@ export const ProcessDetails = memo(function ProcessDetails({
       title: i18n.translate('xpack.securitySolution.endpoint.resolver.panel.processDescList.pid', {
         defaultMessage: 'PID',
       }),
-      description: processEventModel.processPid(processEvent),
+      description: processEventModel.processPid(processEvent)?.toString(),
     };
 
     const userEntry = {
@@ -83,7 +89,7 @@ export const ProcessDetails = memo(function ProcessDetails({
           defaultMessage: 'Parent PID',
         }
       ),
-      description: processEventModel.processParentPid(processEvent),
+      description: processEventModel.processParentPid(processEvent)?.toString(),
     };
 
     const md5Entry = {
@@ -107,30 +113,30 @@ export const ProcessDetails = memo(function ProcessDetails({
     };
 
     // This is the data in {title, description} form for the EUIDescriptionList to display
-    const processDescriptionListData = [
-      createdEntry,
-      pathEntry,
-      pidEntry,
-      userEntry,
-      domainEntry,
-      parentPidEntry,
-      md5Entry,
-      commandLineEntry,
-    ]
-      .filter((entry) => {
-        return entry.description;
-      })
-      .map((entry) => {
-        return {
-          ...entry,
-          description: String(entry.description),
-        };
-      });
-
-    return processDescriptionListData;
+    return (
+      [
+        createdEntry,
+        pathEntry,
+        pidEntry,
+        userEntry,
+        domainEntry,
+        parentPidEntry,
+        md5Entry,
+        commandLineEntry,
+      ]
+        // remove any list items that have `undefined` as a description.
+        // using predicate because I can't get TS to narrow out `undefined` as expected. TODO, revisit this. it seems to work in playground
+        .filter(function (listItem): listItem is { title: string; description: string } {
+          return listItem.description !== undefined;
+        })
+        // Order the list items by their translated titles
+        .sort(function ({ title: first }, { title: second }) {
+          return first.localeCompare(second);
+        })
+    );
   }, [processEvent]);
 
-  const crumbs = useMemo(() => {
+  const breadcrumbs = useMemo(() => {
     return [
       {
         text: i18n.translate(
@@ -139,8 +145,8 @@ export const ProcessDetails = memo(function ProcessDetails({
             defaultMessage: 'Events',
           }
         ),
-        onClick: () => {
-          pushToQueryParams({ breadcrumbID: '', breadcrumbEvent: '' });
+        onClick() {
+          setPanelState({ panelView: 'node' });
         },
       },
       {
@@ -150,26 +156,23 @@ export const ProcessDetails = memo(function ProcessDetails({
         ),
       },
     ];
-  }, [processName, pushToQueryParams]);
+  }, [processName, setPanelState]);
 
   const titleId = htmlIdGenerator('resolver')('panelTitle');
 
   return (
     <>
-      <StyledBreadcrumbs breadcrumbs={crumbs} />
+      <StyledBreadcrumbs breadcrumbs={breadcrumbs} />
       <EuiSpacer size="l" />
       <EuiTitle size="xs">
         <h4 aria-describedby={titleId}>
-          <ProcessCubeIcon
-            isProcessTerminated={isProcessTerminated}
-            isProcessOrigin={isProcessOrigin}
-          />
+          <ProcessCubeIcon isProcessTerminated={isProcessTerminated} />
           {processName}
         </h4>
       </EuiTitle>
       <EuiText>
         <EuiTextColor color="subdued">
-          <span id={titleId}>{descriptionForNode(isProcessTerminated, isProcessOrigin)}</span>
+          <span id={titleId}>{descriptionForNode(isProcessTerminated)}</span>
         </EuiTextColor>
       </EuiText>
       <EuiSpacer size="l" />
@@ -178,7 +181,7 @@ export const ProcessDetails = memo(function ProcessDetails({
         align="left"
         titleProps={{ className: 'desc-title' }}
         compressed
-        listItems={processInfoEntry}
+        listItems={listItems}
       />
     </>
   );
