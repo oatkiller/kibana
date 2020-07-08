@@ -25,7 +25,7 @@ export function usePanelStateSetter(): (panelState: PanelQueryStringState) => vo
       urlSearchParams.delete('panelEventCategory');
 
       urlSearchParams.set('panelView', panelState.panelView);
-      if ('panelNodeID' in panelState) {
+      if (panelState.panelNodeID !== undefined) {
         urlSearchParams.set('panelNodeID', panelState.panelNodeID);
       }
       if ('panelRelatedEventID' in panelState) {

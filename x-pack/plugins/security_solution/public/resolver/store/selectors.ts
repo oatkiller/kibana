@@ -11,6 +11,7 @@ import * as dataSelectors from './data/selectors';
 import * as uiSelectors from './ui/selectors';
 import { ResolverState } from '../types';
 import { eventId } from '../../../common/endpoint/models/event';
+import * as urlSearchSelectors from './url_search/selectors';
 
 /**
  * A matrix that when applied to a Vector2 will convert it from world coordinates to screen coordinates.
@@ -103,17 +104,27 @@ export const focusedNode = composeSelectors(uiStateSelector, uiSelectors.focused
 export const selectedNode = composeSelectors(uiStateSelector, uiSelectors.selectedNode);
 
 // TODO comment
-export const panelNodeID = composeSelectors(uiStateSelector, uiSelectors.panelNodeID);
+export const panelNodeID = composeSelectors(
+  dataStateSelector,
+
+  // this selector works on any state that extends UrlSearchState and composes in the urlSearch reducer
+  urlSearchSelectors.panelNodeID
+);
 
 /**
  * used to power the dropdown that changes it.
  */
-export const panelEventCategory = composeSelectors(uiStateSelector, uiSelectors.panelEventCategory);
+export const panelEventCategory = composeSelectors(
+  dataStateSelector,
+  // this selector works on any state that extends UrlSearchState and composes in the urlSearch reducer
+  urlSearchSelectors.panelEventCategory
+);
 
 // TODO comment
 export const panelRelatedEventID = composeSelectors(
-  uiStateSelector,
-  uiSelectors.panelRelatedEventID
+  dataStateSelector,
+  // this selector works on any state that extends UrlSearchState and composes in the urlSearch reducer
+  urlSearchSelectors.panelRelatedEventID
 );
 
 /**
@@ -253,3 +264,8 @@ export const eventForPanelRelatedEventID = function (state: ResolverState): Reso
   }
   return null;
 };
+
+export const entityIDsToFetchRelatedEventsFor = composeSelectors(
+  dataStateSelector,
+  dataSelectors.entityIDsToFetchRelatedEventsFor
+);

@@ -29,6 +29,15 @@ export interface ResolverState {
   readonly ui: ResolverUIState;
 }
 
+// used in reducers that needs the url's search value
+// TODO comment
+export interface UrlSearchState {
+  /**
+   * The search string from the URL.
+   */
+  readonly urlSearch?: string;
+}
+
 /**
  * Piece of redux state that models an animation for the camera.
  */
@@ -41,11 +50,6 @@ export interface ResolverUIState {
    * The entity_id of selected node
    */
   readonly selectedNode: string | null;
-
-  /**
-   * The search string from the URL.
-   */
-  readonly urlSearch?: string;
 }
 
 /**
@@ -167,7 +171,16 @@ export interface VisibleEntites {
 /**
  * State for `data` reducer which handles receiving Resolver data from the backend.
  */
-export interface DataState {
+export interface DataState extends UrlSearchState {
+  /**
+   * The middleware should fetch related events for any entity IDs in this set.
+   *
+   * // TODO, is this true?
+   * either the entity ID was at some point the panelNodeID (in which case the UI needs the related events.)
+   *
+   * or the user opened the related event dropdown for the node represented by the entity ID
+   */
+  readonly entityIDsRequiringRelatedEvents: Set<string>;
   /**
    * up to 100 related events for various processes.
    */
@@ -175,10 +188,10 @@ export interface DataState {
   /**
    * The request status for related events. The key is the entity_id used in the request.
    * If they map has a key, related events were requested for that id.
-   * If the value if 'true', the events were successfully returned.
-   * if the value is 'false', the events failed to be returned.
+   * If the value if 'true', the request has completed or failed. check `relatedEvents` for data
+   * if the value is 'false', the request hasn't completed or failed
    */
-  readonly relatedEventsReady: Map<string, boolean>;
+  readonly relatedEventsRequestStatus: Map<string, boolean>;
   /**
    * The `_id` for an ES document. Used to select a process that we'll show the graph for.
    */

@@ -343,6 +343,25 @@ export const relatedEventTotalForNode: (
 export const relatedEventsForPanelNodeAreLoading: (
   state: DataState
 ) => (id: string) => boolean = createSelector(
-  ({ relatedEventsReady }) => relatedEventsReady,
+  ({ relatedEventsRequestStatus: relatedEventsReady }) => relatedEventsReady,
   (map) => (id: string) => map.get(id) === false
+);
+
+// if something is in requiredEntityIDs and not in requestStatus, we need to request it
+// anything in request status has been requested at some point.
+// TODO comment
+export const entityIDsToFetchRelatedEventsFor: (
+  state: DataState
+) => ReadonlySet<string> = createSelector(
+  (state: DataState) => state.relatedEventsRequestStatus,
+  (state: DataState) => state.entityIDsRequiringRelatedEvents,
+  (requestStatus, requiredEntityIDs) => {
+    const toRequest = new Set<string>();
+    for (const required of requiredEntityIDs) {
+      if (requestStatus.has(required) === false) {
+        toRequest.add(required);
+      }
+    }
+    return toRequest;
+  }
 );

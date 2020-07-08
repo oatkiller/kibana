@@ -80,6 +80,18 @@ interface ServerReturnedRelatedEventData {
   };
 }
 
+/**
+ * When the user opens a dropdown on the map we fire this. The middleware will request related events for that node.
+ */
+interface UserOpenedRelatedEventDropdown {
+  readonly type: 'userOpenedRelatedEventDropdown';
+
+  /**
+   * entity ID used to make the request.
+   */
+  readonly payload: string;
+}
+
 export type DataAction =
   | ServerReturnedResolverData
   | ServerFailedToReturnResolverData
@@ -87,4 +99,5 @@ export type DataAction =
   | ServerReturnedRelatedEventData
   | AppRequestedResolverData
   | AppRequestedRelatedEventData
-  | AppAbortedResolverDataRequest;
+  | AppAbortedResolverDataRequest
+  | UserOpenedRelatedEventDropdown;

@@ -44,7 +44,7 @@ export const Submenu = React.memo(({ event }: { event: ResolverEvent }) => {
     if (!menuIsOpen) {
       // if the user is opening the menu, fire this
       dispatch({
-        type: 'userRequestedRelatedEventData',
+        type: 'userOpenedRelatedEventDropdown',
         payload: processEventModel.uniquePidForProcess(event),
       });
     }

@@ -8,6 +8,7 @@ import { Reducer } from 'redux';
 import { ResolverUIState } from '../../types';
 import { ResolverAction } from '../actions';
 
+// rename?
 export const uiReducer: Reducer<ResolverUIState, ResolverAction> = (
   state = {
     focusedNode: null,
