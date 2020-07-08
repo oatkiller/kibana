@@ -51,6 +51,7 @@ export const EventCountsForProcess = memo(function EventCountsForProcess({
    * 1 registry
    * So it would be extremely disorienting to show the user a "3" above that as a total.
    */
+  // TODO
   const totalCount = Object.values(relatedStats.events.byCategory).reduce(
     (sum, val) => sum + val,
     0

@@ -19,6 +19,7 @@ import { PanelQueryStringState } from '../../types';
 import { StyledTitleRule } from './styles';
 import * as processEventModel from '../../models/process_event';
 import { usePanelStateSetter } from '../use_panel_state_setter';
+import { formatDate } from './format_date';
 
 /**
  * A helper function to turn objects into EuiDescriptionList entries.
@@ -65,59 +66,24 @@ const TitleHr = memo(() => {
  * This view presents a detailed view of all the available data for a related event, split and titled by the "section"
  * it appears in the underlying ResolverEvent
  */
-export const RelatedEventDetail = memo(function RelatedEventDetail({
+export const NodeEventsDetail = memo(function ({
   parentEvent,
   relatedEvent,
 }: {
   relatedEvent: ResolverEvent;
   parentEvent: ResolverEvent;
 }) {
+  const panelEventCategory = useSelector(selectors.panelEventCategory);
+  const countBySameCategory = useSelector(selectors.relatedEventsForPanelNodeWithPanelFirstCategory)
+    .length;
   const setPanelState = usePanelStateSetter();
   const processName = processEventModel.name(parentEvent);
   const nodeID = processEventModel.uniquePidForProcess(parentEvent);
   const totalCount = countForParent || 0;
-  const eventsString = i18n.translate(
-    'xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.events',
-    {
-      defaultMessage: 'Events',
-    }
-  );
-  const naString = i18n.translate(
-    'xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.NA',
-    {
-      defaultMessage: 'N/A',
-    }
-  );
-
-  const relatedEventsForThisProcess = useSelector(selectors.relatedEventsForNodeID).get(nodeID!);
-
-  const [relatedEventToShowDetailsFor, countBySameCategory, relatedEventCategory] = useMemo(() => {
-    if (!relatedEventsForThisProcess) {
-      return [undefined, 0];
-    }
-    const specificEvent = relatedEventsForThisProcess.events.find(
-      (event) => uniquePidForProcess(event) === relatedEventId
-    );
-    // For breadcrumbs:
-    const specificCategory = specificEvent && event.primaryEventCategory(specificEvent);
-    const countOfCategory = relatedEventsForThisProcess.events.reduce((sumtotal, event) => {
-      return event.primaryEventCategory(event) === specificCategory ? sumtotal + 1 : sumtotal;
-    }, 0);
-    return [specificEvent, countOfCategory, specificCategory || naString];
-  }, [relatedEventsForThisProcess, naString, relatedEventId]);
 
   const [sections, formattedDate] = useMemo(() => {
-    if (!relatedEventToShowDetailsFor) {
-      // This could happen if user relaods from URL param and requests an eventId that no longer exists
-      return [[], naString];
-    }
     // Assuming these details (agent, ecs, process) aren't as helpful, can revisit
-    const {
-      agent,
-      ecs,
-      process,
-      ...relevantData
-    } = relatedEventToShowDetailsFor as ResolverEvent & {
+    const { agent, ecs, process, ...relevantData } = relatedEvent as ResolverEvent & {
       ecs: unknown;
     };
     let displayDate = '';
@@ -137,26 +103,18 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
       })
       .filter((v) => v.sectionTitle !== '' && v.entries.length);
     return [sectionData, displayDate];
-  }, [relatedEventToShowDetailsFor, naString]);
+  }, [relatedEvent]);
 
-  const waitCrumbs = useMemo(() => {
-    return [
-      {
-        text: eventsString,
-        onClick: () => {
-          setPanelState({ panelView: 'node' });
-        },
-      },
-    ];
-  }, [setPanelState, eventsString]);
-
-  const { subject = '', descriptor = '' } = relatedEventToShowDetailsFor
-    ? event.descriptiveName(relatedEventToShowDetailsFor)
-    : {};
+  const { subject = '', descriptor = '' } = relatedEvent ? event.descriptiveName(relatedEvent) : {};
   const crumbs = useMemo(() => {
     return [
       {
-        text: eventsString,
+        text: i18n.translate(
+          'xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.events',
+          {
+            defaultMessage: 'Events',
+          }
+        ),
         onClick: () => {
           setPanelState({ panelView: 'node' });
         },
@@ -186,7 +144,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
           <>
             <FormattedMessage
               id="xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.countByCategory"
-              values={{ count: countBySameCategory, category: relatedEventCategory }}
+              values={{ count: countBySameCategory, category: panelEventCategory }}
               defaultMessage="{count} {category}"
             />
           </>
@@ -196,73 +154,31 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
             panelView: 'nodeEvents',
             panelNodeID: nodeID,
             // this might be undefined
-            panelEventCategory: relatedEventCategory,
+            panelEventCategory,
           });
         },
       },
       {
-        text: relatedEventToShowDetailsFor ? (
+        text: (
           <FormattedMessage
             id="xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.eventDescriptiveName"
             values={{ subject, descriptor }}
             defaultMessage="{descriptor} {subject}"
           />
-        ) : (
-          naString
         ),
         onClick: () => {},
       },
     ];
   }, [
+    panelEventCategory,
+    setPanelState,
     processName,
     nodeID,
-    eventsString,
-    pushToQueryParams,
     totalCount,
     countBySameCategory,
-    naString,
-    relatedEventCategory,
-    relatedEventToShowDetailsFor,
     subject,
     descriptor,
   ]);
-
-  /**
-   * If the ship hasn't come in yet, wait on the dock
-   */
-  if (!relatedsReady) {
-    const waitingString = i18n.translate(
-      'xpack.securitySolution.endpoint.resolver.panel.relatedDetail.wait',
-      {
-        defaultMessage: 'Waiting For Events...',
-      }
-    );
-    return (
-      <>
-        <StyledBreadcrumbs breadcrumbs={waitCrumbs} />
-        <EuiSpacer size="l" />
-        <EuiTitle>
-          <h4>{waitingString}</h4>
-        </EuiTitle>
-      </>
-    );
-  }
-
-  /**
-   * Could happen if user e.g. loads a URL with a bad crumbEvent
-   */
-  if (!relatedEventToShowDetailsFor) {
-    return (
-      <PanelContentError
-        translatedErrorMessage={i18n.translate(
-          'xpack.securitySolution.endpoint.resolver.panel.relatedDetail.missing',
-          {
-            defaultMessage: 'Related event not found.',
-          }
-        )}
-      />
-    );
-  }
 
   return (
     <>
@@ -274,7 +190,7 @@ export const RelatedEventDetail = memo(function RelatedEventDetail({
             id="xpack.securitySolution.endpoint.resolver.panel.relatedEventDetail.categoryAndType"
             values={{
               category: relatedEventCategory,
-              eventType: String(event.ecsEventType(relatedEventToShowDetailsFor)),
+              eventType: String(event.ecsEventType(relatedEvent)),
             }}
             defaultMessage="{category} {eventType}"
           />

@@ -188,6 +188,7 @@ const indexedProcessNodesAndEdgeLineSegments = composeSelectors(
 
 /**
  * Total count of related events for a node.
+ * TODO, what is this
  */
 export const relatedEventTotalForNode = composeSelectors(
   dataStateSelector,
@@ -225,6 +226,18 @@ export const relatedEventsForNode: (
 ) => (nodeID: string) => ResolverEvent[] = composeSelectors(
   dataStateSelector,
   dataSelectors.relatedEventsForNode
+);
+
+/**
+ * return events related to `panelNodeID` whose first category is `panelEventCategory`.
+ * if there is a panelNodeID and panelEventCategory
+ * TODO, implement
+ */
+export const relatedEventsForPanelNodeWithPanelFirstCategory: (
+  state: ResolverState
+) => ResolverEvent[] = composeSelectors(
+  dataStateSelector,
+  dataSelectors.relatedEventsForPanelNodeWithPanelFirstCategory
 );
 
 export const relatedEventsForPanelNodeAreLoading = composeSelectors(
@@ -269,3 +282,5 @@ export const entityIDsToFetchRelatedEventsFor = composeSelectors(
   dataStateSelector,
   dataSelectors.entityIDsToFetchRelatedEventsFor
 );
+
+export const;

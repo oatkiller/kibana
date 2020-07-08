@@ -78,25 +78,6 @@ export function getAncestryAsArray(event: ResolverEvent | undefined): string[] {
 }
 
 /**
- * @param event The event to get the category for
- */
-// TODO cleanup should be in Resolver code
-export function primaryEventCategory(event: ResolverEvent): string | undefined {
-  // Returning "Process" as a catch-all here because it seems pretty general
-  if (isLegacyEvent(event)) {
-    const legacyFullType = event.endgame.event_type_full;
-    if (legacyFullType) {
-      return legacyFullType;
-    }
-  } else {
-    const eventCategories = event.event.category;
-    const category = typeof eventCategories === 'string' ? eventCategories : eventCategories[0];
-
-    return category;
-  }
-}
-
-/**
  * ECS event type will be things like 'creation', 'deletion', 'access', etc.
  * see: https://www.elastic.co/guide/en/ecs/current/ecs-event.html
  * @param event The ResolverEvent to get the ecs type for

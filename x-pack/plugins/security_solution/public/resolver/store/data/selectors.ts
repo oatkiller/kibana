@@ -27,6 +27,7 @@ import { isEqual } from '../../models/aabb';
 import { ResolverEvent, ResolverTree, ResolverNodeStats } from '../../../../common/endpoint/types';
 import * as resolverTreeModel from '../../models/resolver_tree';
 import { isometricTaxiLayout } from '../../models/indexed_process_tree/isometric_taxi_layout';
+import * as urlSearchSelectors from '../url_search/selectors';
 
 /**
  * If there is currently a request.
@@ -363,5 +364,19 @@ export const entityIDsToFetchRelatedEventsFor: (
       }
     }
     return toRequest;
+  }
+);
+
+export const relatedEventsForPanelNodeWithPanelFirstCategory = createSelector(
+  urlSearchSelectors.panelNodeID,
+  urlSearchSelectors.panelEventCategory,
+  relatedEventsForNode,
+  function (panelNodeID, panelEventCategory, relatedEvents) {
+    if (panelNodeID === undefined || panelEventCategory === undefined) {
+      return [];
+    }
+    return relatedEvents(panelNodeID).filter(
+      (event) => firstCategory(event) === panelEventCategory
+    );
   }
 );

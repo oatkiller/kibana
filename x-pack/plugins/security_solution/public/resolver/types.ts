@@ -517,6 +517,7 @@ export type PanelQueryStringState =
            * An event category.
            * If present a list of related events of this category will be shown.
            */
+          // TODO, name it panelFirstEventCategory since thats what it does
           panelEventCategory: string;
         }
     ));

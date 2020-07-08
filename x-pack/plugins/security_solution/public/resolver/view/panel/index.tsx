@@ -14,6 +14,9 @@ import { NodeDetail } from './node_detail';
 import { NodeEventsByCategory } from './node_events_by_category';
 import { NodeIndex } from './node_index';
 import { PanelQueryStringState } from '../../types';
+import { NodeEventsLoading } from './node_events_loading';
+import { NodeEventsDetail } from './node_events_detail';
+import { NodeEventsFailedToLoad } from './node_events_failed_to_load';
 
 export const Panel = memo(function ({ className }: { className?: string }) {
   // true if the overall graph is loading
@@ -23,7 +26,6 @@ export const Panel = memo(function ({ className }: { className?: string }) {
   declare const nodesFailedToLoad: boolean;
 
   // true if the tree loaded, there is a panelNodeID, and events for that nodeID were in the tree response
-  declare const panelNodeInResponse: boolean;
 
   // true if the middleware is waiting for a response containing related events for panelNodeID
   declare const relatedEventsForPanelNodeAreLoading: boolean;
@@ -32,7 +34,6 @@ export const Panel = memo(function ({ className }: { className?: string }) {
   declare const relatedEventsForPanelNodeFailedToLoad: boolean;
 
   // true if there is a panelNodeID and a panelRelatedEventID and if there are related events in memory for panelNodeID and if those events contain data for panelRelatedEventID
-  declare const panelRelatedEventInResponse: boolean;
 
   // a failure dialog when the overall tree fails to load
   declare const NodesFailedToLoad: React.FC;
@@ -41,25 +42,15 @@ export const Panel = memo(function ({ className }: { className?: string }) {
   declare const NodesLoading: React.FC;
 
   // A failure dialog for when the panelNodeID's event wasn't in the tree response
-  declare const NodeDetailNotFound: React.FC;
-
-  // A messages to be shown in place of any related events panel if the the middleware is waiting for a response containing related events for panelNodeID
-  declare const NodeEventsLoading: React.FC;
-
-  // a failure message for when the response w/ related events for the panelNodeID failed.
-  declare const NodeEventsFailedToLoad: React.FC;
+  declare const PanelNodeNotFound: React.FC;
 
   // a 404-type message for when the panel query string parameters were invalid.
   declare const PanelNotFound: React.FC;
 
   // when showing details about an event, if we counldn't find the node itself in memory, show this error message.
-  declare const NodeEventsNodeNotFound: React.FC;
 
   // if we wanted to show the details of an event but that event was not found in the related events for the related node, show this error message.
   declare const NodeEventsEventNotFound: React.FC;
-
-  // shows the details of an event, along with its related node
-  declare const NodeEventsDetail: React.FC<{ nodeID: string; eventID: string }>;
 
   // shows summary of all related events for a node
   declare const NodeEventsIndex: React.FC<{ nodeID: string }>;
@@ -67,6 +58,8 @@ export const Panel = memo(function ({ className }: { className?: string }) {
   declare const panelQueryStringState: PanelQueryStringState;
 
   const processEventForPanelNodeID = useSelector(selectors.processEventForPanelNodeID);
+
+  const eventForPanelRelatedEventID = useSelector(selectors.eventForPanelRelatedEventID);
 
   return (
     <EuiPanel className={className}>
@@ -82,32 +75,28 @@ export const Panel = memo(function ({ className }: { className?: string }) {
           } else if (nodesFailedToLoad) {
             // if the graph failed to load, show an error
             return <NodesFailedToLoad />;
-          }
-
-          // only the `NodeIndex` view doesn't need a node process event.
-
-          if (panelQueryStringState.panelView === 'node') {
-            if (panelQueryStringState.panelNodeID) {
-              if (processEventForPanelNodeID === null) {
-                // the node wasn't in the tree, show an error
-                return <NodeDetailNotFound />;
-              } else {
-                // show the detail veiw of a node
-                // TODO, you cant use a single process for this.
-                return <NodeDetail processEvent={processEventForPanelNodeID} />;
-              }
-            } else {
-              // show the list of nodes
-              return <NodeIndex />;
-            }
+          } else if (
+            // only the `NodeIndex` view doesn't need a node process event.
+            // handle it now so that the rest of the views can share the same processEventForPanelNodeID loading logic inline
+            panelQueryStringState.panelView === 'node' &&
+            panelQueryStringState.panelNodeID === undefined
+          ) {
+            // show the list of nodes
+            return <NodeIndex />;
+          } else if (
+            // all other views require `processEventForPanelNodeID`
+            processEventForPanelNodeID === null
+          ) {
+            // the node wasn't in the tree, show an error
+            return <PanelNodeNotFound />;
+          } else if (panelQueryStringState.panelView === 'node') {
+            // show the detail veiw of a node
+            // TODO, you cant use a single process for this.
+            return <NodeDetail processEvent={processEventForPanelNodeID} />;
           } else if (panelQueryStringState.panelView === 'nodeEvents') {
             // this branch shows events related to a node.
 
-            if (panelNodeInResponse === false) {
-              // we couldn't find the node to begin with.
-              // TODO, different component name?
-              return <NodeEventsNodeNotFound />;
-            } else if (relatedEventsForPanelNodeAreLoading) {
+            if (relatedEventsForPanelNodeAreLoading) {
               // the middleware only hits one resource for these types of panels. it gets the oldest 100 related events (of any type) for the node.
               return <NodeEventsLoading />;
             } else if (relatedEventsForPanelNodeFailedToLoad) {
@@ -116,14 +105,14 @@ export const Panel = memo(function ({ className }: { className?: string }) {
 
             if ('panelRelatedEventID' in panelQueryStringState) {
               // if `panelRelatedEventID` is found, show the details of a specific event
-              if (panelRelatedEventInResponse === false) {
-                // either we didn't get the node or we didn't get the related event
+              if (eventForPanelRelatedEventID === null) {
+                // we didn't get the related event
                 return <NodeEventsEventNotFound />;
               } else {
                 return (
                   <NodeEventsDetail
-                    nodeID={panelQueryStringState.panelNodeID}
-                    eventID={panelQueryStringState.panelRelatedEventID}
+                    parentEvent={processEventForPanelNodeID}
+                    relatedEvent={eventForPanelRelatedEventID}
                   />
                 );
               }
@@ -136,7 +125,7 @@ export const Panel = memo(function ({ className }: { className?: string }) {
                 />
               );
             } else {
-              return <NodeEventsIndex nodeID={panelQueryStringState.panelNodeID} />;
+              return <NodeEventsIndex process={processEventForPanelNodeID} />;
               // showing the summary of related events for a node
             }
           }
