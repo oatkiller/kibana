@@ -71,8 +71,8 @@ export function ResolverTreeFetcher(
         result = await context.services.http.get(`/api/endpoint/resolver/${entityIDToFetch}`, {
           signal: lastRequestAbortController.signal,
           query: {
-            children: 5,
-            ancestors: 5,
+            children: 2000,
+            ancestors: 2000,
           },
         });
       } catch (error) {
