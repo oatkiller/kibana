@@ -27,8 +27,11 @@ export const sideEffectSimulator: () => SideEffectSimulator = () => {
     target,
     contentRect
   ) => {
+    // keep a reference to the expected size so that later calls to `getBoundingClientRect` can return it
     contentRects.set(target, contentRect);
+
     for (const instance of resizeObserverInstances) {
+      // trigger a resize on any resize observers (that are using this element.)
       instance.simulateElementResize(target, contentRect);
     }
   };
@@ -36,7 +39,7 @@ export const sideEffectSimulator: () => SideEffectSimulator = () => {
   /**
    * Get the simulate `DOMRect` for `element`.
    */
-  const contentRectForElement: (target: Element) => DOMRect = (target) => {
+  const getBoundingClientRectMockImplementation: (target: Element) => DOMRect = (target) => {
     if (contentRects.has(target)) {
       return contentRects.get(target)!;
     }
@@ -62,7 +65,7 @@ export const sideEffectSimulator: () => SideEffectSimulator = () => {
   jest
     .spyOn(Element.prototype, 'getBoundingClientRect')
     .mockImplementation(function (this: Element) {
-      return contentRectForElement(this);
+      return getBoundingClientRectMockImplementation(this);
     });
 
   /**
