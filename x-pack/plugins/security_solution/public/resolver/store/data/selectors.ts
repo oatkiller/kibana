@@ -110,8 +110,15 @@ export const terminatedProcesses = createSelector(resolverTreeResponse, function
  * Process events that will be graphed.
  */
 export const graphableProcesses = createSelector(resolverTreeResponse, function (tree?) {
+  const unique: Map<string, ResolverEvent> = new Map();
   if (tree) {
-    return resolverTreeModel.lifecycleEvents(tree).filter(isGraphableProcess);
+    for (const event of resolverTreeModel.lifecycleEvents(tree)) {
+      const entityID = eventModel.entityIDSafeVersion(event as SafeResolverEvent);
+      if (entityID !== undefined && !unique.has(entityID)) {
+        unique.set(entityID, event);
+      }
+    }
+    return [...unique.values()];
   } else {
     return [];
   }
