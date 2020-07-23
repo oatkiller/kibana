@@ -152,7 +152,7 @@ export interface IndexedEdgeLineSegment extends BBox {
  */
 export interface IndexedProcessNode extends BBox {
   type: 'processNode';
-  entity: ResolverEvent;
+  entity: SafeResolverEvent;
   position: Vector2;
 }
 
@@ -287,11 +287,11 @@ export interface IndexedProcessTree {
 /**
  * A map of ProcessEvents (representing process nodes) to the 'width' of their subtrees as calculated by `widthsOfProcessSubtrees`
  */
-export type ProcessWidths = Map<ResolverEvent, number>;
+export type ProcessWidths = Map<SafeResolverEvent, number>;
 /**
  * Map of ProcessEvents (representing process nodes) to their positions. Calculated by `processPositions`
  */
-export type ProcessPositions = Map<ResolverEvent, Vector2>;
+export type ProcessPositions = Map<SafeResolverEvent, Vector2>;
 
 export type DurationTypes =
   | 'millisecond'
@@ -343,11 +343,11 @@ export interface EdgeLineSegment {
  * Used to provide precalculated info from `widthsOfProcessSubtrees`. These 'width' values are used in the layout of the graph.
  */
 export type ProcessWithWidthMetadata = {
-  process: ResolverEvent;
+  process: SafeResolverEvent;
   width: number;
 } & (
   | {
-      parent: ResolverEvent;
+      parent: SafeResolverEvent;
       parentWidth: number;
       isOnlyChild: boolean;
       firstChildWidth: number;
@@ -430,7 +430,7 @@ export interface IsometricTaxiLayout {
   /**
    * A map of events to position. each event represents its own node.
    */
-  processNodePositions: Map<ResolverEvent, Vector2>;
+  processNodePositions: Map<SafeResolverEvent, Vector2>;
   /**
    * A map of edgline segments, which graphically connect nodes.
    */
@@ -439,5 +439,5 @@ export interface IsometricTaxiLayout {
   /**
    * defines the aria levels for nodes.
    */
-  ariaLevels: Map<ResolverEvent, number>;
+  ariaLevels: Map<SafeResolverEvent, number>;
 }

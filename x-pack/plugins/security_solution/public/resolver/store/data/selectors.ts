@@ -364,11 +364,7 @@ export const layout = createSelector(
     }
 
     // Find the position of the origin, we'll center the map on it intrinsically
-    const originPosition = isometricTaxiLayoutModel.nodePosition(
-      taxiLayout,
-      /** TODO unsafe cast */
-      originNode as ResolverEvent
-    );
+    const originPosition = isometricTaxiLayoutModel.nodePosition(taxiLayout, originNode);
     // adjust the position of everything so that the origin node is at `(0, 0)`
 
     if (originPosition === undefined) {
@@ -404,7 +400,7 @@ export const ariaLevel: (state: DataState) => (nodeID: string) => number | null 
   processEventForID,
   ({ ariaLevels }, processEventGetter) => (nodeID: string) => {
     const node = processEventGetter(nodeID);
-    return node ? ariaLevels.get(node) ?? null : null;
+    return node ? ariaLevels.get(node as SafeResolverEvent) ?? null : null;
   }
 );
 
@@ -502,7 +498,7 @@ const spatiallyIndexedLayout: (state: DataState) => rbush<IndexedEntity> = creat
         maxX: nodeX + 0.5 * processNodeViewWidth,
         maxY: nodeY + 0.5 * processNodeViewHeight,
         position,
-        entity: processEvent,
+        entity: processEvent as ResolverEvent,
         type: 'processNode',
       };
       processesToIndex.push(indexedEvent);
@@ -551,7 +547,7 @@ export const nodesAndEdgelines: (
       maxX,
       maxY,
     });
-    const visibleProcessNodePositions = new Map<ResolverEvent, Vector2>(
+    const visibleProcessNodePositions = new Map<SafeResolverEvent, Vector2>(
       entities
         .filter((entity): entity is IndexedProcessNode => entity.type === 'processNode')
         .map((node) => [node.entity, node.position])
