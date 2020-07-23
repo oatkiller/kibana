@@ -7,7 +7,12 @@
 import { Store } from 'redux';
 import { BBox } from 'rbush';
 import { ResolverAction } from './store/actions';
-import { ResolverEvent, ResolverRelatedEvents, ResolverTree } from '../../common/endpoint/types';
+import {
+  ResolverEvent,
+  ResolverRelatedEvents,
+  ResolverTree,
+  SafeResolverEvent,
+} from '../../common/endpoint/types';
 
 /**
  * Redux state for the Resolver feature. Properties on this interface are populated via multiple reducers using redux's `combineReducers`.
@@ -272,11 +277,11 @@ export interface IndexedProcessTree {
   /**
    * Map of ID to a process's ordered children
    */
-  idToChildren: Map<string | undefined, ResolverEvent[]>;
+  idToChildren: Map<string | undefined, SafeResolverEvent[]>;
   /**
    * Map of ID to process
    */
-  idToProcess: Map<string, ResolverEvent>;
+  idToProcess: Map<string, SafeResolverEvent>;
 }
 
 /**

@@ -28,10 +28,11 @@ import {
   ResolverTree,
   ResolverNodeStats,
   ResolverRelatedEvents,
+  SafeResolverEvent,
 } from '../../../../common/endpoint/types';
 import * as resolverTreeModel from '../../models/resolver_tree';
 import * as isometricTaxiLayoutModel from '../../models/indexed_process_tree/isometric_taxi_layout';
-import { allEventCategories } from '../../../../common/endpoint/models/event';
+import * as eventModel from '../../../../common/endpoint/models/event';
 import * as vector2 from '../../models/vector2';
 
 /**
@@ -124,7 +125,9 @@ export const tree = createSelector(graphableProcesses, function indexedTree(
   graphableProcesses
   /* eslint-enable no-shadow */
 ) {
-  return indexedProcessTreeModel.factory(graphableProcesses);
+  return indexedProcessTreeModel.factory(
+    /** TODO remove */ graphableProcesses as SafeResolverEvent[]
+  );
 });
 
 /**
@@ -173,7 +176,9 @@ export const relatedEventsByCategory: (
         }
         return relatedById.events.reduce(
           (eventsByCategory: ResolverEvent[], candidate: ResolverEvent) => {
-            if ([candidate && allEventCategories(candidate)].flat().includes(ecsCategory)) {
+            if (
+              [candidate && eventModel.allEventCategories(candidate)].flat().includes(ecsCategory)
+            ) {
               eventsByCategory.push(candidate);
             }
             return eventsByCategory;
@@ -259,7 +264,7 @@ export const relatedEventInfoByEntityId: (
           return [];
         }
         return eventsResponseForThisEntry.events.filter((resolverEvent) => {
-          for (const category of [allEventCategories(resolverEvent)].flat()) {
+          for (const category of [eventModel.allEventCategories(resolverEvent)].flat()) {
             if (category === eventCategory) {
               return true;
             }
@@ -359,7 +364,11 @@ export const layout = createSelector(
     }
 
     // Find the position of the origin, we'll center the map on it intrinsically
-    const originPosition = isometricTaxiLayoutModel.nodePosition(taxiLayout, originNode);
+    const originPosition = isometricTaxiLayoutModel.nodePosition(
+      taxiLayout,
+      /** TODO unsafe cast */
+      originNode as ResolverEvent
+    );
     // adjust the position of everything so that the origin node is at `(0, 0)`
 
     if (originPosition === undefined) {
@@ -383,7 +392,8 @@ export const processEventForID: (
 ) => (nodeID: string) => ResolverEvent | null = createSelector(
   tree,
   (indexedProcessTree) => (nodeID: string) =>
-    indexedProcessTreeModel.processEvent(indexedProcessTree, nodeID)
+    /** TODO unsafe cast */
+    indexedProcessTreeModel.processEvent(indexedProcessTree, nodeID) as ResolverEvent
 );
 
 /**
@@ -447,10 +457,14 @@ export const ariaFlowtoCandidate: (
       for (const child of children) {
         if (previousChild !== null) {
           // Set the `child` as the following sibling of `previousChild`.
-          memo.set(uniquePidForProcess(previousChild), uniquePidForProcess(child));
+          memo.set(
+            uniquePidForProcess(previousChild),
+            uniquePidForProcess(/** TODO unsafe cast */ child as ResolverEvent)
+          );
         }
         // Set the child as the previous child.
-        previousChild = child;
+        /** TODO unsafe cast */
+        previousChild = child as ResolverEvent;
       }
 
       if (previousChild) {

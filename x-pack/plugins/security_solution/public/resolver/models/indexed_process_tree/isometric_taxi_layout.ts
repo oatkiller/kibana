@@ -14,7 +14,7 @@ import {
   Matrix3,
   IsometricTaxiLayout,
 } from '../../types';
-import * as event from '../../../../common/endpoint/models/event';
+import * as eventModel from '../../../../common/endpoint/models/event';
 import { ResolverEvent } from '../../../../common/endpoint/types';
 import * as vector2 from '../vector2';
 import * as indexedProcessTreeModel from './index';
@@ -89,16 +89,19 @@ function ariaLevels(indexedProcessTree: IndexedProcessTree): Map<ResolverEvent, 
     const parentNode = indexedProcessTreeModel.parent(indexedProcessTree, node);
     if (parentNode === undefined) {
       // nodes at the root have a level of 1
-      map.set(node, 1);
+      // TODO unsafe cast
+      map.set(node as ResolverEvent, 1);
     } else {
-      const parentLevel: number | undefined = map.get(parentNode);
+      const parentLevel: number | undefined = map.get(
+        /** TODO unsafe case **/ parentNode as ResolverEvent
+      );
 
       // because we're iterating in level order, we should have processed the parent of any node that has one.
       if (parentLevel === undefined) {
         throw new Error('failed to calculate aria levels');
       }
 
-      map.set(node, parentLevel + 1);
+      map.set(/** TODO unsafe cast */ node as ResolverEvent, parentLevel + 1);
     }
   }
   return map;
@@ -149,9 +152,10 @@ function widthsOfProcessSubtrees(indexedProcessTree: IndexedProcessTree): Proces
     return widths;
   }
 
+  /** TODO unsafe cast */
   const processesInReverseLevelOrder: ResolverEvent[] = [
     ...indexedProcessTreeModel.levelOrder(indexedProcessTree),
-  ].reverse();
+  ].reverse() as ResolverEvent[];
 
   for (const process of processesInReverseLevelOrder) {
     const children = indexedProcessTreeModel.children(
@@ -167,7 +171,13 @@ function widthsOfProcessSubtrees(indexedProcessTree: IndexedProcessTree): Proces
          * Therefore a parent can always find a width for its children, since all of its children
          * will have been handled already.
          */
-        return currentValue + widths.get(child)!;
+        return (
+          currentValue +
+          widths.get(
+            /** TODO unsafe cast */
+            child as ResolverEvent
+          )!
+        );
       }, 0);
     };
 
@@ -196,8 +206,8 @@ function processEdgeLineSegments(
     const { process, parent, parentWidth } = metadata;
     const position = positions.get(process);
     const parentPosition = positions.get(parent);
-    const parentId = event.entityId(parent);
-    const processEntityId = event.entityId(process);
+    const parentId = eventModel.entityId(parent);
+    const processEntityId = eventModel.entityId(process);
     const edgeLineId = parentId ? parentId + processEntityId : parentId;
 
     if (position === undefined || parentPosition === undefined) {
@@ -207,8 +217,8 @@ function processEdgeLineSegments(
       throw new Error();
     }
 
-    const parentTime = event.eventTimestamp(parent);
-    const processTime = event.eventTimestamp(process);
+    const parentTime = eventModel.eventTimestamp(parent);
+    const processTime = eventModel.eventTimestamp(process);
     if (parentTime && processTime) {
       edgeLineMetadata.elapsedTime = elapsedTime(parentTime, processTime) ?? undefined;
     }
@@ -394,7 +404,10 @@ function* levelOrderWithWidths(
 ): Iterable<ProcessWithWidthMetadata> {
   for (const process of indexedProcessTreeModel.levelOrder(tree)) {
     const parent = indexedProcessTreeModel.parent(tree, process);
-    const width = widths.get(process);
+    const width = widths.get(
+      /** TODO unsafe cast */
+      process as ResolverEvent
+    );
 
     if (width === undefined) {
       /**
@@ -406,7 +419,8 @@ function* levelOrderWithWidths(
     /** If the parent is undefined, we are processing the root. */
     if (parent === undefined) {
       yield {
-        process,
+        /** TODO unsafe cast */
+        process: process as ResolverEvent,
         width,
         parent: null,
         parentWidth: null,
@@ -415,7 +429,7 @@ function* levelOrderWithWidths(
         lastChildWidth: null,
       };
     } else {
-      const parentWidth = widths.get(parent);
+      const parentWidth = widths.get(/** TODO unsafe cast */ parent as ResolverEvent);
 
       if (parentWidth === undefined) {
         /**
@@ -425,20 +439,27 @@ function* levelOrderWithWidths(
       }
 
       const metadata: Partial<ProcessWithWidthMetadata> = {
-        process,
+        /** TODO unsafe cast */
+        process: process as ResolverEvent,
         width,
-        parent,
+        /** TODO unsafe cast */
+        parent: parent as ResolverEvent,
         parentWidth,
       };
 
-      const siblings = indexedProcessTreeModel.children(tree, uniquePidForProcess(parent));
+      const siblings = indexedProcessTreeModel.children(
+        tree,
+        eventModel.entityIDSafeVersion(parent)
+      );
       if (siblings.length === 1) {
         metadata.isOnlyChild = true;
         metadata.lastChildWidth = width;
         metadata.firstChildWidth = width;
       } else {
-        const firstChildWidth = widths.get(siblings[0]);
-        const lastChildWidth = widths.get(siblings[siblings.length - 1]);
+        const firstChildWidth = widths.get(/** TODO unsafe cast */ siblings[0] as ResolverEvent);
+        const lastChildWidth = widths.get(
+          /** TODO unsafe cast */ siblings[siblings.length - 1] as ResolverEvent
+        );
         if (firstChildWidth === undefined || lastChildWidth === undefined) {
           /**
            * All widths have been precalcluated, so this will not happen.
