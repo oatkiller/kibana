@@ -17,6 +17,12 @@ interface SpyMiddleware {
    * A generator that returns all state and action pairs that pass through the middleware.
    */
   actions: () => AsyncGenerator<StateActionPair, never, unknown>;
+
+  /**
+   * Prints actions to the console.
+   * Call the returned function to stop debugging.
+   */
+  debugActions: () => () => void;
 }
 
 interface StateActionPair {
@@ -27,6 +33,16 @@ interface StateActionPair {
 // TODO, rename file
 export const spyMiddlewareFactory: () => SpyMiddleware = () => {
   const resolvers: Set<(stateActionPair: StateActionPair) => void> = new Set();
+
+  const actions = async function* actions() {
+    while (true) {
+      const promise: Promise<StateActionPair> = new Promise((resolve) => {
+        resolvers.add(resolve);
+      });
+      yield await promise;
+    }
+  };
+
   return {
     middleware: (api) => (next) => (action: ResolverAction) => {
       const state = api.getState();
@@ -38,12 +54,21 @@ export const spyMiddlewareFactory: () => SpyMiddleware = () => {
 
       next(action);
     },
-    async *actions() {
-      while (true) {
-        yield await new Promise((resolve) => {
-          resolvers.add(resolve);
-        });
-      }
+    actions,
+    debugActions() {
+      let stop: boolean = false;
+      (async () => {
+        for await (const action of actions()) {
+          if (stop) {
+            break;
+          }
+          // eslint-disable-next-line no-console
+          console.log('action', action);
+        }
+      })();
+      return () => {
+        stop = true;
+      };
     },
   };
 };

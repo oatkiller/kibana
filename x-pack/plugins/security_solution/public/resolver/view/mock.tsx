@@ -8,18 +8,16 @@
 
 /* eslint-disable react/display-name */
 
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import { I18nProvider } from '@kbn/i18n/react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
-import { mockDataAccessLayer } from '../data_access_layer/mock';
 import { KibanaContextProvider } from '../../../../../../src/plugins/kibana_react/public';
 import { coreMock } from '../../../../../../src/core/public/mocks';
 import { CoreStart } from '../../../../../../src/core/public';
-import { storeFactory } from '../store';
-import { DataAccessLayer, ResolverState, SideEffectSimulator, ResolverProps } from '../types';
+import { ResolverState, SideEffectSimulator, ResolverProps } from '../types';
 import { ResolverAction } from '../store/actions';
 import { ResolverWithoutProviders } from './resolver_without_providers';
 import { SideEffectContext } from './side_effect_context';
@@ -62,14 +60,19 @@ export const MockResolver = React.memo((props: MockResolverProps) => {
   // Get the history object from props, or create it if needed.
   const history = useMemo(() => props.history ?? createMemoryHistory(), [props.history]);
 
+  const [resolverElement, setResolverElement] = useState<HTMLDivElement | null>(null);
+
   // Get a ref to the underlying Resolver element so we can resize.
-  const resolverRef = useRef<HTMLDivElement>();
+  // Use a callback function because the underlying DOM node can change. In fact, `enzyme` seems to change it a lot.
+  const resolverRef = useCallback((element: HTMLDivElement | null) => {
+    setResolverElement(element);
+  }, []);
 
   const simulator: SideEffectSimulator = useMemo(() => sideEffectSimulator(), []);
 
-  // Resize the Resolver element to match the passed in props. Resolver is size dependent
+  // Resize the Resolver element to match the passed in props. Resolver is size dependent.
   useEffect(() => {
-    if (resolverRef.current) {
+    if (resolverElement) {
       const size: DOMRect = {
         width: props.rasterWidth ?? 1600,
         height: props.rasterHeight ?? 1200,
@@ -83,9 +86,9 @@ export const MockResolver = React.memo((props: MockResolverProps) => {
           return this;
         },
       };
-      simulator.controls.simulateElementResize(resolverRef.current, size);
+      simulator.controls.simulateElementResize(resolverElement, size);
     }
-  }, [props.rasterWidth, props.rasterHeight, simulator.controls]);
+  }, [props.rasterWidth, props.rasterHeight, simulator.controls, resolverElement]);
 
   return (
     <I18nProvider>

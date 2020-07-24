@@ -28,7 +28,6 @@ function resolverNodeSelector(entityID?: string): string {
 describe('Resolver, when analyzing a tree that has 1 ancestor and 2 children', () => {
   let store: Store<ResolverState, ResolverAction>;
   let wrapper: ReactWrapper;
-  let actions: () => AsyncGenerator<{ action: ResolverAction; state: ResolverState }>;
   beforeEach(async () => {
     const spyMiddleware = spyMiddlewareFactory();
 
@@ -37,7 +36,7 @@ describe('Resolver, when analyzing a tree that has 1 ancestor and 2 children', (
       spyMiddleware.middleware
     );
 
-    actions = spyMiddleware.actions;
+    spyMiddleware.debugActions();
 
     store = createStore(resolverReducer, middlewareEnhancer);
 
@@ -62,13 +61,6 @@ describe('Resolver, when analyzing a tree that has 1 ancestor and 2 children', (
       // TODO, we need a way to get from the `mockDataAccessLayer` to the related nodes.
       // find the first button (DOM order.)
       wrapper.find(`${resolverNodeSelector()} button`);
-
-      (async () => {
-        for await (const action of actions()) {
-          // TODO, why is this setting a raster size of 0, 0?
-          console.log('action', action);
-        }
-      })();
 
       // click it
       wrapper.simulate('click');
