@@ -297,7 +297,7 @@ const UnstyledProcessEventDot = React.memo(
      */
     return (
       <div
-        data-test-subj={'resolverNode'}
+        data-test-subj="resolverNode"
         className={`${className} kbn-resetFocusState`}
         role="treeitem"
         aria-level={ariaLevel === null ? undefined : ariaLevel}
