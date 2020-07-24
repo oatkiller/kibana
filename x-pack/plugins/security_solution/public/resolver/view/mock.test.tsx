@@ -12,6 +12,7 @@ import { storeFactory } from '../store';
 import * as selectors from '../store/selectors';
 import { untilTrue } from '../test_utilities/state_transitioned';
 import { ResolverState } from '../types';
+import { connectEnzymeWrapperAndStore } from '../test_utilities/connect_enzyme_wrapper_and_store';
 
 describe('MockResolver', () => {
   it('should be renderable with a store', async () => {
@@ -19,22 +20,15 @@ describe('MockResolver', () => {
 
     // there is no selected node.
     expect(selectors.selectedNode(store.getState())).toBe(null);
+
     const wrapper = mount(<MockResolver store={store} />);
-
-    store.subscribe(() => {
-      // update the enzyme wrapper after each state transition
-      return wrapper.update();
-    });
-
-    // update it right away incase a state transition happened already
-    // TODO is this needed? prove it
-    wrapper.update();
+    connectEnzymeWrapperAndStore(store, wrapper);
 
     // there is no selected node
     expect(wrapper.find('[aria-selected]').length).toBe(0);
 
-    // there are 3 nodes
-    expect(wrapper.find('[data-test-subj="resolverNode"]').length).toBe(3);
+    // there should be 3 nodes
+    await untilTrue(store, () => wrapper.find('[data-test-subj="resolverNode"]').length === 3);
 
     // find one of the buttons?
     wrapper.find('[data-test-subj="resolverNode"] button');

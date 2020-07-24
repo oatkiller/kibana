@@ -8,7 +8,7 @@
 
 /* eslint-disable react/display-name */
 
-import React, { useContext } from 'react';
+import React, { useContext, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import { EuiLoadingSpinner } from '@elastic/eui';
@@ -29,88 +29,106 @@ import { ResolverProps } from '../types';
 /**
  * The highest level connected Resolver component. Needs a `Provider` in its ancestry to work.
  */
-export const ResolverWithoutProviders = React.memo(function ({
-  className,
-  databaseDocumentID,
-  resolverComponentInstanceID,
-}: ResolverProps) {
-  /**
-   * This is responsible for dispatching actions that include any external data.
-   * `databaseDocumentID`
-   */
-  useStateSyncingActions({ databaseDocumentID, resolverComponentInstanceID });
+export const ResolverWithoutProviders = React.memo(
+  React.forwardRef(function (
+    { className, databaseDocumentID, resolverComponentInstanceID }: ResolverProps,
+    refToForward
+  ) {
+    /**
+     * This is responsible for dispatching actions that include any external data.
+     * `databaseDocumentID`
+     */
+    useStateSyncingActions({ databaseDocumentID, resolverComponentInstanceID });
 
-  const { timestamp } = useContext(SideEffectContext);
+    const { timestamp } = useContext(SideEffectContext);
 
-  // use this for the entire render in order to keep things in sync
-  const timeAtRender = timestamp();
+    // use this for the entire render in order to keep things in sync
+    const timeAtRender = timestamp();
 
-  const { processNodePositions, connectingEdgeLineSegments } = useSelector(
-    selectors.visibleNodesAndEdgeLines
-  )(timeAtRender);
-  const terminatedProcesses = useSelector(selectors.terminatedProcesses);
-  const { projectionMatrix, ref, onMouseDown } = useCamera();
-  const isLoading = useSelector(selectors.isLoading);
-  const hasError = useSelector(selectors.hasError);
-  const activeDescendantId = useSelector(selectors.ariaActiveDescendant);
-  const { colorMap } = useResolverTheme();
-  const { cleanUpQueryParams } = useResolverQueryParams();
-  useEffectOnce(() => {
-    return () => cleanUpQueryParams();
-  });
+    const { processNodePositions, connectingEdgeLineSegments } = useSelector(
+      selectors.visibleNodesAndEdgeLines
+    )(timeAtRender);
+    const terminatedProcesses = useSelector(selectors.terminatedProcesses);
+    const { projectionMatrix, ref: cameraRef, onMouseDown } = useCamera();
 
-  return (
-    <StyledMapContainer className={className} backgroundColor={colorMap.resolverBackground}>
-      {isLoading ? (
-        <div className="loading-container">
-          <EuiLoadingSpinner size="xl" />
-        </div>
-      ) : hasError ? (
-        <div className="loading-container">
-          <div>
-            {' '}
-            <FormattedMessage
-              id="xpack.securitySolution.endpoint.resolver.loadingError"
-              defaultMessage="Error loading data."
-            />
+    const ref = useCallback(
+      (element: HTMLDivElement | null) => {
+        // Supply `useCamera` with the ref
+        cameraRef(element);
+
+        // If a ref is being forwarded, populate that as well.
+        if (typeof refToForward === 'function') {
+          refToForward(element);
+        } else if (refToForward !== null) {
+          refToForward.current = element;
+        }
+      },
+      [cameraRef, refToForward]
+    );
+    const isLoading = useSelector(selectors.isLoading);
+    const hasError = useSelector(selectors.hasError);
+    const activeDescendantId = useSelector(selectors.ariaActiveDescendant);
+    const { colorMap } = useResolverTheme();
+    const { cleanUpQueryParams } = useResolverQueryParams();
+    useEffectOnce(() => {
+      return () => cleanUpQueryParams();
+    });
+
+    return (
+      <StyledMapContainer className={className} backgroundColor={colorMap.resolverBackground}>
+        {isLoading ? (
+          <div className="loading-container">
+            <EuiLoadingSpinner size="xl" />
           </div>
-        </div>
-      ) : (
-        <GraphContainer
-          className="resolver-graph kbn-resetFocusState"
-          onMouseDown={onMouseDown}
-          ref={ref}
-          role="tree"
-          tabIndex={0}
-          aria-activedescendant={activeDescendantId || undefined}
-        >
-          {connectingEdgeLineSegments.map(({ points: [startPosition, endPosition], metadata }) => (
-            <EdgeLine
-              edgeLineMetadata={metadata}
-              key={metadata.uniqueId}
-              startPosition={startPosition}
-              endPosition={endPosition}
-              projectionMatrix={projectionMatrix}
-            />
-          ))}
-          {[...processNodePositions].map(([processEvent, position]) => {
-            const processEntityId = entityId(processEvent);
-            return (
-              <ProcessEventDot
-                key={processEntityId}
-                position={position}
-                projectionMatrix={projectionMatrix}
-                event={processEvent}
-                isProcessTerminated={terminatedProcesses.has(processEntityId)}
-                timeAtRender={timeAtRender}
+        ) : hasError ? (
+          <div className="loading-container">
+            <div>
+              {' '}
+              <FormattedMessage
+                id="xpack.securitySolution.endpoint.resolver.loadingError"
+                defaultMessage="Error loading data."
               />
-            );
-          })}
-        </GraphContainer>
-      )}
-      <StyledPanel />
-      <GraphControls />
-      <SymbolDefinitions />
-    </StyledMapContainer>
-  );
-});
+            </div>
+          </div>
+        ) : (
+          <GraphContainer
+            className="resolver-graph kbn-resetFocusState"
+            onMouseDown={onMouseDown}
+            ref={ref}
+            role="tree"
+            tabIndex={0}
+            aria-activedescendant={activeDescendantId || undefined}
+          >
+            {connectingEdgeLineSegments.map(
+              ({ points: [startPosition, endPosition], metadata }) => (
+                <EdgeLine
+                  edgeLineMetadata={metadata}
+                  key={metadata.uniqueId}
+                  startPosition={startPosition}
+                  endPosition={endPosition}
+                  projectionMatrix={projectionMatrix}
+                />
+              )
+            )}
+            {[...processNodePositions].map(([processEvent, position]) => {
+              const processEntityId = entityId(processEvent);
+              return (
+                <ProcessEventDot
+                  key={processEntityId}
+                  position={position}
+                  projectionMatrix={projectionMatrix}
+                  event={processEvent}
+                  isProcessTerminated={terminatedProcesses.has(processEntityId)}
+                  timeAtRender={timeAtRender}
+                />
+              );
+            })}
+          </GraphContainer>
+        )}
+        <StyledPanel />
+        <GraphControls />
+        <SymbolDefinitions />
+      </StyledMapContainer>
+    );
+  })
+);

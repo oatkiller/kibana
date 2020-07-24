@@ -8,12 +8,12 @@
 
 import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
-import { EuiButton, EuiI18nNumber, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import { htmlIdGenerator, EuiButton, EuiI18nNumber, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { useSelector } from 'react-redux';
 import { NodeSubMenu, subMenuAssets } from './submenu';
 import { applyMatrix3 } from '../models/vector2';
 import { Vector2, Matrix3 } from '../types';
-import { useResolverTheme, calculateResolverFontSize, symbolIDs } from './assets';
+import { SymbolIds, useResolverTheme, calculateResolverFontSize } from './assets';
 import { ResolverEvent } from '../../../common/endpoint/types';
 import { useResolverDispatch } from './use_resolver_dispatch';
 import * as eventModel from '../../../common/endpoint/models/event';
@@ -119,7 +119,9 @@ const UnstyledProcessEventDot = React.memo(
 
     // define a standard way of giving HTML IDs to nodes based on their entity_id/nodeID.
     // this is used to link nodes via aria attributes
-    const nodeHTMLID = useCallback((id: string) => `${htmlIDPrefix}:${id}:node`, [htmlIDPrefix]);
+    const nodeHTMLID = useCallback((id: string) => htmlIdGenerator(htmlIDPrefix)(`${id}:node`), [
+      htmlIDPrefix,
+    ]);
 
     const ariaLevel: number | null = useSelector(selectors.ariaLevel)(nodeID);
 
@@ -197,7 +199,7 @@ const UnstyledProcessEventDot = React.memo(
           })
         | null;
     } = React.createRef();
-    const { colorMap, cubeAssetsForNode } = useResolverTheme(resolverComponentInstanceID);
+    const { colorMap, cubeAssetsForNode } = useResolverTheme();
     const {
       backingFill,
       cubeSymbol,
@@ -212,8 +214,7 @@ const UnstyledProcessEventDot = React.memo(
        */ false
     );
 
-    // The ID for the element that labels the node
-    const labelHTMLID = `${htmlIDPrefix}:${nodeID}:label`;
+    const labelHTMLID = htmlIdGenerator('resolver')(`${nodeID}:label`);
 
     const isAriaCurrent = nodeID === ariaActiveDescendant;
     const isAriaSelected = nodeID === selectedNode;
@@ -296,7 +297,7 @@ const UnstyledProcessEventDot = React.memo(
      */
     return (
       <div
-        data-test-subj="resolverNode"
+        data-test-subj={'resolverNode'}
         className={`${className} kbn-resetFocusState`}
         role="treeitem"
         aria-level={ariaLevel === null ? undefined : ariaLevel}
@@ -312,6 +313,14 @@ const UnstyledProcessEventDot = React.memo(
         <svg
           viewBox="-15 -15 90 30"
           preserveAspectRatio="xMidYMid meet"
+          onClick={
+            () => {
+              handleFocus();
+              handleClick();
+            } /* a11y note: this is strictly an alternate to the button, so no tabindex  is necessary*/
+          }
+          role="img"
+          aria-labelledby={labelHTMLID}
           style={{
             display: 'block',
             width: '100%',
@@ -319,11 +328,13 @@ const UnstyledProcessEventDot = React.memo(
             position: 'absolute',
             top: '0',
             left: '0',
+            outline: 'transparent',
+            border: 'none',
           }}
         >
           <g>
             <use
-              xlinkHref={`#${symbolIDs(resolverComponentInstanceID).processCubeActiveBacking}`}
+              xlinkHref={`#${SymbolIds.processCubeActiveBacking}`}
               fill={backingFill} // Only visible on hover
               x={-15.35}
               y={-15.35}

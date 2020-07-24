@@ -8,7 +8,7 @@
 
 /* eslint-disable react/display-name */
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import { I18nProvider } from '@kbn/i18n/react';
@@ -89,21 +89,30 @@ export const MockResolver = React.memo((props: MockResolverProps) => {
     dataAccessLayer,
   ]);
 
+  const resolverRef = useRef<HTMLDivElement>();
+
   // TODO, take a simulator? set size based on props?
   // also have a way to take the mock so the test can use the simulator?
   const simulator: SideEffectSimulator = useMemo(() => sideEffectSimulator(), []);
 
   useEffect(() => {
-    if (resolverElement) {
+    if (resolverRef.current) {
       const size: DOMRect = {
         width: props.rasterWidth ?? 1600,
         height: props.rasterHeight ?? 1200,
         x: 0,
         y: 0,
+        bottom: 0,
+        left: 0,
+        top: 0,
+        right: 0,
+        toJSON() {
+          return this;
+        },
       };
-      simulator.controls.simulateElementResize(resolverElement, size);
+      simulator.controls.simulateElementResize(resolverRef.current, size);
     }
-  }, []);
+  }, [props.rasterWidth, props.rasterHeight, simulator.controls]);
 
   return (
     <I18nProvider>
@@ -112,6 +121,7 @@ export const MockResolver = React.memo((props: MockResolverProps) => {
           <SideEffectContext.Provider value={simulator.mock}>
             <Provider store={store}>
               <ResolverWithoutProviders
+                ref={resolverRef}
                 databaseDocumentID={props.databaseDocumentID ?? 'id'}
                 resolverComponentInstanceID={props.resolverComponentInstanceID ?? 'instanceID'}
               />
