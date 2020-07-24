@@ -25,7 +25,7 @@ import { ResolverWithoutProviders } from './resolver_without_providers';
 import { SideEffectContext } from './side_effect_context';
 import { sideEffectSimulator } from './side_effect_simulator';
 
-type BaseProps = {
+type MockResolverProps = {
   // core start and history can be optionally passed
   coreStart?: CoreStart;
   history?: React.ComponentProps<typeof Router>['history'];
@@ -33,48 +33,27 @@ type BaseProps = {
   rasterWidth?: number;
   // If passed, set the raster height to this value. Defaults to 800
   rasterHeight?: number;
+  /** Pass a resolver store. See `storeFactory` and `mockDataAccessLayer` */
+  store: Store<ResolverState, ResolverAction>;
   // All the props from `ResolverWithoutStore` can be optionally passed.
 } & Partial<ResolverProps>;
-
-type PropsWithDataAccessLayer = BaseProps & {
-  dataAccessLayer: DataAccessLayer;
-  // store mustn't be passed if dataAccessLayer is
-  store?: undefined;
-};
-
-type PropsWithStore = BaseProps & {
-  // data access layer mustn't be passed if store is
-  dataAccessLayer?: undefined;
-  store: Store<ResolverState, ResolverAction>;
-};
-
-/**
- * This must have either `store` or `dataAccessLayer` but not both.
- */
-type MockResolverProps = PropsWithStore | PropsWithDataAccessLayer;
 
 /**
  * This is a mock Resolver component. It has faked versions of various services:
  *  * fake i18n
  *  * fake (memory) history (optionally provided)
  *  * fake coreStart services (optionally provided)
+ *  * SideEffectContext
  *
- *  You will either need to provide a store or a data access layer (which will be used to create a store.) See `mockDataAccessLayer` and `storeFactory`.
+ *  You will need to provide a store. Create one with `storyFactory`. The store will need a mock `DataAccessLayer`.
  *
- *  This provides the underlying Resolver component with default required props. You can pass these if you need to, they will be passed down.
+ *  Props required by `ResolverWithoutStore` can be passed as well. If not passed, they are defaulted.
  *  * `databaseDocumentID`
  *  * `resolverComponentInstanceID`
  *
  *  Use this in jest tests. Render it w/ `@testing-library/react` or `enzyme`. Then either interact with the result using fake events, or dispatch actions to the store. You could also pass in a store with initial data.
- *
- *  Note: You can't provide both a store and a data access layer, because the data access layer is just used to create the store.
  */
 export const MockResolver = React.memo((props: MockResolverProps) => {
-  // Get the data access layer from props, or create it if needed.
-  const dataAccessLayer = useMemo(() => {
-    return props.dataAccessLayer ?? mockDataAccessLayer();
-  }, [props.dataAccessLayer]);
-
   // Get the coreStart services from props, or create them if needed.
   const coreStart: CoreStart = useMemo(() => props.coreStart ?? coreMock.createStart(), [
     props.coreStart,
@@ -83,18 +62,12 @@ export const MockResolver = React.memo((props: MockResolverProps) => {
   // Get the history object from props, or create it if needed.
   const history = useMemo(() => props.history ?? createMemoryHistory(), [props.history]);
 
-  // Get the store from props, or create it if needed.
-  const store = useMemo(() => props.store ?? storeFactory(dataAccessLayer), [
-    props.store,
-    dataAccessLayer,
-  ]);
-
+  // Get a ref to the underlying Resolver element so we can resize.
   const resolverRef = useRef<HTMLDivElement>();
 
-  // TODO, take a simulator? set size based on props?
-  // also have a way to take the mock so the test can use the simulator?
   const simulator: SideEffectSimulator = useMemo(() => sideEffectSimulator(), []);
 
+  // Resize the Resolver element to match the passed in props. Resolver is size dependent
   useEffect(() => {
     if (resolverRef.current) {
       const size: DOMRect = {
@@ -119,7 +92,7 @@ export const MockResolver = React.memo((props: MockResolverProps) => {
       <Router history={history}>
         <KibanaContextProvider services={coreStart}>
           <SideEffectContext.Provider value={simulator.mock}>
-            <Provider store={store}>
+            <Provider store={props.store}>
               <ResolverWithoutProviders
                 ref={resolverRef}
                 databaseDocumentID={props.databaseDocumentID ?? 'id'}
