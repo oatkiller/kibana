@@ -6,38 +6,15 @@
 
 import React from 'react';
 import { render, RenderResult } from '@testing-library/react';
-import { DataAccessLayerContext } from '../data_access_layer/context';
-import { ResolverWithoutDataAccessLayer } from '.';
 import { mockDataAccessLayer } from '../data_access_layer/mock';
-import { KibanaContextProvider } from '../../../../../../src/plugins/kibana_react/public';
-import { coreMock } from '../../../../../../src/core/public/mocks';
-import { CoreStart } from '../../../../../../src/core/public';
-import { Router } from 'react-router-dom';
-import { createMemoryHistory } from 'history';
-import { I18nProvider } from '@kbn/i18n/react';
+import { MockResolver } from './mock';
 
 describe('resolver with a fake data layer', () => {
   let reactRenderResult: RenderResult;
 
   beforeEach(() => {
     const dataAccessLayer = mockDataAccessLayer();
-    const coreStart: CoreStart = coreMock.createStart();
-
-    const history = createMemoryHistory();
-    reactRenderResult = render(
-      <I18nProvider>
-        <Router history={history}>
-          <KibanaContextProvider services={{ ...coreStart }}>
-            <DataAccessLayerContext.Provider value={dataAccessLayer}>
-              <ResolverWithoutDataAccessLayer
-                databaseDocumentID="id"
-                resolverComponentInstanceID="instanceID"
-              />
-            </DataAccessLayerContext.Provider>
-          </KibanaContextProvider>
-        </Router>
-      </I18nProvider>
-    );
+    reactRenderResult = render(<MockResolver dataAccessLayer={dataAccessLayer} />);
   });
   it('should render 1 resolver node', () => {
     expect(reactRenderResult.queryAllByTestId('resolverNode')).toMatchInlineSnapshot(`
@@ -145,9 +122,11 @@ describe('resolver with a fake data layer', () => {
       }
 
       <div
+          aria-current="true"
           aria-haspopup="true"
           aria-labelledby="resolver:instanceID:a:label"
           aria-level="1"
+          aria-selected="true"
           class="c0 kbn-resetFocusState"
           data-test-subj="resolverNode"
           id="resolver:instanceID:a:node"

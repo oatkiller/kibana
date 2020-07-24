@@ -63,22 +63,8 @@ export function useResolverQueryParams() {
     };
   }, [urlSearch, uniqueCrumbIdKey, uniqueCrumbEventKey]);
 
-  /**
-   * Delete query params that use this component's unique IDs.
-   */
-  const cleanUpQueryParams = useCallback(() => {
-    const crumbsToPass = {
-      ...querystring.parse(urlSearch.slice(1)),
-    };
-    delete crumbsToPass[uniqueCrumbIdKey];
-    delete crumbsToPass[uniqueCrumbEventKey];
-    const relativeURL = { search: querystring.stringify(crumbsToPass) };
-    history.replace(relativeURL);
-  }, [history, uniqueCrumbEventKey, uniqueCrumbIdKey, urlSearch]);
-
   return {
     pushToQueryParams,
     queryParams,
-    cleanUpQueryParams,
   };
 }

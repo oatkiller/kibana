@@ -8,7 +8,7 @@
 
 /* eslint-disable react/display-name */
 
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import { EuiLoadingSpinner } from '@elastic/eui';
@@ -24,30 +24,16 @@ import { useResolverQueryParams } from './use_resolver_query_params';
 import { StyledMapContainer, StyledPanel, GraphContainer } from './styles';
 import { entityId } from '../../../common/endpoint/models/event';
 import { SideEffectContext } from './side_effect_context';
+import { ResolverProps } from '../types';
 
 /**
  * The highest level connected Resolver component. Needs a `Provider` in its ancestry to work.
  */
-export const ResolverMap = React.memo(function ({
+export const ResolverWithoutProviders = React.memo(function ({
   className,
   databaseDocumentID,
   resolverComponentInstanceID,
-}: {
-  /**
-   * Used by `styled-components`.
-   */
-  className?: string;
-  /**
-   * The `_id` value of an event in ES.
-   * Used as the origin of the Resolver graph.
-   */
-  databaseDocumentID?: string;
-  /**
-   * A string literal describing where in the app resolver is located,
-   * used to prevent collisions in things like query params
-   */
-  resolverComponentInstanceID: string;
-}) {
+}: ResolverProps) {
   /**
    * This is responsible for dispatching actions that include any external data.
    * `databaseDocumentID`
@@ -69,12 +55,9 @@ export const ResolverMap = React.memo(function ({
   const activeDescendantId = useSelector(selectors.ariaActiveDescendant);
   const { colorMap } = useResolverTheme();
   const { cleanUpQueryParams } = useResolverQueryParams();
-
-  useEffect(() => {
-    // On component unmount, remove any query params related to this resolver instance.
-    // NB: this will happen any time Resolver's properties (e.g. `className`) change.
+  useEffectOnce(() => {
     return () => cleanUpQueryParams();
-  }, [cleanUpQueryParams]);
+  });
 
   return (
     <StyledMapContainer className={className} backgroundColor={colorMap.resolverBackground}>

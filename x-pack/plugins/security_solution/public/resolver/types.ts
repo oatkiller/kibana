@@ -476,3 +476,23 @@ export interface DataAccessLayer {
     signal: AbortSignal;
   }) => Promise<ResolverEntityIndex>;
 }
+
+/**
+ * The externally provided React props.
+ */
+export interface ResolverProps {
+  /**
+   * Used by `styled-components`.
+   */
+  className?: string;
+  /**
+   * The `_id` value of an event in ES.
+   * Used as the origin of the Resolver graph.
+   */
+  databaseDocumentID?: string;
+  /**
+   * A string literal describing where in the app resolver is located,
+   * used to prevent collisions in things like query params
+   */
+  resolverComponentInstanceID: string;
+}
