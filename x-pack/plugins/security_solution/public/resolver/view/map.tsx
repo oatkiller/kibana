@@ -8,7 +8,7 @@
 
 /* eslint-disable react/display-name */
 
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useEffectOnce } from 'react-use';
 import { EuiLoadingSpinner } from '@elastic/eui';
@@ -69,9 +69,12 @@ export const ResolverMap = React.memo(function ({
   const activeDescendantId = useSelector(selectors.ariaActiveDescendant);
   const { colorMap } = useResolverTheme();
   const { cleanUpQueryParams } = useResolverQueryParams();
-  useEffectOnce(() => {
+
+  useEffect(() => {
+    // On component unmount, remove any query params related to this resolver instance.
+    // NB: this will happen any time Resolver's properties (e.g. `className`) change.
     return () => cleanUpQueryParams();
-  });
+  }, [cleanUpQueryParams]);
 
   return (
     <StyledMapContainer className={className} backgroundColor={colorMap.resolverBackground}>

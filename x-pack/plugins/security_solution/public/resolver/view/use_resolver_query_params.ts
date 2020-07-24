@@ -63,7 +63,10 @@ export function useResolverQueryParams() {
     };
   }, [urlSearch, uniqueCrumbIdKey, uniqueCrumbEventKey]);
 
-  const cleanUpQueryParams = () => {
+  /**
+   * Delete query params that use this component's unique IDs.
+   */
+  const cleanUpQueryParams = useCallback(() => {
     const crumbsToPass = {
       ...querystring.parse(urlSearch.slice(1)),
     };
@@ -71,7 +74,7 @@ export function useResolverQueryParams() {
     delete crumbsToPass[uniqueCrumbEventKey];
     const relativeURL = { search: querystring.stringify(crumbsToPass) };
     history.replace(relativeURL);
-  };
+  }, [history, uniqueCrumbEventKey, uniqueCrumbIdKey, urlSearch]);
 
   return {
     pushToQueryParams,
