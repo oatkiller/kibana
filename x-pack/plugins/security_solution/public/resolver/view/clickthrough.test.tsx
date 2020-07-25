@@ -77,12 +77,19 @@ describe('Resolver, when analyzing a tree that has 1 ancestor and 2 children', (
     });
     it('should render the second child node as selected, and the first child not as not selected.', async () => {
       await untilTrue(store, () => {
-        return (
+        const secondChildIsSelected =
           wrapper.find(resolverNodeSelector({ entityID: 'secondChild', selected: true })).length ===
-          1
-        );
+          1;
+
+        // Find the origin, then exclude it if it is selected
+        const originIsNotSelected =
+          wrapper
+            .find(resolverNodeSelector({ entityID: 'origin' }))
+            // TODO, this is weird
+            .not(resolverNodeSelector({ entityID: 'origin', selected: true })).length === 1;
+
+        return secondChildIsSelected && originIsNotSelected;
       });
-      // TODO, how do check that the origin is explicity NOT selected.
     });
   });
 });
