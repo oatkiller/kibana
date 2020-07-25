@@ -13,11 +13,18 @@ import {
 import { mockEndpointEvent } from '../store/mocks/endpoint_event';
 import { mockTreeWithNoAncestorsAnd2Children } from '../store/mocks/resolver_tree';
 
+interface Options {
+  originID?: string;
+  firstChildID?: string;
+  secondChildID?: string;
+}
+
 /**
  * Simplest mock dataAccessLayer possible.
  */
-export function mockDataAccessLayer(): DataAccessLayer {
-  const originID = 'a';
+export function mockDataAccessLayer(options?: Options): DataAccessLayer {
+  const { originID = 'origin', firstChildID = 'firstChild', secondChildID = 'secondChild' } =
+    options ?? {};
   return {
     /**
      * Fetch related events for an entity ID
@@ -43,8 +50,8 @@ export function mockDataAccessLayer(): DataAccessLayer {
       return Promise.resolve(
         mockTreeWithNoAncestorsAnd2Children({
           originID,
-          firstChildID: 'b',
-          secondChildID: 'c',
+          firstChildID,
+          secondChildID,
         })
       );
     },
@@ -60,7 +67,7 @@ export function mockDataAccessLayer(): DataAccessLayer {
      * Get entities matching a document.
      */
     entities(): Promise<ResolverEntityIndex> {
-      return Promise.resolve([{ entity_id: 'a' }]);
+      return Promise.resolve([{ entity_id: originID }]);
     },
   };
 }

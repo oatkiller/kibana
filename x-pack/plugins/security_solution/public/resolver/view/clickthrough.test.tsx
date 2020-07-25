@@ -17,26 +17,35 @@ import { spyMiddlewareFactory } from '../test_utilities/spy_middleware';
 import { resolverMiddlewareFactory } from '../store/middleware';
 import { resolverReducer } from '../store/reducer';
 
-function resolverNodeSelector(entityID?: string): string {
-  if (entityID === undefined) {
-    return '[data-test-subj^="resolver:node:"]';
-  } else {
-    return `[data-test-subj="${entityID}"]`;
+const baseResolverSelector = '[data-test-subj="resolver:node"]';
+
+function resolverNodeSelector({
+  entityID,
+  selected = false,
+}: { entityID?: string; selected?: boolean } = {}): string {
+  let selector: string = baseResolverSelector;
+  if (entityID !== undefined) {
+    selector += `[data-test-resolver-node-id="${entityID}"]`;
   }
+  if (selected) {
+    selector += '[aria-selected="true"]';
+  }
+  return selector;
 }
 
 describe('Resolver, when analyzing a tree that has 1 ancestor and 2 children', () => {
   let store: Store<ResolverState, ResolverAction>;
   let wrapper: ReactWrapper;
+  let _debugActions: () => () => void;
   beforeEach(async () => {
     const spyMiddleware = spyMiddlewareFactory();
+
+    _debugActions = spyMiddleware.debugActions;
 
     const middlewareEnhancer = applyMiddleware(
       resolverMiddlewareFactory(mockDataAccessLayer()),
       spyMiddleware.middleware
     );
-
-    spyMiddleware.debugActions();
 
     store = createStore(resolverReducer, middlewareEnhancer);
 
@@ -50,30 +59,30 @@ describe('Resolver, when analyzing a tree that has 1 ancestor and 2 children', (
     await untilTrue(store, () => wrapper.find(resolverNodeSelector()).length === 3);
   });
   // Combining assertions here for performance. Unfortunately, Enzyme + jsdom + React is slow.
-  it('should have 3 nodes, one of which is selected.', async () => {
+  it(`should have 3 nodes, with the entityID's 'origin', 'firstChild', and 'secondChild'. 'origin' should be selected.`, async () => {
     // there is no selected node
-    expect(wrapper.find(`${resolverNodeSelector()}[aria-selected]`).length).toBe(1);
+    expect(wrapper.find(resolverNodeSelector({ entityID: 'origin', selected: true })).length).toBe(
+      1
+    );
+    expect(wrapper.find(resolverNodeSelector({ entityID: 'firstChild' })).length).toBe(1);
+    expect(wrapper.find(resolverNodeSelector({ entityID: 'secondChild' })).length).toBe(1);
   });
 
-  // TODO, select a different node?
-  describe('when the first node has been selected', () => {
+  describe('when the second child node has been selected', () => {
     beforeEach(() => {
-      // TODO, we need a way to get from the `mockDataAccessLayer` to the related nodes.
-      // find the first button (DOM order.)
-      wrapper.find(`${resolverNodeSelector()} button`);
+      const button = wrapper.find(`${resolverNodeSelector({ entityID: 'secondChild' })} button`);
 
       // click it
-      wrapper.simulate('click');
+      button.simulate('click');
     });
-    it('should render the first node with `[aria-selected]`.', async (done) => {
-      await untilTrue(
-        store,
-        // TODO, the selector should take an entity-id perhaps?
-        () => {
-          return wrapper.find(`${resolverNodeSelector()}[aria-selected]`).length === 1;
-        }
-      );
-      done();
+    it('should render the second child node as selected, and the first child not as not selected.', async () => {
+      await untilTrue(store, () => {
+        return (
+          wrapper.find(resolverNodeSelector({ entityID: 'secondChild', selected: true })).length ===
+          1
+        );
+      });
+      // TODO, how do check that the origin is explicity NOT selected.
     });
   });
 });
