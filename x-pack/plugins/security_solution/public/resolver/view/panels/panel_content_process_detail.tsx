@@ -72,12 +72,14 @@ export const ProcessDetails = memo(function ProcessDetails({
 
     const userEntry = {
       title: 'user.name',
-      description: (userInfoForProcess(processEvent) as { name: string }).name,
+      // TODO, bug needs to be fixed in 7.9
+      description: userInfoForProcess(processEvent)?.name,
     };
 
     const domainEntry = {
       title: 'user.domain',
-      description: (userInfoForProcess(processEvent) as { domain: string }).domain,
+      // TODO, bug needs to be fixed in 7.9
+      description: userInfoForProcess(processEvent)?.domain,
     };
 
     const parentPidEntry = {
