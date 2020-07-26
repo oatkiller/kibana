@@ -18,7 +18,9 @@ import { ResolverAction } from '../store/actions';
 import { spyMiddlewareFactory } from '../test_utilities/spy_middleware';
 import { resolverMiddlewareFactory } from '../store/middleware';
 import { resolverReducer } from '../store/reducer';
-import { PerformanceObserver, performance } from 'perf_hooks';
+import { performance } from 'perf_hooks';
+import { timerifyObserver } from '../test_utilities/timerify_observer';
+import { describeWithPerformanceObserver } from '../test_utilities/describe_with_performance_observer';
 
 const baseResolverSelector = '[data-test-subj="resolver:node"]';
 
@@ -36,21 +38,20 @@ function resolverNodeSelector({
   return selector;
 }
 
+/*
 describe('with perf', () => {
-  let obs: PerformanceObserver;
+  let performanceObserver: PerformanceObserver;
   beforeEach(() => {
-    obs = new PerformanceObserver((list) => {
-      console.log('list', list);
-      for (const entry of list.getEntries()) {
-        console.log('entry', entry);
-      }
-    });
-    obs.observe({ entryTypes: ['function'] });
+    performanceObserver = timerifyObserver();
   });
   afterEach(() => {
-    obs.disconnect();
+    performanceObserver.disconnect();
   });
-  fdescribe('Resolver, when analyzing a tree that has 1 ancestor and 2 children', () => {
+});
+*/
+describeWithPerformanceObserver(
+  'Resolver, when analyzing a tree that has 1 ancestor and 2 children',
+  () => {
     let store: Store<ResolverState, ResolverAction>;
     let wrapper: ReactWrapper;
     let _debugActions: () => () => void;
@@ -121,5 +122,5 @@ describe('with perf', () => {
         })
       );
     });
-  });
-});
+  }
+);
