@@ -39,7 +39,6 @@ export const dataReducer: Reducer<DataState, ResolverAction> = (state = initialS
       return state;
     }
   } else if (action.type === 'serverReturnedResolverData') {
-    /** Only handle this if we are expecting a response */
     const nextState: DataState = {
       ...state,
 

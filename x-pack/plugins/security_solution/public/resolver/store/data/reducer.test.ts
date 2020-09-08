@@ -37,16 +37,17 @@ describe('Resolver Data Middleware', () => {
 
   describe('when data was received and the ancestry and children edges had cursors', () => {
     beforeEach(() => {
-      // Generate a 'tree' using the Resolver generator code. This structure isn't the same as what the API returns.
-      const baseTree = generateBaseTree();
-      const tree = mockResolverTree({
-        events: baseTree.allEvents as ResolverEvent[],
-        cursors: {
-          childrenNextChild: 'aValidChildCursor',
-          ancestryNextAncestor: 'aValidAncestorCursor',
+      const fakeTree: ResolverTree = {
+        ancestry: {
+          // The value of `nextAncestor` should be a string, but the exact string is not relevant
+          nextAncestor: 'cursor',
         },
-      })!;
-      dispatchTree(tree);
+        children: {
+          // The value of `nextChild` should be a string, but the exact string is not relevant
+          nextChild: 'cursor',
+        },
+      } as ResolverTree;
+      dispatchTree(fakeTree);
     });
     it('should indicate there are additional ancestor', () => {
       expect(selectors.hasMoreAncestors(store.getState())).toBe(true);
