@@ -9,7 +9,7 @@ import {
   SafeResolverEvent,
   SafeLegacyEndpointEvent,
 } from '../types';
-import { firstNonNullValue } from './ecs_safety_helpers';
+import { first } from './es_response';
 
 /*
  * Determine if a `ResolverEvent` is the legacy variety. Can be used to narrow `ResolverEvent` to `LegacyEndpointEvent`.
@@ -51,8 +51,8 @@ export function isProcessRunning(event: ResolverEvent): boolean {
 
 export function timestampSafeVersion(event: SafeResolverEvent): string | undefined | number {
   return isLegacyEventSafeVersion(event)
-    ? firstNonNullValue(event.endgame?.timestamp_utc)
-    : firstNonNullValue(event?.['@timestamp']);
+    ? first(event, 'endgame', 'timestamp_utc')
+    : first(event, '@timestamp');
 }
 
 /**
@@ -92,9 +92,9 @@ export function eventName(event: ResolverEvent): string {
 
 export function processNameSafeVersion(event: SafeResolverEvent): string | undefined {
   if (isLegacyEventSafeVersion(event)) {
-    return firstNonNullValue(event.endgame.process_name);
+    return first(event, 'endgame', 'process_name');
   } else {
-    return firstNonNullValue(event.process?.name);
+    return first(event, 'process', 'name');
   }
 }
 
@@ -107,22 +107,24 @@ export function eventId(event: ResolverEvent): number | undefined | string {
 
 export function eventSequence(event: ResolverEvent): number | undefined {
   if (isLegacyEvent(event)) {
-    return firstNonNullValue(event.endgame.serial_event_id);
+    return first(event, 'endgame', 'serial_event_id');
   }
-  return firstNonNullValue(event.event?.sequence);
+  return first(event, 'event', 'sequence');
 }
 
 export function eventSequenceSafeVersion(event: SafeResolverEvent): number | undefined {
   if (isLegacyEventSafeVersion(event)) {
-    return firstNonNullValue(event.endgame.serial_event_id);
+    return first(event, 'endgame', 'serial_event_id');
   }
-  return firstNonNullValue(event.event?.sequence);
+  return first(event, 'event', 'sequence');
 }
 
 export function eventIDSafeVersion(event: SafeResolverEvent): number | undefined | string {
-  return firstNonNullValue(
-    isLegacyEventSafeVersion(event) ? event.endgame?.serial_event_id : event.event?.id
-  );
+  if (isLegacyEventSafeVersion(event)) {
+    return first(event, 'endgame', 'serial_event_id');
+  } else {
+    return first(event, 'event', 'id');
+  }
 }
 
 export function entityId(event: ResolverEvent): string {
@@ -132,13 +134,16 @@ export function entityId(event: ResolverEvent): string {
   return event.process.entity_id;
 }
 
+/**
+ * Returns the `process.entity_id` for `event`.
+ * @deprecated
+ */
 export function entityIDSafeVersion(event: SafeResolverEvent): string | undefined {
   if (isLegacyEventSafeVersion(event)) {
-    return event.endgame?.unique_pid === undefined
-      ? undefined
-      : String(firstNonNullValue(event.endgame.unique_pid));
+    const uniquePID = first(event, 'endgame', 'unique_pid');
+    return uniquePID === undefined ? undefined : String(uniquePID);
   } else {
-    return firstNonNullValue(event.process?.entity_id);
+    return first(event, 'process', 'entity_id');
   }
 }
 
@@ -151,9 +156,9 @@ export function parentEntityId(event: ResolverEvent): string | undefined {
 
 export function parentEntityIDSafeVersion(event: SafeResolverEvent): string | undefined {
   if (isLegacyEventSafeVersion(event)) {
-    return String(firstNonNullValue(event.endgame.unique_ppid));
+    return String(first(event, 'endgame', 'unique_ppid'));
   }
-  return firstNonNullValue(event.process?.parent?.entity_id);
+  return first(event, 'process', 'parent', 'entity_id');
 }
 
 export function ancestryArray(event: ResolverEvent): string[] | undefined {

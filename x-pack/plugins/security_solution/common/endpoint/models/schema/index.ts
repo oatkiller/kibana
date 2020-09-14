@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { ESField } from '../../types/es_response';
+import { ESField, ESResponseLeaf } from '../../types/es_response';
 
 export type Validator<T> = (value: unknown) => value is T;
 export type TypeOf<V extends Validator<unknown>> = V extends Validator<infer T> ? T : never;
@@ -193,7 +193,7 @@ export function esNumber(): (value: unknown) => value is ESField<number> {
  */
 export { stringValidator as string, numberValidator as number };
 
-function es<T>(
+function es<T extends ESResponseLeaf | ESField<{ [key: string]: ESField }>>(
   wrappedTypeValidator: (value: unknown) => value is T
 ): (value: unknown) => value is ESField<T> {
   return oneOf([

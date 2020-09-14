@@ -96,3 +96,7 @@ const isESSafeAndESSafeTypeReciprocal: [ESSafeType<ESSafe<TestType>>, TestType] 
 ]
   ? true
   : false = true;
+
+// Rebind `isESSafeAndESSafeTypeReciprocal` so that the original binding won't be unused (which would cause an error.)
+// @ts-expect-error This binding is unused.
+const pointlessBinding = isESSafeAndESSafeTypeReciprocal;

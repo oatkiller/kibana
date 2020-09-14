@@ -7,7 +7,6 @@
 import { ApplicationStart } from 'kibana/public';
 import { NewPackagePolicy, PackagePolicy } from '../../../../ingest_manager/common';
 import { ManifestSchema } from '../schema/manifest';
-import * as schema from '../models/schema';
 import { ESSafe } from './es_response';
 
 export * from './trusted_apps';
@@ -681,38 +680,38 @@ export type SafeEndpointEvent = ESSafe<{
   };
 }>;
 
-export interface SafeLegacyEndpointEvent {
-  '@timestamp'?: ECSField<number>;
+export type SafeLegacyEndpointEvent = ESSafe<{
+  '@timestamp': number;
   /**
    * 'legacy' events must have an `endgame` key.
    */
-  endgame: Partial<{
-    pid: ECSField<number>;
-    ppid: ECSField<number>;
-    event_type_full: ECSField<string>;
-    event_subtype_full: ECSField<string>;
-    event_timestamp: ECSField<number>;
-    event_type: ECSField<number>;
-    unique_pid: ECSField<number>;
-    unique_ppid: ECSField<number>;
-    machine_id: ECSField<string>;
-    process_name: ECSField<string>;
-    process_path: ECSField<string>;
-    timestamp_utc: ECSField<string>;
-    serial_event_id: ECSField<number>;
-  }>;
-  agent: Partial<{
-    id: ECSField<string>;
-    type: ECSField<string>;
-    version: ECSField<string>;
-  }>;
-  event: Partial<{
-    action: ECSField<string>;
-    type: ECSField<string>;
-    category: ECSField<string>;
-    id: ECSField<string>;
-  }>;
-}
+  endgame: {
+    pid: number;
+    ppid: number;
+    event_type_full: string;
+    event_subtype_full: string;
+    event_timestamp: number;
+    event_type: number;
+    unique_pid: number;
+    unique_ppid: number;
+    machine_id: string;
+    process_name: string;
+    process_path: string;
+    timestamp_utc: string;
+    serial_event_id: number;
+  };
+  agent: {
+    id: string;
+    type: string;
+    version: string;
+  };
+  event: {
+    action: string;
+    type: string;
+    category: string;
+    id: string;
+  };
+}>;
 
 /**
  * The response body for the resolver '/entity' index API

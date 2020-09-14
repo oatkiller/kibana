@@ -38,22 +38,28 @@ describe('es_response#first can access nested values', () => {
   it('one level deep', () => {
     const value = first(testObject, 'a');
     type ExpectedType = 'a' | undefined;
-    // @ts-expect-error This unused binding asserts that `first` is typed as expected.
+    // If `true` is assignable to this binding then the types are correct.
     const assertType: Is<ExpectedType, typeof value> = true;
+    // This will always pass, but without it `assertType` is unused.
+    expect(assertType).toBe(true);
     expect(value).toBe('a');
   });
   it('two levels deep', () => {
     const value = first(testObject, 'b', 'c');
     type ExpectedType = 'c' | undefined;
-    // @ts-expect-error This unused binding asserts that `first` is typed as expected.
+    // If `true` is assignable to this binding then the types are correct.
     const assertType: Is<ExpectedType, typeof value> = true;
+    // This will always pass, but without it `assertType` is unused.
+    expect(assertType).toBe(true);
     expect(value).toBe('c');
   });
   it('three levels deep', () => {
     const value = first(testObject, 'd', 'e', 'f');
     type ExpectedType = 'f' | undefined;
-    // @ts-expect-error This unused binding asserts that `first` is typed as expected.
+    // If `true` is assignable to this binding then the types are correct.
     const assertType: Is<ExpectedType, typeof value> = true;
+    // This will always pass, but without it `assertType` is unused.
+    expect(assertType).toBe(true);
     expect(value).toBe('f');
   });
 });
