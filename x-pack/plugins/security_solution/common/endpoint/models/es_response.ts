@@ -48,6 +48,25 @@ interface First {
  */
 type SafeIsArray = (arg: unknown) => arg is unknown[];
 
+function allInField<T extends CanBeWrappedInField>(field: ESField<T>): T[] {
+  // If the value is an array, return all non-null elements.
+  if ((Array.isArray as SafeIsArray)(field)) {
+    const nonNullElements = [];
+    for (const value of field) {
+      if (value !== null) {
+        nonNullElements.push(value);
+      }
+    }
+    return nonNullElements;
+  } else if (field !== null && field !== undefined) {
+    // There is a single value, return it, wrapped in an array
+    return [field];
+  } else {
+    // There were no valid values, return an empty array
+    return [];
+  }
+}
+
 function firstInField<T extends CanBeWrappedInField>(field: ESField<T>): T | undefined {
   // If the value is an array, return the first non-null element. If there are no non-null elements, return undefined.
   if ((Array.isArray as SafeIsArray)(field)) {

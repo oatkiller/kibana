@@ -6,8 +6,9 @@
 
 import { object, esNumber, esObject, esString } from '../models/schema';
 import { SafeEndpointEvent } from '../types';
-// TODO, legacy endpoint event version
 
+// TODO, legacy endpoint event version
+// TODO, use this?
 export const endpointEventSchema: (value: unknown) => value is SafeEndpointEvent = object({
   '@timestamp': esNumber(),
   agent: esObject({
