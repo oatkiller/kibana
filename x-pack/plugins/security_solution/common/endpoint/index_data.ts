@@ -29,7 +29,7 @@ export async function indexHostsAndAlerts(
   await client.indices.refresh({
     index: eventIndex,
   });
-  // TODO: Unclear why the documents are not showing up after the call to refresh.
+  // Unclear why the documents are not showing up after the call to refresh.
   // Waiting 5 seconds allows the indices to refresh automatically and
   // the documents become available in API/integration tests.
   await delay(5000);

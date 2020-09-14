@@ -7,6 +7,8 @@
 import { ApplicationStart } from 'kibana/public';
 import { NewPackagePolicy, PackagePolicy } from '../../../../ingest_manager/common';
 import { ManifestSchema } from '../schema/manifest';
+import * as schema from '../models/schema';
+import { ESSafe } from './es_response';
 
 export * from './trusted_apps';
 
@@ -584,8 +586,9 @@ export type ResolverEvent = EndpointEvent | LegacyEndpointEvent;
 /**
  * All mappings in Elasticsearch support arrays. They can also return null values or be missing. For example, a `keyword` mapping could return `null` or `[null]` or `[]` or `'hi'`, or `['hi', 'there']`. We need to handle these cases in order to avoid throwing an error.
  * When dealing with an value that comes from ES, wrap the underlying type in `ECSField`. For example, if you have a `keyword` or `text` value coming from ES, cast it to `ECSField<string>`.
+ * @deprecated
  */
-export type ECSField<T> = T | null | Array<T | null>;
+export type ECSField<T> = T | undefined | null | Array<T | null>;
 
 /**
  * A more conservative version of `ResolverEvent` that treats fields as optional and use `ECSField` to type all ECS fields.
@@ -596,81 +599,86 @@ export type SafeResolverEvent = SafeEndpointEvent | SafeLegacyEndpointEvent;
 /**
  * Safer version of ResolverEvent. Please use this going forward.
  */
-export type SafeEndpointEvent = Partial<{
-  '@timestamp': ECSField<number>;
-  agent: Partial<{
-    id: ECSField<string>;
-    version: ECSField<string>;
-    type: ECSField<string>;
-  }>;
-  ecs: Partial<{
-    version: ECSField<string>;
-  }>;
-  event: Partial<{
-    category: ECSField<string>;
-    type: ECSField<string>;
-    id: ECSField<string>;
-    kind: ECSField<string>;
-    sequence: ECSField<number>;
-  }>;
-  host: Partial<{
-    id: ECSField<string>;
-    hostname: ECSField<string>;
-    name: ECSField<string>;
-    ip: ECSField<string>;
-    mac: ECSField<string>;
-    architecture: ECSField<string>;
-    os: Partial<{
-      full: ECSField<string>;
-      name: ECSField<string>;
-      version: ECSField<string>;
-      platform: ECSField<string>;
-      family: ECSField<string>;
-      Ext: Partial<{
-        variant: ECSField<string>;
-      }>;
-    }>;
-  }>;
-  network: Partial<{
-    direction: ECSField<string>;
-    forwarded_ip: ECSField<string>;
-  }>;
-  dns: Partial<{
-    question: Partial<{ name: ECSField<string> }>;
-  }>;
-  process: Partial<{
-    entity_id: ECSField<string>;
-    name: ECSField<string>;
-    executable: ECSField<string>;
-    args: ECSField<string>;
-    code_signature: Partial<{
-      status: ECSField<string>;
-      subject_name: ECSField<string>;
-    }>;
-    pid: ECSField<number>;
-    hash: Partial<{
-      md5: ECSField<string>;
-    }>;
-    parent: Partial<{
-      entity_id: ECSField<string>;
-      name: ECSField<string>;
-      pid: ECSField<number>;
-    }>;
+export type SafeEndpointEvent = ESSafe<{
+  '@timestamp': number;
+  agent: {
+    id: string;
+    version: string;
+    type: string;
+  };
+  ecs: {
+    version: string;
+  };
+  event: {
+    category: string;
+    type: string;
+    id: string;
+    kind: string;
+    sequence: number;
+  };
+  host: {
+    id: string;
+    hostname: string;
+    name: string;
+    ip: string;
+    mac: string;
+    architecture: string;
+    os: {
+      full: string;
+      name: string;
+      version: string;
+      platform: string;
+      family: string;
+      Ext: {
+        variant: string;
+      };
+    };
+  };
+  network: {
+    direction: string;
+    forwarded_ip: string;
+  };
+  dns: {
+    question: { name: string };
+  };
+  process: {
+    entity_id: string;
+    name: string;
+    executable: string;
+    args: string;
+    code_signature: {
+      status: string;
+      subject_name: string;
+    };
+    pid: number;
+    hash: {
+      md5: string;
+    };
+    parent: {
+      entity_id: string;
+      name: string;
+      pid: number;
+    };
     /*
      * The array has a special format. The entity_ids towards the beginning of the array are closer ancestors and the
      * values towards the end of the array are more distant ancestors (grandparents). Therefore
      * ancestry_array[0] == process.parent.entity_id and ancestry_array[1] == process.parent.parent.entity_id
      */
-    Ext: Partial<{
-      ancestry: ECSField<string>;
-    }>;
-  }>;
-  user: Partial<{
-    domain: ECSField<string>;
-    name: ECSField<string>;
-  }>;
-  file: Partial<{ path: ECSField<string> }>;
-  registry: Partial<{ path: ECSField<string>; key: ECSField<string> }>;
+    Ext: {
+      ancestry: string;
+    };
+  };
+  user: {
+    domain: string;
+    name: string;
+  };
+  file: {
+    path: string;
+  };
+  registry: {
+    path: string;
+    key: string;
+  };
 }>;
 
 export interface SafeLegacyEndpointEvent {

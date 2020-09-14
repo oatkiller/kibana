@@ -51,7 +51,7 @@ export function values<T>(valueOrCollection: ECSField<T>): T[] {
       }
     }
     return nonNullValues;
-  } else if (valueOrCollection !== null) {
+  } else if (valueOrCollection !== null && valueOrCollection !== undefined) {
     // if there is a single non-null value, wrap it in an array and return it.
     return [valueOrCollection];
   } else {
