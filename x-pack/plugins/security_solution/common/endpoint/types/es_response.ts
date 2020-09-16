@@ -39,10 +39,45 @@ type MaybeESFieldType<T> = T extends undefined | null | Array<null | infer P> | 
  * This type can be passed to `ESSafe`. Use types extending this to define ES responses.
  **/
 export type ESResponseDefinition<
-  /** `T` is the underlying definition. */ T extends {} = Record<string, unknown>
+  /** `T` is the underlying definition. */ T extends object = object
 > = {
-  [K in keyof T]: ESResponseLeaf | ESResponseDefinition;
+  [K in StringsKeyOf<T>]: ESResponseLeaf | ESResponseDefinition;
 };
+
+/**
+ * Like `keyof` but only returns string keys.
+ */
+type StringsKeyOf<T extends object> = Exclude<keyof T, number | symbol>;
+
+export type ESResponseDefinitionPathsAndTypes<T extends ESResponseDefinition> = Expand<
+  Expand<Expand<NodeFromResponseDefinition<T>>>
+>;
+
+type NodeFromResponseDefinition<T extends ESResponseDefinition> = {
+  [K in StringsKeyOf<T>]: [[K], T[K]];
+}[StringsKeyOf<T>];
+
+export type ESResponseDefinitionPaths<
+  T extends ESResponseDefinition
+> = ESResponseDefinitionPathsAndTypes<T> extends [infer P, unknown] ? P : never;
+
+type Branch<
+  Path extends string[] = string[],
+  Value extends ESResponseDefinition = ESResponseDefinition
+> = [Path, Value];
+type Leaf<Path extends string[] = string[], Value extends ESResponseLeaf = ESResponseLeaf> = [
+  Path,
+  Value
+];
+type Node = Branch | Leaf;
+
+type Expand<T extends Node> = T extends Branch
+  ?
+      | T
+      | (T extends Branch<infer Path, infer Next>
+          ? { [K in StringsKeyOf<Next>]: [[...Path, K], Next[K]] }[StringsKeyOf<Next>]
+          : never)
+  : T;
 
 /**
  * Recursively mark all keys as optional and wrap all values in ESField.
@@ -66,18 +101,20 @@ export type ESSafe<T extends ESResponseDefinition<T> = ESResponseDefinition> = {
 /**
  * Extract the underlying type from an  'ESSafe' type.
  */
-export type ESSafeType<T extends {}> = {
+export type ESSafeType<T extends object> = {
   [K in keyof T]-?: MaybeESFieldType<T[K]> extends never
     ? /**
        * `MaybeESFieldType` returns `never` if the passed type isn't an `ESField`. In this case, bail out.
        */ never
     : /**
      * If `T[K]` is an object, recurse `ESSafeType`, passing the unwrapped type from `T[K]`.
-     */ MaybeESFieldType<T[K]> extends {}
+     */ MaybeESFieldType<T[K]> extends object
     ? ESSafeType<MaybeESFieldType<T[K]>>
     : /** Otherwise, T[K] wraps a leaf type, return that. */
       MaybeESFieldType<T[K]>;
 };
+
+export type ESSafePath<T extends ESSafe> = Paths<ESSafeType<T>>;
 
 /**
  * If this were an interface, it wouldn't extend `CanBeMadeESSafe`. Why?
